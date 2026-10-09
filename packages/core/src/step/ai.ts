@@ -4,7 +4,7 @@
 import type { Locator, Page } from 'playwright-core';
 import { z } from 'zod';
 import { ActionExecutor } from '../actions/executor.js';
-import { actTools } from '../actions/schemas.js';
+import { actTools, TOOL_SCHEMAS, type CodeTool } from '../actions/schemas.js';
 import { OrdinalCounter, stepKey } from '../cache/keys.js';
 import type { CompiledCheck, PlanTarget, StepPlan } from '../cache/plan.js';
 import { planFromAct } from '../cache/record.js';
@@ -58,6 +58,8 @@ export interface AiDeps {
   values?: Record<string, unknown>;
   /** Test-data generators, seeded per test (docs/08 §3). Shared with the gen fixture. */
   gen?: Generators;
+  /** Code tools registered with ai.tools.register, shared with ai.on(page). */
+  codeTools?: Map<string, CodeTool>;
   /** Plan cache for this test (docs/06). Without it every step goes to the AI. */
   cache?: {
     store: PlanStore;
@@ -142,6 +144,23 @@ export class Ai {
   private ordinal = 0;
   private readonly stepOrdinals = new OrdinalCounter();
   readonly gen: Generators;
+  private readonly codeTools: Map<string, CodeTool>;
+
+  /** Your own functions the model may call from English steps (docs/03 §7). Recorded in plans like actions. */
+  readonly tools = {
+    register: <S extends z.ZodObject>(tool: {
+      name: string;
+      description: string;
+      input: S;
+      run: (args: z.infer<S>) => unknown;
+    }) => {
+      if (!/^[a-z][a-z0-9_]{0,63}$/.test(tool.name)) throw new Error(`Code tool names are snake_case: "${tool.name}"`);
+      if (tool.name in TOOL_SCHEMAS) throw new Error(`"${tool.name}" is a built-in tool name.`);
+      this.codeTools.set(tool.name, tool as unknown as CodeTool);
+    },
+    unregister: (name: string) => this.codeTools.delete(name),
+    list: () => [...this.codeTools.keys()],
+  };
   private _page: Page;
   /** Usage of every step run through this instance. */
   usage: Usage = emptyUsage();
@@ -152,6 +171,7 @@ export class Ai {
     this.events = deps.events ?? new EventBus(this.redactor);
     this.values = deps.values ?? {};
     this.gen = deps.gen ?? createGenerators({ seed: deps.idPrefix ?? 'aipw' });
+    this.codeTools = deps.codeTools ?? new Map();
   }
 
   /** The active page: changes when an AI step switches tabs. */
@@ -161,7 +181,15 @@ export class Ai {
 
   /** An `ai` bound to another page, sharing events, values and secrets. */
   on(page: Page): Ai {
-    return new Ai({ ...this.deps, page, events: this.events, redactor: this.redactor, values: this.values });
+    return new Ai({
+      ...this.deps,
+      page,
+      events: this.events,
+      redactor: this.redactor,
+      values: this.values,
+      gen: this.gen,
+      codeTools: this.codeTools,
+    });
   }
 
   // ---------------------------------------------------------------------------------------------
@@ -337,7 +365,11 @@ export class Ai {
             expandMaxTokens: this.config.snapshot.maxTokens,
             allowSecretsAnywhere: this.config.secrets.allowAnyField,
             isAllowedUrl,
+            codeTools: this.codeTools,
           });
+          const stepTools = new Map(
+            [...this.codeTools].filter(([name]) => !options.tools || options.tools.includes(name)),
+          );
           // Plan cache (docs/06): replay on a hit, record on a miss, heal through the AI loop on a broken replay.
           const cache = this.deps.cache;
           const mode = this.cacheMode(options);
@@ -353,6 +385,7 @@ export class Ai {
                 events: this.events,
                 stepId: ctx.id,
                 waitMs: this.config.settle.maxMs,
+                codeTools: this.codeTools,
                 // Fingerprint heals cost nothing and are deterministic, so replay-only may use them too (docs/12 §6).
                 ...((mode === 'auto' || this.config.heal.fingerprintInReplayOnly) && {
                   fingerprintHeal: { synth: this.synthOptions() },
@@ -418,6 +451,7 @@ export class Ai {
             executor,
             events: this.events,
             tools: actTools({ allowNavigation: options.allowNavigation ?? false }),
+            codeTools: stepTools,
             hints: [...healingHint, ...(options.hints ?? [])],
             secretPlaceholders: data.secretPlaceholders,
             isAllowedUrl,

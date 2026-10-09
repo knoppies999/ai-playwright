@@ -35,7 +35,7 @@ export function historyLine(index: number, r: ActionRecord): string {
     .join(' ');
   const intent = r.intent ? ` (${r.intent})` : '';
   const result =
-    r.result === 'ok' ? (r.tool === 'generate_value' && r.output ? `ok: ${r.output}` : 'ok') : `FAILED: ${r.result}`;
+    r.result === 'ok' ? (r.output && r.tool !== 'expand' ? `ok: ${r.output}` : 'ok') : `FAILED: ${r.result}`;
   return `#${index + 1} ${r.tool}${describeTarget(r)}${args ? ` ${args}` : ''}${intent} → ${result}`;
 }
 

@@ -47,7 +47,16 @@ export type {
 export { FakeProvider, type ScriptedDecision, type ScriptedStructured } from './llm/fake-provider.js';
 export { DEFAULT_PROVIDERS, loadProvider } from './llm/loader.js';
 
-export { TOOL_SCHEMAS, toJsonSchema, toolSpecs, type ToolCall, type ToolName } from './actions/schemas.js';
+export {
+  TOOL_SCHEMAS,
+  toJsonSchema,
+  toolSpecs,
+  type AnyToolCall,
+  type CodeTool,
+  type CodeToolCall,
+  type ToolCall,
+  type ToolName,
+} from './actions/schemas.js';
 export {
   buildLocator,
   describeLocator,

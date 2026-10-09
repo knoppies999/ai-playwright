@@ -1,5 +1,6 @@
 import type { Page } from 'playwright-core';
 import { describe, expect, it } from 'vitest';
+import { z as zod } from 'zod';
 import { MemoryPlanStore } from '../src/cache/store.js';
 import { resolveConfig } from '../src/config.js';
 import { createGenerators, isValidSaId } from '../src/data/generators.js';
@@ -98,3 +99,61 @@ describe('generate_value', () => {
     expect(secondId).not.toBe(firstId);
   });
 });
+
+describe('code tools', () => {
+  it('lets the model call registered functions, and replays the call without AI', async () => {
+    const store = new MemoryPlanStore();
+    const config = resolveConfig({ settle: { maxMs: 300, networkQuietMs: 50, snapshotIntervalMs: 50 } });
+    const calls: unknown[] = [];
+    const register = (ai: Ai) =>
+      ai.tools.register({
+        name: 'seed_user',
+        description: 'Create a user through the API. Returns the new user as JSON.',
+        input: await_z().object({ firstName: await_z().string() }),
+        run: async ({ firstName }) => {
+          calls.push(firstName);
+          return { id: 42, firstName };
+        },
+      });
+
+    const provider = new FakeProvider([
+      { tool: 'seed_user', args: { firstName: 'Lerato' } },
+      (req) => {
+        expect(req.context).toContain('#1 seed_user firstName="Lerato" → ok: {"id":42,"firstName":"Lerato"}');
+        return { tool: 'done', args: { summary: 'seeded', evidence: [] } };
+      },
+    ]);
+    const first = new Ai({ page: await openForm(), provider, config, cache: { store, testTitle: 't' } });
+    register(first);
+    await first.act('Seed a user called Lerato', { data: { firstName: 'Lerato' } });
+    expect(calls).toEqual(['Lerato']);
+    const plan = Object.values(store.file.tests.t!)[0]!;
+    expect(plan.actions).toEqual([{ tool: 'seed_user', args: { firstName: '{{data.firstName}}' } }]);
+
+    // Replay: the function runs again with this run's data, no AI.
+    const second = new Ai({
+      page: await openForm(),
+      provider: new FakeProvider(),
+      config,
+      cache: { store, testTitle: 't' },
+    });
+    register(second);
+    const result = await second.act('Seed a user called Lerato', { data: { firstName: 'Thandi' } });
+    expect(result.source).toBe('cache');
+    expect(calls).toEqual(['Lerato', 'Thandi']);
+  });
+
+  it('rejects bad names and invalid arguments', async () => {
+    const ai = new Ai({ page: await openForm(), provider: new FakeProvider(), config: resolveConfig() });
+    expect(() =>
+      ai.tools.register({ name: 'Click', description: '', input: await_z().object({}), run: () => '' }),
+    ).toThrow(/snake_case/);
+    expect(() =>
+      ai.tools.register({ name: 'click', description: '', input: await_z().object({}), run: () => '' }),
+    ).toThrow(/built-in/);
+  });
+});
+
+function await_z() {
+  return zod;
+}

@@ -2,7 +2,7 @@
 // its stored locators in order; the first that matches exactly one element wins.
 import type { Locator, Page } from 'playwright-core';
 import type { ActionExecutor } from '../actions/executor.js';
-import { actTools, validateCall } from '../actions/schemas.js';
+import { actTools, TOOL_SCHEMAS, validateCall, type CodeTool } from '../actions/schemas.js';
 import type { EventBus } from '../events/bus.js';
 import { buildLocator } from '../locators/expr.js';
 import { clearHealMarker, findByFingerprint, fingerprintOf } from '../locators/fingerprint.js';
@@ -55,7 +55,8 @@ export function toReplayCall(action: PlanAction): {
       return { ref: `@f${i}`, value: f.value };
     });
   }
-  if (action.tool !== 'expand') args.intent = action.intent ?? 'replay';
+  // Built-in tools take an intent; code tools have their own schema.
+  if (action.tool in TOOL_SCHEMAS && action.tool !== 'expand') args.intent = action.intent ?? 'replay';
   return { tool: action.tool, args, targets };
 }
 
@@ -81,6 +82,8 @@ export interface ReplayDeps {
   waitMs: number;
   /** Enables fingerprint healing (L8) when every stored locator fails. */
   fingerprintHeal?: { synth: Omit<SynthOptions, 'role' | 'name'> };
+  /** Code tools recorded in plans are called again on replay. */
+  codeTools?: ReadonlyMap<string, CodeTool>;
 }
 
 /** L8: find the element by fingerprint and give it fresh, verified locators. */
@@ -129,10 +132,10 @@ export async function replayAct(plan: StepPlan, deps: ReplayDeps): Promise<Repla
       reason: `The page is not where the plan starts (${plan.pre.urlPattern}).`,
     };
   }
-  const offered = actTools({ allowNavigation: true });
+  const offered = [...actTools({ allowNavigation: true }), ...(deps.codeTools?.keys() ?? [])];
   for (const [i, action] of (plan.actions ?? []).entries()) {
     const { tool, args, targets } = toReplayCall(action);
-    const validated = validateCall({ tool, args }, offered);
+    const validated = validateCall({ tool, args }, offered, deps.codeTools);
     if (!validated.ok)
       return { ok: false, records, failedAt: i, reason: `Stored action is invalid: ${validated.error}` };
     let missing: PlanTarget | undefined;
