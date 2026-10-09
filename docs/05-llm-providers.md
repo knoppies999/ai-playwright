@@ -154,6 +154,13 @@ Decision D12. Uses `@anthropic-ai/claude-agent-sdk`, which runs a bundled Claude
 count against that **Claude plan's usage limits** instead of billing an API key. Personal, local use only: the
 pipeline keeps using Foundry, and a subscription login must never be shared by a team or used by a hosted service.
 
+**Which usage it draws from (checked 2026-10-09, support article "Use the Claude Agent SDK with your Claude plan").**
+A change that would have moved Agent SDK and `claude -p` usage off subscription limits (announced for 15 June 2026)
+was **paused**: Agent SDK usage "still draw[s] from your subscription limits". Since 7 October 2026, Max and Team plans
+*also* include monthly API credits that cover the Agent SDK and `claude -p`. Spike 0.5b checks which pool a run
+actually uses (compare the plan's usage page before and after). This can change again, so `aipw doctor` will
+link the article.
+
 Like the Copilot SDK, the Agent SDK is an agent runtime, so the adapter uses the same **capture** pattern: our tools
 are in-process MCP tools whose handlers record the call instead of running it.
 
