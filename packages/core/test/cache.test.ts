@@ -174,3 +174,66 @@ describe('plan cache', () => {
     });
   });
 });
+
+describe('fingerprint healing (L8)', () => {
+  // Two identical "Delete" buttons; only their sections tell them apart. The target's only durable locator
+  // is its test id, so renaming that id breaks every stored locator.
+  const sections = (idB: string) => `
+    <section aria-label="Archived"><button data-test="delete-archived">Delete</button></section>
+    <section aria-label="Drafts"><button data-test="${idB}" onclick="this.dataset.clicked = 'yes'">Delete</button></section>`;
+  const script = () => [
+    (req: DecisionRequest) => {
+      const refs = [...req.observation.matchAll(/button "Delete" \[ref=([^\]]+)\]/g)].map((m) => m[1]);
+      return { tool: 'click', args: { ref: refs[1], intent: 'delete the draft', ...click } };
+    },
+    done,
+  ];
+
+  async function openSections(idB: string) {
+    const page = await open('', { testIdAttribute: 'data-test' });
+    await page.route('**/*', (route) => route.fulfill({ contentType: 'text/html', body: sections(idB) }));
+    await page.goto(`${ORIGIN}/`);
+    return page;
+  }
+
+  it('heals a renamed test id without any AI call, and stores the healed plan', async () => {
+    const store = new MemoryPlanStore();
+    await makeAi(await openSections('delete-draft'), new FakeProvider(script()), store).ai.act('Delete the draft');
+    const recorded = Object.values(store.file.tests[TEST]!)[0]!;
+    expect(recorded.actions![0]!.target!.locators.map((l) => l.display)).toEqual(["getByTestId('delete-draft')"]);
+    expect(recorded.actions![0]!.target!.fingerprint).toMatchObject({
+      tag: 'button',
+      ancestors: [{ role: 'region', name: 'Drafts' }],
+    });
+
+    const page = await openSections('remove-draft');
+    const provider = new FakeProvider(); // any AI call would throw
+    const { ai, events } = makeAi(page, provider, store, { cache: { mode: 'replay-only' } });
+    const result = await ai.act('Delete the draft');
+    expect(result.source).toBe('healed');
+    expect(provider.decisionRequests).toHaveLength(0);
+    await expect(page.locator('[data-test="remove-draft"]').getAttribute('data-clicked')).resolves.toBe('yes');
+    expect(events.find((e) => e.type === 'heal')).toMatchObject({ source: 'fingerprint' });
+    const healed = Object.values(store.file.tests[TEST]!)[0]!;
+    expect(healed.actions![0]!.target!.locators[0]!.display).toBe("getByTestId('remove-draft')");
+    expect(healed.stats.heals).toBe(1);
+  });
+
+  it('refuses an ambiguous match and leaves it to the AI', async () => {
+    const store = new MemoryPlanStore();
+    await makeAi(await openSections('delete-draft'), new FakeProvider(script()), store).ai.act('Delete the draft');
+    // Both buttons renamed and the sections unlabelled: nothing separates them any more.
+    const page = await open('', { testIdAttribute: 'data-test' });
+    await page.route('**/*', (route) =>
+      route.fulfill({
+        contentType: 'text/html',
+        body: '<section><button data-test="x1">Delete</button></section><section><button data-test="x2">Delete</button></section>',
+      }),
+    );
+    await page.goto(`${ORIGIN}/`);
+    const error = await makeAi(page, new FakeProvider(), store, { cache: { mode: 'replay-only' } })
+      .ai.act('Delete the draft')
+      .catch((e) => e);
+    expect(error.message).toMatch(/Replay failed/);
+  });
+});

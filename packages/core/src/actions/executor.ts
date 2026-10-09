@@ -5,6 +5,7 @@ import type { Locator } from 'playwright-core';
 import { PlaceholderError, type DataResolver } from '../data/resolver.js';
 import { expandRef, findByRef } from '../observe/snapshot.js';
 import type { Observation } from '../observe/observer.js';
+import { fingerprintOf } from '../locators/fingerprint.js';
 import { synthesizeLocators, type SynthOptions } from '../locators/synth.js';
 import type { StepSession } from '../step/session.js';
 import type { ActionRecord, TargetDescriptor } from '../types.js';
@@ -71,7 +72,9 @@ export class ActionExecutor {
     const role = node?.role;
     const name = node?.name;
     const candidates = await synthesizeLocators(this.page, loc, { ...this.opts.synth, role, name }).catch(() => []);
-    return { ref, role, name, candidates };
+    // Fingerprints let a later replay find the element again without AI when every locator fails (L8).
+    const fingerprint = await fingerprintOf(loc, role, name);
+    return { ref, role, name, candidates, ...(fingerprint && { fingerprint }) };
   }
 
   private resolveValue(text: string): { value: string; usesSecret: boolean } {

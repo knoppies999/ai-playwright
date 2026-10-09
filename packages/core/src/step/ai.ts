@@ -8,7 +8,7 @@ import { actTools } from '../actions/schemas.js';
 import { OrdinalCounter, stepKey } from '../cache/keys.js';
 import type { StepPlan } from '../cache/plan.js';
 import { planFromAct } from '../cache/record.js';
-import { describePlan, replayAct } from '../cache/replay.js';
+import { applyHeals, describePlan, replayAct } from '../cache/replay.js';
 import type { PlanStore } from '../cache/store.js';
 import type { AipwConfig, CacheMode } from '../config.js';
 import { Redactor } from '../data/redactor.js';
@@ -240,6 +240,33 @@ export class Ai {
     });
   }
 
+  private synthOptions() {
+    return {
+      testIdAttributes: this.config.testIds.attributes,
+      playwrightTestIdAttribute: this.deps.playwrightTestIdAttribute ?? 'data-testid',
+      rejectTestIdValues: this.config.testIds.rejectValues,
+    };
+  }
+
+  /** heal.policy (docs/06 §6): accept writes the plan, report writes it aside, fail fails the test. */
+  private async storeHealed(
+    cache: NonNullable<AiDeps['cache']>,
+    key: string,
+    before: StepPlan,
+    after: StepPlan,
+    instruction: string,
+    ctx: StepContext,
+  ) {
+    const policy = this.config.heal.policy;
+    if (policy === 'accept') await cache.store.put(cache.testTitle, key, after, { healed: true });
+    else if (policy === 'report') await cache.healedStore?.put(cache.testTitle, key, after, { healed: true });
+    else
+      throw new AiHealedError(instruction, describePlan(before), describePlan(after), {
+        stepId: ctx.id,
+        callsite: ctx.callsite,
+      });
+  }
+
   private addUsage(u: Usage) {
     this.usage = addUsage(this.usage, u);
   }
@@ -290,16 +317,41 @@ export class Ai {
                 events: this.events,
                 stepId: ctx.id,
                 waitMs: this.config.settle.maxMs,
+                // Fingerprint heals cost nothing and are deterministic, so replay-only may use them too (docs/12 §6).
+                ...((mode === 'auto' || this.config.heal.fingerprintInReplayOnly) && {
+                  fingerprintHeal: { synth: this.synthOptions() },
+                }),
               });
               this._page = session.page;
               if (replay.ok) {
                 this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'hit', key });
+                if (replay.healed.length) {
+                  const healedPlan = {
+                    ...applyHeals(plan, replay.healed),
+                    recordedWith: { ...plan.recordedWith, at: new Date().toISOString() },
+                  };
+                  const describe = (t: { role?: string; name?: string; locators: { display: string }[] }) =>
+                    `${t.role ?? 'element'} "${t.name ?? ''}" (${t.locators[0]?.display ?? 'no locator'})`;
+                  for (const h of replay.healed) {
+                    this.events.emit({
+                      type: 'heal',
+                      stepId: ctx.id,
+                      key,
+                      source: 'fingerprint',
+                      policy: this.config.heal.policy,
+                      before: describe(h.before),
+                      after: describe(h.after),
+                      reason: `all stored locators failed; fingerprint score ${h.score.toFixed(2)}`,
+                    });
+                  }
+                  await this.storeHealed(cache, key, plan, healedPlan, instruction, ctx);
+                }
                 return {
                   summary: 'Replayed from the plan cache',
                   evidence: [],
                   actions: replay.records,
                   values: this.values,
-                  source: 'cache',
+                  source: replay.healed.length ? 'healed' : 'cache',
                   usage: emptyUsage(),
                 };
               }
@@ -354,7 +406,6 @@ export class Ai {
               startUrl,
               endUrl: session.page.url(),
             });
-            const context = { stepId: ctx.id, callsite: ctx.callsite };
             if (!healing) {
               await cache.store.put(cache.testTitle, key, plan);
               this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'stored', key });
@@ -369,11 +420,7 @@ export class Ai {
                 after: describePlan(plan),
                 reason: healing.reason,
               });
-              if (this.config.heal.policy === 'accept')
-                await cache.store.put(cache.testTitle, key, plan, { healed: true });
-              else if (this.config.heal.policy === 'report')
-                await cache.healedStore?.put(cache.testTitle, key, plan, { healed: true });
-              else throw new AiHealedError(instruction, describePlan(healing.plan), describePlan(plan), context);
+              await this.storeHealed(cache, key, healing.plan, plan, instruction, ctx);
             }
           }
           return {

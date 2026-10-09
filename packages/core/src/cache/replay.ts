@@ -5,6 +5,8 @@ import type { ActionExecutor } from '../actions/executor.js';
 import { actTools, validateCall } from '../actions/schemas.js';
 import type { EventBus } from '../events/bus.js';
 import { buildLocator } from '../locators/expr.js';
+import { clearHealMarker, findByFingerprint, fingerprintOf } from '../locators/fingerprint.js';
+import { synthesizeLocators, type SynthOptions } from '../locators/synth.js';
 import type { Observation } from '../observe/observer.js';
 import type { ActionRecord } from '../types.js';
 import { matchesUrlPattern, type PlanAction, type PlanTarget, type StepPlan } from './plan.js';
@@ -57,8 +59,17 @@ export function toReplayCall(action: PlanAction): {
   return { tool: action.tool, args, targets };
 }
 
+/** A target replaced by fingerprint healing: action index, and field index for fill_form. */
+export interface HealedTarget {
+  action: number;
+  field?: number;
+  before: PlanTarget;
+  after: PlanTarget;
+  score: number;
+}
+
 export type ReplayResult =
-  | { ok: true; records: ActionRecord[] }
+  | { ok: true; records: ActionRecord[]; healed: HealedTarget[] }
   | { ok: false; records: ActionRecord[]; reason: string; failedAt: number; target?: PlanTarget };
 
 export interface ReplayDeps {
@@ -68,6 +79,30 @@ export interface ReplayDeps {
   stepId: string;
   /** How long a target may take to appear (rendering, animations). */
   waitMs: number;
+  /** Enables fingerprint healing (L8) when every stored locator fails. */
+  fingerprintHeal?: { synth: Omit<SynthOptions, 'role' | 'name'> };
+}
+
+/** L8: find the element by fingerprint and give it fresh, verified locators. */
+async function healByFingerprint(page: Page, target: PlanTarget, synth: Omit<SynthOptions, 'role' | 'name'>) {
+  if (!target.fingerprint) return undefined;
+  const match = await findByFingerprint(page, target.fingerprint);
+  if (!match) return undefined;
+  try {
+    const after = await fingerprintOf(match.locator, target.role, undefined);
+    const name = after?.label ?? after?.text ?? undefined;
+    const candidates = await synthesizeLocators(page, match.locator, { ...synth, role: target.role, name });
+    if (!candidates.length) return undefined;
+    const healed: PlanTarget = {
+      ...(target.role !== undefined && { role: target.role }),
+      ...(name && { name }),
+      locators: candidates.map((c) => ({ rung: c.rung, expr: c.expr, display: c.display })),
+      ...(after && { fingerprint: { ...after, role: target.role ?? null, name: name ?? null } }),
+    };
+    return { target: healed, score: match.score };
+  } finally {
+    await clearHealMarker(page);
+  }
 }
 
 const EMPTY_OBS = (url: string): Observation => ({
@@ -85,6 +120,7 @@ const EMPTY_OBS = (url: string): Observation => ({
 
 export async function replayAct(plan: StepPlan, deps: ReplayDeps): Promise<ReplayResult> {
   const records: ActionRecord[] = [];
+  const healed: HealedTarget[] = [];
   if (plan.pre && !matchesUrlPattern(deps.page().url(), plan.pre.urlPattern)) {
     return {
       ok: false,
@@ -106,8 +142,20 @@ export async function replayAct(plan: StepPlan, deps: ReplayDeps): Promise<Repla
       try {
         return await resolveTarget(deps.page(), target, deps.waitMs);
       } catch (error) {
-        if (error instanceof TargetNotFound) missing = target;
-        throw error;
+        if (!(error instanceof TargetNotFound)) throw error;
+        const heal = deps.fingerprintHeal && (await healByFingerprint(deps.page(), target, deps.fingerprintHeal.synth));
+        if (!heal) {
+          missing = target;
+          throw error;
+        }
+        healed.push({
+          action: i,
+          ...(ref.startsWith('@f') && { field: Number(ref.slice(2)) }),
+          before: target,
+          after: heal.target,
+          score: heal.score,
+        });
+        return buildLocator(deps.page(), heal.target.locators[0]!.expr);
       }
     });
     records.push(record);
@@ -128,7 +176,22 @@ export async function replayAct(plan: StepPlan, deps: ReplayDeps): Promise<Repla
       await new Promise((r) => setTimeout(r, 100));
     }
   }
-  return { ok: true, records };
+  return { ok: true, records, healed };
+}
+
+/** The plan with fingerprint-healed targets swapped in. */
+export function applyHeals(plan: StepPlan, heals: HealedTarget[]): StepPlan {
+  const actions = (plan.actions ?? []).map((a, i) => {
+    const mine = heals.filter((h) => h.action === i);
+    if (!mine.length) return a;
+    const next: PlanAction = { ...a };
+    for (const h of mine) {
+      if (h.field === undefined) next.target = h.after;
+      else next.targets = (next.targets ?? []).map((t, j) => (j === h.field ? h.after : t));
+    }
+    return next;
+  });
+  return { ...plan, actions };
 }
 
 /** One line per planned action, for the healing prompt. */
