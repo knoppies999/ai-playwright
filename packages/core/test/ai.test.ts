@@ -44,14 +44,14 @@ function makeAi(page: Page, provider: FakeProvider, config: AipwConfigInput = {}
 
 /** A decision that picks the ref of the first snapshot line containing `text`. */
 const pick =
-  (text: string, tool: string, args: Record<string, unknown> = {}): ScriptedDecision =>
-  (req: DecisionRequest) => {
+  (text: string, tool: string, args: Record<string, unknown> = {}) =>
+  (req: DecisionRequest): { tool: string; args: Record<string, unknown> } => {
     const line = req.observation.split('\n').find((l) => l.includes(text));
     const ref = line && /\[ref=([^\]]+)\]/.exec(line)?.[1];
     if (!ref) throw new Error(`no ref for "${text}" in:\n${req.observation}`);
     return { tool, args: { ref, intent: `${tool} ${text}`, ...args } };
   };
-const done = (summary = 'done'): ScriptedDecision => ({ tool: 'done', args: { summary, evidence: ['ok'] } });
+const done = (summary = 'done') => ({ tool: 'done', args: { summary, evidence: ['ok'] } });
 
 process.env.AIPW_TEST_PASSWORD = SECRET;
 
