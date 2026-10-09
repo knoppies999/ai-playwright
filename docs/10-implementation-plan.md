@@ -13,8 +13,8 @@ gantt
   P0 Spikes (public app)    :p0, 0, 3
   P1 Skeleton + target      :p1, after p0, 3
   section Engine
-  P2 Core loop + Anthropic  :p2, after p1, 10
-  P3 Foundry + Copilot      :p3, after p2, 6
+  P2 Core loop + Claude Code:p2, after p1, 10
+  P3 Foundry, Copilot, API  :p3, after p2, 6
   P4 Cache + heal + demo app:p4, after p2, 10
   section Features
   P5 Data, secrets, tools   :p5, after p4, 5
@@ -41,30 +41,43 @@ Record each answer in `docs/11-risks-and-open-questions.md` and adjust the desig
 | 0.2 | Snapshot size on the **public target app** (largest pages)? | Measure chars/tokens before and after a naive prune |
 | 0.3 | Copilot SDK: does `availableTools` disable built-ins? Does the capture-and-end-turn pattern work? Image attachments? Session creation latency? Deny-permission handler shape? | Script with 3 fake tools, on the Copilot machine |
 | 0.4 | **Foundry** (the pipeline deployment): v1 route + Entra ID auth via `az login`, strict tools, `tool_choice: 'required'`, `parallel_tool_calls: false`, image input, `json_schema` response format, content-filter behaviour on page text | 30-line script |
-| 0.5 | Anthropic: strict tools + `disable_parallel_tool_use` + `fallbacks: 'default'` on your account | 20-line script |
+| 0.5 | Anthropic API: strict tools + `disable_parallel_tool_use` + `fallbacks: 'default'` on your account | 20-line script |
+| 0.5b | Claude Agent SDK on the Claude Code subscription (D12): built-ins really off with `tools: []`, one captured call, latency per `query()` (maxTurns 1 vs natural end), usage reporting, `outputFormat` structured output | Script, needs `claude auth login` |
 | 0.6 | `locator.toString()` readable and stable? `locator.highlight()` visible in headed mode and absent from ARIA snapshots? | Script |
 | 0.7 | Trace content for `fill` vs `evaluate`-set values (secret leakage) | Record a trace, inspect it |
 
 **Exit:** every question has a written answer. The design is adjusted (e.g., DOM-walker fallback for refs, session-per-step for Copilot).
+
+**Status (2026-10-09):** 0.1, 0.1b, 0.1c, 0.2, 0.6 and 0.7 done on this machine; results and design changes are in
+[11](11-risks-and-open-questions.md) §3. Waiting on: **0.5b** (needs `claude auth login` here), **0.3** (Copilot machine),
+**0.4** (Foundry access). 0.5 is deferred until there is an API key. Phase 1 went ahead in parallel because none of
+the open spikes affect it.
 
 ---
 
 ## Phase 1 — Skeleton and public target (S–M)
 
 Tasks
-- [ ] npm workspaces monorepo: `packages/{core,test,cli,provider-anthropic,provider-openai,provider-copilot}`, `examples/{targets,tests}`
-- [ ] TypeScript 5.x strict, ESM, `tsup` builds, `eslint` + `prettier`, `vitest` for unit tests
-- [ ] Root scripts: `build`, `test` (vitest), `e2e` (playwright), `lint`, `typecheck`
-- [ ] Azure Pipelines CI for the framework repo itself: lint + typecheck + unit tests (no LLM, no public-app calls)
-- [ ] Target profile `examples/targets/<public-app>/`: base URL, public demo credentials (as env-backed secrets, even though they're public), detected test-id attributes
-- [ ] **Usability scenario list** for the public app (8–12 scenarios, written in English as you would write them): login, menu navigation, search/filter, a multi-field form with validation, a table read (`extract`), a success-message `assert`, a detail page, logout
-- [ ] Plain-Playwright smoke spec for 2–3 of the scenarios (proves the app is reachable and stable enough)
+- [x] npm workspaces monorepo: `packages/{core,test,cli,provider-claude-code,provider-anthropic,provider-openai,provider-copilot}`, `examples/{targets,tests}`
+- [x] TypeScript strict (6.0: typescript-eslint doesn't support 7.x yet), ESM, `tsup` builds, `eslint` + `prettier`, `vitest` for unit tests
+- [x] Root scripts: `build`, `test` (vitest), `e2e` (playwright), `lint`, `typecheck`
+- [x] Azure Pipelines CI for the framework repo itself: lint + typecheck + unit tests (no LLM, no public-app calls). The same checks also run as a GitHub Actions workflow, because the repo lives on GitHub
+- [x] Target profile `examples/targets/saucedemo/`: base URL, public demo credentials (as env-backed secrets, even though they're public), detected test-id attributes
+- [x] **Usability scenario list** for the public app (8–12 scenarios, written in English as you would write them): login, menu navigation, search/filter, a multi-field form with validation, a table read (`extract`), a success-message `assert`, a detail page, logout
+- [x] Plain-Playwright smoke spec for 2–3 of the scenarios (proves the app is reachable and stable enough)
 
 **Exit:** `npm run build && npm test` green locally and in CI. The smoke spec passes against the public app.
 
+**Status (2026-10-09):** done locally. Build, lint, typecheck and 36 unit tests are green, and the smoke spec passed
+15/15 (`--repeat-each 5`). CI runs on the PR. Core already has the Zod config schema and the test-id helpers from
+[12](12-element-identification.md) §4, because spike 0.1c used them.
+
 ---
 
-## Phase 2 — Core engine with the Anthropic provider (L)
+## Phase 2 — Core engine with the Claude Code provider (L)
+
+Phase 0 changes to carry in: mask credential-field values in snapshots, re-snapshot until stable, check a ref's
+`count()` before acting, and warn when secrets meet trace DOM snapshots ([11](11-risks-and-open-questions.md) §3).
 
 Tasks
 - [ ] `llm/`: `LlmProvider` interface, neutral types, `FakeProvider` with scripted decisions
@@ -76,10 +89,10 @@ Tasks
 - [ ] `loop/`: AgentLoop, prompt builder (layout in [04](04-agent-loop-and-perception.md) §4), decision validation and repair, guards
 - [ ] `step/`: StepRunner for `act`, `assert` (retry + snapshot-hash dedupe), `extract` (structured + repair), `locate`, `run`
 - [ ] `events/`: typed EventBus
-- [ ] `provider-anthropic`: `decide` + `structured`, usage mapping, refusal handling, typed-error backoff
+- [ ] `provider-claude-code` (D12): capture-pattern `decide` and `outputFormat` `structured`, per [05](05-llm-providers.md) §3a adjusted by spike 0.5b; usage mapping (equivalent cost + requests); a clear error when `claude auth status` says signed out
 - [ ] `test`: fixtures `ai`, `gen` (gen = minimal for now), `withAipw()`, `test.step` wrapping, callsite capture
 - [ ] Unit tests: pruning (golden files), prompt builder (golden files), LocatorSynth + test-id normalisation (static HTML fixtures in `packages/core/test/fixtures/`), executor (fixtures), loop with FakeProvider (done/fail/limits/repair/no-progress)
-- [ ] Usability suite `examples/tests/<public-app>/*.spec.ts`: the Phase 1 scenarios as English tests, with real Anthropic calls (tagged `@llm`)
+- [ ] Usability suite `examples/tests/saucedemo/*.spec.ts`: the Phase 1 scenarios as English tests, with real calls through `claude-code` (tagged `@llm`)
 - [ ] A short usability write-up: which instructions worked as written, which needed detail, where the AI struggled (this feeds hints and prompt tuning)
 
 **Exit:**
@@ -90,9 +103,10 @@ Tasks
 
 ---
 
-## Phase 3 — Foundry (OpenAI-compatible) and Copilot providers (M)
+## Phase 3 — Foundry (OpenAI-compatible), Copilot and Anthropic API providers (M)
 
 Tasks
+- [ ] `provider-anthropic` (API key): `decide` + `structured`, usage mapping, refusal handling, typed-error backoff (moved from Phase 2 by D12)
 - [ ] `provider-openai`: Chat Completions adapter, presets (**`foundry`** first, then `openai`, `azure-openai`, `github-models`, `ollama`, `lmstudio`), compat flags, JSON-mode fallback for `structured`
 - [ ] Foundry auth: API key or keyless (`@azure/identity` `DefaultAzureCredential`, scope `https://ai.azure.com/.default`); content-filter errors mapped to `AiProviderError(kind: 'content_filter')`
 - [ ] `provider-copilot`: capture-pattern adapter per [05](05-llm-providers.md) §5, adjusted by the spike 0.3 results

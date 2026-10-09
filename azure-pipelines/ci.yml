@@ -1,0 +1,34 @@
+# CI for the framework repo itself (Phase 1): lint, typecheck, build, unit tests.
+# No LLM calls and no public-app calls (risk R13), so it needs no secrets.
+trigger:
+  branches: { include: [main] }
+pr:
+  branches: { include: [main] }
+
+pool: { vmImage: ubuntu-latest }
+
+steps:
+  - task: UseNode@1
+    inputs: { version: '22.x' }
+
+  - script: npm ci
+    displayName: Install
+
+  - script: npm run lint
+    displayName: Lint
+
+  - script: npm run typecheck
+    displayName: Typecheck
+
+  - script: npm run build
+    displayName: Build
+
+  - script: npm test -- --reporter=default --reporter=junit --outputFile.junit=test-results/unit-junit.xml
+    displayName: Unit tests
+
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: JUnit
+      testResultsFiles: test-results/unit-junit.xml
+      testRunTitle: Unit tests

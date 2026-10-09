@@ -2,7 +2,7 @@ dist/
 coverage/
 test-results/
 playwright-report/
-package-lock.json
+**/package-lock.json
 docs/
 spikes/out/
 *.md
