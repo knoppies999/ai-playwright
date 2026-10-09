@@ -29,21 +29,33 @@ export interface ObserverOptions {
   secrets: () => readonly string[];
 }
 
-/** Values of credential fields in every frame: they must never reach a model (spike 0.1). */
-async function credentialValues(page: Page): Promise<string[]> {
-  const perFrame = await Promise.all(
-    page.frames().map((f) =>
-      f
-        .evaluate(() =>
-          Array.from(document.querySelectorAll('input'))
-            .filter((i) => i.type === 'password' || /password|one-time-code/i.test(i.autocomplete ?? ''))
-            .map((i) => i.value)
-            .filter((v) => v !== ''),
-        )
-        .catch(() => [] as string[]),
-    ),
-  );
-  return perFrame.flat();
+/**
+ * Credential fields (password / one-time-code) are masked *in the page* while a snapshot is taken: their
+ * real value is swapped for '••••' (empty stays empty) and restored right after. Playwright's snapshot code
+ * runs in an isolated world that only sees the DOM, so this is what keeps the value out of the raw
+ * snapshot, which Playwright records in traces before aipw sees it. The originals never leave the page, and
+ * no events fire, so frameworks don't notice (Phase 5 leak check). Serialised into the page: self-contained.
+ */
+function maskCredentialInputs(): number {
+  const w = window as unknown as { __aipwMasked?: Map<HTMLInputElement, string> };
+  const masked = (w.__aipwMasked ??= new Map());
+  for (const el of Array.from(document.querySelectorAll('input'))) {
+    if (!(el.type === 'password' || /password|one-time-code/i.test(el.autocomplete ?? ''))) continue;
+    if (masked.has(el) || el.value === '') continue;
+    masked.set(el, el.value);
+    el.value = '••••';
+  }
+  return masked.size;
+}
+
+function unmaskCredentialInputs(): void {
+  const w = window as unknown as { __aipwMasked?: Map<HTMLInputElement, string> };
+  for (const [el, value] of w.__aipwMasked ?? []) el.value = value;
+  w.__aipwMasked?.clear();
+}
+
+async function inAllFrames(page: Page, fn: () => unknown): Promise<void> {
+  await Promise.all(page.frames().map((f) => f.evaluate(fn).catch(() => undefined)));
 }
 
 export class Observer {
@@ -58,7 +70,14 @@ export class Observer {
 
   /** Snapshots until two consecutive snapshots match (images and late content settle), within a cap. */
   async stableSnapshot(scope?: Locator): Promise<string> {
-    const take = () => (scope ?? this.page).ariaSnapshot({ mode: 'ai', timeout: 5_000 });
+    const take = async () => {
+      await inAllFrames(this.page, maskCredentialInputs);
+      try {
+        return await (scope ?? this.page).ariaSnapshot({ mode: 'ai', timeout: 5_000 });
+      } finally {
+        await inAllFrames(this.page, unmaskCredentialInputs);
+      }
+    };
     const deadline = Date.now() + this.options.stableMaxMs;
     let previous = await take();
     while (Date.now() < deadline) {
@@ -77,7 +96,8 @@ export class Observer {
     const raw = blocked
       ? '- (page is blocked by a native dialog: call handle_dialog)'
       : await this.stableSnapshot(scope);
-    const sensitive = [...(blocked ? [] : await credentialValues(page)), ...this.options.secrets()];
+    // Credential fields are already masked in the page; resolved secrets are scrubbed wherever else they appear.
+    const sensitive = this.options.secrets();
     const tree = maskSnapshot(parseSnapshot(raw), sensitive);
     const pruned = pruneSnapshot(tree, this.options.prune);
     const pages = page.context().pages();

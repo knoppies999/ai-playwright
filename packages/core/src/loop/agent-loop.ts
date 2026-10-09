@@ -10,6 +10,7 @@ import {
   type CodeTool,
   type ToolName,
 } from '../actions/schemas.js';
+import { TOOL_SCHEMAS } from '../actions/schemas.js';
 import { AiProviderError } from '../errors.js';
 import type { EventBus } from '../events/bus.js';
 import { addUsage, emptyUsage, type DecisionRequest, type LlmProvider, type Usage } from '../llm/provider.js';
@@ -77,11 +78,13 @@ export async function decideWithRepair(
 }
 
 const targetKey = (r: ActionRecord) => `${r.tool}:${r.target?.ref ?? JSON.stringify(r.args)}`;
-const PASSIVE = new Set(['expand', 'wait_for']);
+/** Actions that don't act on the page (and code tools, which work off-page) never count as 'no progress'. */
+const PASSIVE = new Set(['expand', 'wait_for', 'generate_value']);
+const isPassive = (r: ActionRecord) => PASSIVE.has(r.tool) || !(r.tool in TOOL_SCHEMAS);
 
 /** docs/04 §3.2: the same tool + target three times in a row, or three actions that changed nothing. */
 function noProgress(history: ActionRecord[], currentHash: string): string | undefined {
-  const active = history.filter((r) => !PASSIVE.has(r.tool));
+  const active = history.filter((r) => !isPassive(r));
   const last3 = active.slice(-3);
   if (last3.length < 3) return undefined;
   if (last3.every((r) => targetKey(r) === targetKey(last3[0]!))) return `repeated ${targetKey(last3[0]!)} three times`;
