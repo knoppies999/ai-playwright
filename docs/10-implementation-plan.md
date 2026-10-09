@@ -202,6 +202,7 @@ Tasks
 | `*.ai.md` English-only spec files | A Playwright Test loader/transform that turns Markdown bullet steps into `ai.run` calls. Front-matter for data and tags |
 | MCP server (`@aipw/mcp`) | Expose `act/assert/extract/locate/observe` + "generate spec from this session" as MCP tools for Copilot Chat agent mode / Copilot CLI |
 | VS Code nudge panel | A webview client for the nudge WebSocket server |
+| VS Code Copilot as a provider | A small aipw VS Code extension that bridges the test runner to `vscode.lm` (Copilot models in VS Code), [05](05-llm-providers.md) §5.1. Local only, needs VS Code open. Not planned (D13) |
 | Set-of-marks vision | Ref labels drawn on screenshots for better vision grounding |
 | Hint packs | Shipped hints for common component libraries (MUI, Ant Design, Kendo, Fluent UI date pickers and comboboxes) |
 | C#/.NET client | Call the engine over the MCP server or a thin HTTP API from NUnit tests |

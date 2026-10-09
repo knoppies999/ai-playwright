@@ -30,7 +30,7 @@ test('admin can create a user', async ({ page, ai, gen }) => {
 | Hybrid scripting | Code calls AI, and English steps can call your code (registered tools such as `login`) | [03](docs/03-test-authoring-api.md) |
 | Page understanding | Playwright AI-mode accessibility snapshots with element refs, plus a screenshot fallback | [04](docs/04-agent-loop-and-perception.md) |
 | Element identification | Test-id attributes first (any spelling: `data-testid`, `data-test-id`, `data-test`…), then role/label/anchored locators, fingerprint healing, AI healing | [12](docs/12-element-identification.md) |
-| Provider-agnostic | Claude Code subscription (dev here, no API key), Anthropic API, OpenAI models on Microsoft Foundry (pipelines), GitHub Copilot SDK (local, another machine) | [05](docs/05-llm-providers.md) |
+| Provider-agnostic | Claude Code subscription (dev here, no API key), Anthropic API, OpenAI models on Microsoft Foundry (pipelines), GitHub Copilot CLI (local, another machine) | [05](docs/05-llm-providers.md) |
 | Deterministic replay | Successful AI steps are cached as locators and replayed without an LLM. Self-heals when the UI changes | [06](docs/06-caching-and-replay.md) |
 | **Nudge mode** | Step through a run, rewind, correct the AI, and get back a verified better step (instruction, hint or code) | [07](docs/07-nudge-mode.md) |
 | Valid test data | Generators (SA ID, Luhn, IBAN, email…), `{{data}}` and `{{secret}}` placeholders, redaction | [08](docs/08-test-data-and-secrets.md) |
