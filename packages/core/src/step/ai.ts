@@ -15,7 +15,7 @@ import type { PlanStore } from '../cache/store.js';
 import type { AipwConfig, CacheMode } from '../config.js';
 import { Redactor } from '../data/redactor.js';
 import { createGenerators, type Generators } from '../data/generators.js';
-import { DataResolver, envSecrets } from '../data/resolver.js';
+import { DataResolver, secretSource } from '../data/resolver.js';
 import {
   AiAssertionError,
   AiCacheReplayOnlyMiss,
@@ -347,7 +347,7 @@ export class Ai {
           const data = new DataResolver(
             options.data ?? {},
             options.secrets ?? [],
-            envSecrets(this.config.secrets.map),
+            secretSource(this.config.secrets.provider, this.config.secrets.map),
             this.values,
             this.redactor,
             this.gen,
@@ -364,6 +364,7 @@ export class Ai {
             settle: this.config.settle,
             expandMaxTokens: this.config.snapshot.maxTokens,
             allowSecretsAnywhere: this.config.secrets.allowAnyField,
+            secretFillMode: this.config.secrets.fillMode,
             isAllowedUrl,
             codeTools: this.codeTools,
           });

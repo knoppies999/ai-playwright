@@ -53,7 +53,15 @@ export const AipwConfigSchema = z.object({
     .prefault({}),
   secrets: z
     .object({
-      provider: z.literal('env').default('env'),
+      /** 'env', or a function returning the value for a secret name (e.g. from Azure Key Vault). */
+      provider: z
+        .union([z.literal('env'), z.custom<(name: string) => string | undefined>((v) => typeof v === 'function')])
+        .default('env'),
+      /**
+       * How secrets are typed. 'evaluate' sets the value by script, so it stays out of the trace's action log
+       * (spike 0.7); traces also need snapshots off to keep it out of DOM snapshots.
+       */
+      fillMode: z.enum(['fill', 'evaluate']).default('fill'),
       /** Secret name → environment variable. */
       map: z.record(z.string(), z.string()).default({}),
       /** Allow secrets in fields that aren't credential fields (docs/08 §4 rule 4). */

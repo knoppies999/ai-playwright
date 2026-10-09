@@ -9,7 +9,7 @@ import { DataResolver, PlaceholderError } from '../src/data/resolver.js';
 import { FakeProvider } from '../src/llm/fake-provider.js';
 import type { DecisionRequest } from '../src/llm/provider.js';
 import { Ai } from '../src/step/ai.js';
-import { useBrowser } from './browser.js';
+import { html, useBrowser } from './browser.js';
 
 const { page: open } = useBrowser();
 
@@ -157,3 +157,36 @@ describe('code tools', () => {
 function await_z() {
   return zod;
 }
+
+describe('secrets options', () => {
+  it('reads secrets from a provider function and sets them by script in evaluate mode', async () => {
+    const page = await open('');
+    await page.route('**/*', (route) => route.fulfill({ contentType: 'text/html', body: html('app.html') }));
+    await page.goto('http://app.test/');
+    const asked: string[] = [];
+    const config = resolveConfig({
+      secrets: {
+        provider: (name) => {
+          asked.push(name);
+          return name === 'password' ? 'Sup3r-Secret!' : undefined;
+        },
+        fillMode: 'evaluate',
+      },
+      settle: { maxMs: 300, networkQuietMs: 50, snapshotIntervalMs: 50 },
+    });
+    const provider = new FakeProvider([
+      (req) => ({
+        tool: 'fill',
+        args: { ref: refOf('textbox "Password"', req), value: '{{secret.password}}', intent: 'password' },
+      }),
+      (req) => ({
+        tool: 'click',
+        args: { ref: refOf('button "Login"', req), button: null, modifiers: null, clickCount: null, intent: 'log in' },
+      }),
+      { tool: 'done', args: { summary: 'ok', evidence: [] } },
+    ]);
+    await new Ai({ page, provider, config }).act('Log in', { secrets: ['password'] });
+    expect(asked).toEqual(['password']);
+    await expect(page.locator('#welcome').isVisible()).resolves.toBe(true);
+  });
+});
