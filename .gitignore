@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+test-results/
+playwright-report/
+blob-report/
+.aipw/
+.env
+.env.*
+!.env.example
+spikes/out/
+*.tsbuildinfo
