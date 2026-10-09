@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Demo · Users</title>
+    <script src="/shared.js"></script>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 1rem;
+      }
+      td,
+      th {
+        padding: 0.25rem 0.75rem;
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="title"></h1>
+    <button id="add"></button>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <script>
+      const { v } = window.DEMO;
+      document.getElementById('title').textContent = v('Users', 'People');
+      const add = document.getElementById('add');
+      add.textContent = v('Add user', 'New person'); // reworded and renamed in B: needs an AI heal
+      add.dataset.testid = v('add-user', 'new-person');
+      add.addEventListener('click', () => (document.getElementById('title').textContent = v('New user', 'New person')));
+      const users = [
+        ['Thandi Mokoena', 'thandi@example.com', 'Active'],
+        ['Sipho Dlamini', 'sipho@example.com', 'Disabled'],
+      ];
+      document.getElementById('rows').innerHTML = users
+        .map(([n, e, s]) => `<tr><td>${n}</td><td>${e}</td><td>${s}</td></tr>`)
+        .join('');
+    </script>
+  </body>
+</html>

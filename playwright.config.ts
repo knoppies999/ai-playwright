@@ -26,12 +26,24 @@ export default defineConfig(
     use: {
       trace: 'retain-on-failure',
     },
+    // The demo app (examples/demo-app): local, no dependencies, used for healing tests from Phase 4 on.
+    webServer: {
+      command: 'node examples/demo-app/server.mjs',
+      url: 'http://localhost:5173/login',
+      reuseExistingServer: !process.env.CI,
+    },
     projects: [
       {
         // Engine wiring with FakeProvider on local fixture pages: no AI, no network.
         name: 'fixtures',
         testDir: 'examples/tests/fixtures',
         use: { ...devices['Desktop Chrome'], testIdAttribute: 'data-test' },
+      },
+      {
+        // Healing scenarios on the demo app with FakeProvider: no AI, localhost only.
+        name: 'demo',
+        testDir: 'examples/tests/demo',
+        use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:5173' },
       },
       {
         // Plain-Playwright smoke spec for the public target. Light load only; not a CI gate (risk R13).

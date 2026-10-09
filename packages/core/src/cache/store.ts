@@ -1,11 +1,12 @@
 // Plan files on disk: `<spec dir>/__aipw__/<spec file>.plans.json` (docs/06 §2). Parallel workers can
 // run tests from the same spec, so every write takes a lock file, re-reads, merges and renames.
 import { closeSync, existsSync, mkdirSync, openSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
-import { basename, dirname, join } from 'node:path';
+import { basename, dirname, isAbsolute, join } from 'node:path';
 import { emptyPlanFile, PlanFileSchema, stableStringify, type PlanFile, type StepPlan } from './plan.js';
 
 export function planFilePath(specFile: string, dir = '__aipw__'): string {
-  return join(dirname(specFile), dir, `${basename(specFile)}.plans.json`);
+  // A relative dir sits next to the spec; an absolute one (e.g. a temp folder in tests) is used as is.
+  return join(isAbsolute(dir) ? dir : join(dirname(specFile), dir), `${basename(specFile)}.plans.json`);
 }
 
 export function readPlanFile(path: string): PlanFile {
