@@ -85,3 +85,15 @@ export {
   type Generators,
   type Person,
 } from './data/generators.js';
+export { NudgeController, type NudgeOptions } from './nudge/controller.js';
+export { NudgeServer, ScriptedUi, type NudgeUi } from './nudge/server.js';
+export {
+  NUDGE_PROTOCOL_VERSION,
+  NudgeCommandSchema,
+  NudgeQuit,
+  PauseStateSchema,
+  RewindSignal,
+  type BreakLevel,
+  type NudgeCommand,
+  type PauseState,
+} from './nudge/protocol.js';

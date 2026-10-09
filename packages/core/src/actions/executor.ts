@@ -355,6 +355,7 @@ export class ActionExecutor {
       }
       case 'done':
       case 'fail':
+      case 'ask_human':
         throw new Error(`${call.tool} is not executable`);
     }
   }

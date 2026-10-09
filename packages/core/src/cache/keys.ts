@@ -34,6 +34,11 @@ export function stepKey(input: StepKeyInput): string {
 export class OrdinalCounter {
   private readonly counts = new Map<string, number>();
 
+  /** The ordinal the next call would get, without counting it. */
+  peek(kind: string, instruction: string, pinned?: string): number {
+    return this.counts.get(pinned ? `pinned:${pinned}` : `${kind}:${normaliseInstruction(instruction)}`) ?? 0;
+  }
+
   next(kind: string, instruction: string, pinned?: string): number {
     const base = pinned ? `pinned:${pinned}` : `${kind}:${normaliseInstruction(instruction)}`;
     const n = this.counts.get(base) ?? 0;

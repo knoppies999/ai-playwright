@@ -14,7 +14,10 @@ import { TOOL_SCHEMAS } from '../actions/schemas.js';
 import { AiProviderError } from '../errors.js';
 import type { EventBus } from '../events/bus.js';
 import { addUsage, emptyUsage, type DecisionRequest, type LlmProvider, type Usage } from '../llm/provider.js';
-import { refsIn } from '../observe/snapshot.js';
+import type { NudgeController } from '../nudge/controller.js';
+import type { NudgeCommand, PauseState } from '../nudge/protocol.js';
+import type { Observation } from '../observe/observer.js';
+import { findByRef, refsIn } from '../observe/snapshot.js';
 import type { StepSession } from '../step/session.js';
 import type { ActionRecord, StepContext, StepOutcome } from '../types.js';
 import { buildContext, buildObservation, historyLine, SYSTEM_PROMPTS } from './prompt.js';
@@ -34,6 +37,8 @@ export interface LoopDeps {
   /** Epoch ms after which the step stops. */
   deadline: number;
   signal?: AbortSignal;
+  /** Nudge mode (docs/07): pauses before actions, on fail, and for ask_human. */
+  nudge?: NudgeController;
 }
 
 interface Decision {
@@ -79,7 +84,7 @@ export async function decideWithRepair(
 
 const targetKey = (r: ActionRecord) => `${r.tool}:${r.target?.ref ?? JSON.stringify(r.args)}`;
 /** Actions that don't act on the page (and code tools, which work off-page) never count as 'no progress'. */
-const PASSIVE = new Set(['expand', 'wait_for', 'generate_value']);
+const PASSIVE = new Set(['expand', 'wait_for', 'generate_value', 'ask_human']);
 const isPassive = (r: ActionRecord) => PASSIVE.has(r.tool) || !(r.tool in TOOL_SCHEMAS);
 
 /** docs/04 §3.2: the same tool + target three times in a row, or three actions that changed nothing. */
@@ -157,11 +162,50 @@ export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<S
     });
 
     const call = decision.call;
+    const pauseCtx = (extra: Partial<PauseState> = {}) => nudgeContext(obs, history, extra);
     if (!isCodeCall(call) && call.tool === 'done') {
       return finish('done', call.args.summary, { evidence: call.args.evidence });
     }
     if (!isCodeCall(call) && call.tool === 'fail') {
+      // Nudge: a failure pauses for help; a hint, answer or edit retries with it (docs/07 §7).
+      if (deps.nudge && applyNudge(await deps.nudge.onFail(pauseCtx({ failure: call.args })), step, deps.hints))
+        continue;
       return finish('failed', call.args.reason, { failure: call.args });
+    }
+    if (!isCodeCall(call) && call.tool === 'ask_human') {
+      const answer = deps.nudge
+        ? await deps.nudge.ask(call.args.question, pauseCtx())
+        : '(nobody to ask outside nudge mode)';
+      history.push(passiveRecord('ask_human', call.args, obs, 'ok', answer));
+      continue;
+    }
+    if (deps.nudge) {
+      const ref = (call.args as { ref?: string | null }).ref ?? undefined;
+      const node = ref ? findByRef(obs.tree, ref)?.node : undefined;
+      const cmd = await deps.nudge.beforeAction(
+        pauseCtx({
+          decision: {
+            turn,
+            tool: call.tool,
+            args: call.args,
+            intent: (call.args as { intent?: string }).intent,
+            why: decision.text,
+            ...(ref && { target: { ref, role: node?.role, name: node?.name } }),
+          },
+        }),
+      );
+      if (cmd.cmd === 'skip') {
+        history.push(
+          passiveRecord(
+            call.tool,
+            call.args as Record<string, unknown>,
+            obs,
+            'skipped by the person running the test: do not repeat it',
+          ),
+        );
+        continue;
+      }
+      if (cmd.cmd !== 'run' && applyNudge(cmd, step, deps.hints)) continue; // hint / edit: re-plan
     }
 
     const record = await deps.executor.execute(decision.call, obs);
@@ -179,6 +223,52 @@ export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<S
     }
   }
   return failLimit(`maxActions (${deps.maxActions}) reached`);
+}
+
+/** Applies a human correction. Returns true when the step should go on (re-plan or retry). */
+function applyNudge(cmd: NudgeCommand, step: StepContext, hints: string[]): boolean {
+  switch (cmd.cmd) {
+    case 'hint':
+      hints.push(`From the person running the test: ${cmd.text}`);
+      return true;
+    case 'answer':
+      hints.push(`The person running the test says: ${cmd.text}`);
+      return true;
+    case 'edit':
+      step.instruction = cmd.instruction;
+      return true;
+    case 'run':
+      return true;
+    default:
+      return false;
+  }
+}
+
+function nudgeContext(obs: Observation, history: ActionRecord[], extra: Partial<PauseState>) {
+  return {
+    history: history.map((r, i) => historyLine(i, r)),
+    page: { url: obs.url, title: obs.title, tabs: obs.tabs.length, dialogs: obs.dialogs.length },
+    snapshot: obs.snapshot,
+    ...extra,
+  };
+}
+
+function passiveRecord(
+  tool: string,
+  args: Record<string, unknown>,
+  obs: Observation,
+  result: string,
+  output?: string,
+): ActionRecord {
+  return {
+    tool,
+    args,
+    result,
+    ...(output !== undefined && { output }),
+    before: { url: obs.url, snapshotHash: obs.snapshotHash },
+    after: { url: obs.url },
+    durationMs: 0,
+  };
 }
 
 export const trajectory = (outcome: StepOutcome): string[] => outcome.actions.map((r, i) => historyLine(i, r));

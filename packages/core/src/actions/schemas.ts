@@ -88,6 +88,9 @@ export const TOOL_SCHEMAS = {
     summary: z.string().describe('What was done'),
     evidence: z.array(z.string()).describe('Text quoted from the page that shows the step succeeded'),
   }),
+  ask_human: z.strictObject({
+    question: z.string().describe('A short, specific question for the person running the test'),
+  }),
   fail: z.strictObject({
     kind: z.enum(['not_found', 'ambiguous', 'blocked', 'unexpected_state']),
     reason: z.string(),
@@ -118,10 +121,12 @@ export const TOOL_DESCRIPTIONS: Record<ToolName, string> = {
     'Get a valid test value (SA ID number, IBAN, card number, email, phone…) from a generator instead of inventing one. The value appears in the history.',
   done: 'Finish the step: it is complete. Quote page text that shows success.',
   fail: 'Stop: the step cannot be completed. Use the most specific kind.',
+  ask_human:
+    'Ask the person running the test (nudge mode only) when the instruction is ambiguous. Their answer appears in the history.',
 };
 
 /** Tools that end a step. They don't take `intent` and are never executed on the page. */
-export const TERMINAL_TOOLS = new Set<ToolName>(['done', 'fail']);
+export const TERMINAL_TOOLS = new Set<ToolName>(['done', 'fail', 'ask_human']);
 
 export function toJsonSchema(schema: z.ZodType): JsonSchema {
   // Zod adds "$schema": draft 2020-12, which some providers reject (spike 0.5b). Tool schemas don't need it.
@@ -139,9 +144,9 @@ export function toolSpecs(names: readonly ToolName[]): ToolSpec[] {
 }
 
 /** The tools offered for `ai.act`. `navigate` only when the step allows navigation. */
-export function actTools(options: { allowNavigation: boolean }): ToolName[] {
+export function actTools(options: { allowNavigation: boolean; askHuman?: boolean }): ToolName[] {
   const all = Object.keys(TOOL_SCHEMAS) as ToolName[];
-  return all.filter((t) => t !== 'navigate' || options.allowNavigation);
+  return all.filter((t) => (t !== 'navigate' || options.allowNavigation) && (t !== 'ask_human' || options.askHuman));
 }
 
 /** A user-registered function the model may call (docs/03 §7). */
