@@ -10,7 +10,7 @@ worked as written, which needed detail, and where the AI struggled. It feeds hin
 
 | | |
 |---|---|
-| Tests | **12 / 13 passed** (92%). The failure is explained below and fixed; the rerun passed |
+| Tests | **12 / 13 passed** (92%). The failure is explained below and fixed; runs 2 and 3 passed 13 / 13 (see the end) |
 | Wall time | 2.5 min for the suite (2 workers); 5–37 s per test |
 | AI requests | 55 (44 decisions + 11 assert/extract judgements), 0 repair turns |
 | Cost | ~$0.58 API-equivalent. On the subscription it uses plan limits, not money |
@@ -60,8 +60,26 @@ No wrong clicks, no backtracking, no repair turns. Tool sequences per test:
    `final: true` (skips `done` but also skips the model's own success check), or rely on the plan cache (Phase 4),
    which removes AI latency from reruns entirely.
 
+## Runs 2 and 3 (same day, after the fix)
+
+| | Run 1 | Run 2 | Run 3 |
+|---|---|---|---|
+| Passed | 12 / 13 | **13 / 13** | **13 / 13** |
+| AI requests | 55 | 61 | 62 |
+| API-equivalent cost | $0.58 | $0.69 | $0.66 |
+| Repair turns | 0 | 2 | 3 |
+| Decision p50 / p95 | 4.0 / 5.3 s | 4.0 / 5.7 s | 4.0 / 7.2 s |
+| Test id chosen where present | 26 / 26 | 26 / 26 | 26 / 26 |
+
+**Over 3 runs: 38 / 39 = 97%**, which meets the Phase 2 exit criterion (≥ 90%).
+
+All 5 repairs in runs 2–3 were `done` calls (log in, log out, menu navigation, product detail): the model's first
+`done` was malformed. The new fallback passed it to the engine, which asked for a corrected call, and the next reply was
+valid. That confirms the run-1 diagnosis: without the fallback these would have failed like log out did. Each repair
+still costs ~4 s, so the engine now also accepts `evidence` given as a single string (the usual mistake) instead of
+asking again.
+
 ## Follow-ups
 
-- Run the suite 3 times for the ≥ 90% exit criterion (each run ≈ 55 requests on the plan).
 - Capture the model's text on every decision in `aipw-decisions.json` (done for errors; useful for repairs too).
 - Hints: none needed on SauceDemo yet.

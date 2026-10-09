@@ -130,11 +130,24 @@ export function actTools(options: { allowNavigation: boolean }): ToolName[] {
 export type ValidatedCall = { ok: true; call: ToolCall } | { ok: false; error: string };
 
 /** Validates a raw provider call against the offered tools. */
+/**
+ * Forgiving fixes for shapes models commonly get slightly wrong, applied before validation. Live runs 2–3
+ * on SauceDemo needed a repair turn (~4 s) for 5 of 90 done calls; evidence as one string is the usual cause.
+ */
+function normaliseArgs(tool: string, args: unknown): unknown {
+  if (tool === 'done' && args && typeof args === 'object') {
+    const a = args as Record<string, unknown>;
+    if (typeof a.evidence === 'string') return { ...a, evidence: [a.evidence] };
+    if (a.evidence === undefined || a.evidence === null) return { ...a, evidence: [] };
+  }
+  return args;
+}
+
 export function validateCall(call: { tool: string; args: unknown }, offered: readonly string[]): ValidatedCall {
   if (!offered.includes(call.tool) || !(call.tool in TOOL_SCHEMAS)) {
     return { ok: false, error: `Unknown tool "${call.tool}". Use one of: ${offered.join(', ')}.` };
   }
-  const result = TOOL_SCHEMAS[call.tool as ToolName].safeParse(call.args);
+  const result = TOOL_SCHEMAS[call.tool as ToolName].safeParse(normaliseArgs(call.tool, call.args));
   if (!result.success)
     return { ok: false, error: `Invalid arguments for ${call.tool}: ${z.prettifyError(result.error)}` };
   return { ok: true, call: { tool: call.tool, args: result.data } as ToolCall };
