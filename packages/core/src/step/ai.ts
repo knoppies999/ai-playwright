@@ -15,6 +15,7 @@ import type { PlanStore } from '../cache/store.js';
 import type { AipwConfig, CacheMode } from '../config.js';
 import { Redactor } from '../data/redactor.js';
 import { createGenerators, type Generators } from '../data/generators.js';
+import type { NudgeController } from '../nudge/controller.js';
 import { DataResolver, secretSource } from '../data/resolver.js';
 import {
   AiAssertionError,
@@ -60,6 +61,8 @@ export interface AiDeps {
   gen?: Generators;
   /** Code tools registered with ai.tools.register, shared with ai.on(page). */
   codeTools?: Map<string, CodeTool>;
+  /** Nudge mode (docs/07): set by @aipw/test when run under `aipw nudge`. */
+  nudge?: NudgeController;
   /** Plan cache for this test (docs/06). Without it every step goes to the AI. */
   cache?: {
     store: PlanStore;
@@ -75,7 +78,7 @@ export interface ActResult {
   evidence: string[];
   actions: ActionRecord[];
   values: Record<string, unknown>;
-  source: 'cache' | 'ai' | 'healed';
+  source: 'cache' | 'ai' | 'healed' | 'nudged';
   usage: Usage;
 }
 
@@ -289,7 +292,7 @@ export class Ai {
     return env && (modes as string[]).includes(env) ? (env as CacheMode) : this.config.cache.mode;
   }
 
-  private stepKeyFor(kind: StepKind, instruction: string, options: StepOptions): string {
+  private stepKeyFor(kind: StepKind, instruction: string, options: StepOptions, peek = false): string {
     const testIdAttribute = this.deps.playwrightTestIdAttribute ?? 'data-testid';
     return stepKey({
       kind,
@@ -298,7 +301,9 @@ export class Ai {
       secretNames: options.secrets ?? [],
       // getByTestId('x') hides the attribute name, so it is part of the scope descriptor (spike 0.6).
       scopeDescriptor: options.scope ? `${options.scope.toString()}|${testIdAttribute}` : undefined,
-      ordinal: this.stepOrdinals.next(kind, instruction, options.key),
+      ordinal: peek
+        ? this.stepOrdinals.peek(kind, instruction, options.key)
+        : this.stepOrdinals.next(kind, instruction, options.key),
       pinned: options.key,
     });
   }
@@ -338,6 +343,18 @@ export class Ai {
 
   /** Performs whatever UI actions satisfy the instruction (docs/03 §2). */
   async act(instruction: string, options: StepOptions = {}): Promise<ActResult> {
+    const nudged = await this.nudgeBeforeStep('act', instruction, options);
+    if (nudged.skip) {
+      return {
+        summary: 'Skipped in nudge mode',
+        evidence: [],
+        actions: [],
+        values: this.values,
+        source: 'nudged',
+        usage: emptyUsage(),
+      };
+    }
+    ({ instruction, options } = nudged);
     return this.step(
       'act',
       instruction,
@@ -451,7 +468,8 @@ export class Ai {
             provider: this.deps.provider,
             executor,
             events: this.events,
-            tools: actTools({ allowNavigation: options.allowNavigation ?? false }),
+            tools: actTools({ allowNavigation: options.allowNavigation ?? false, askHuman: !!this.deps.nudge }),
+            nudge: this.deps.nudge,
             codeTools: stepTools,
             hints: [...healingHint, ...(options.hints ?? [])],
             secretPlaceholders: data.secretPlaceholders,
@@ -684,6 +702,9 @@ export class Ai {
 
   /** Asserts a condition about the page, retrying until the timeout (docs/03 §3). */
   async assert(condition: string, options: AssertOptions = {}): Promise<Verdict> {
+    const nudged = await this.nudgeBeforeStep('assert', condition, options);
+    if (nudged.skip) return { pass: true, reason: 'Skipped in nudge mode', evidence: [], check: null };
+    ({ instruction: condition, options } = nudged);
     return this.step('assert', condition, async (ctx) => {
       const verdict = await this.assertStep(
         condition,
@@ -698,6 +719,58 @@ export class Ai {
         });
       }
       return verdict;
+    });
+  }
+
+  /**
+   * Nudge mode: pause before the step (docs/07 §2). The human can run it, skip it, add a hint or edit the
+   * instruction. Steps are only skippable for act and assert; extract and locate must produce a value.
+   */
+  private async nudgeBeforeStep<O extends StepOptions>(
+    kind: StepKind,
+    instruction: string,
+    options: O,
+  ): Promise<{ instruction: string; options: O; skip: boolean }> {
+    const nudge = this.deps.nudge;
+    if (!nudge) return { instruction, options, skip: false };
+    const cache = this.deps.cache;
+    const cached = !!cache?.store.get(cache.testTitle, this.stepKeyFor(kind, instruction, options, true));
+    const callsite = this.deps.captureCallsite?.();
+    const cmd = await nudge.beforeStep(
+      {
+        id: `${this.deps.idPrefix ?? 'ai'}:${this.ordinal + 1}`,
+        kind,
+        instruction,
+        cached,
+        ...(callsite && { callsite: `${callsite.file}:${callsite.line}` }),
+      },
+      {
+        history: [],
+        page: { url: this._page.url(), title: '', tabs: this._page.context().pages().length, dialogs: 0 },
+      },
+    );
+    switch (cmd.cmd) {
+      case 'skip':
+        return { instruction, options, skip: kind === 'act' || kind === 'assert' };
+      case 'hint':
+        return { instruction, options: { ...options, hints: [...(options.hints ?? []), cmd.text] }, skip: false };
+      case 'edit':
+        return { instruction: cmd.instruction, options, skip: false };
+      default:
+        return { instruction, options, skip: false };
+    }
+  }
+
+  /** A code breakpoint: in nudge mode the test pauses here; otherwise it does nothing (docs/07 §1). */
+  async nudge(note = 'breakpoint'): Promise<void> {
+    await this.deps.nudge?.breakpoint(note, {
+      history: [],
+      page: {
+        url: this._page.url(),
+        title: await this._page.title().catch(() => ''),
+        tabs: this._page.context().pages().length,
+        dialogs: 0,
+      },
     });
   }
 
