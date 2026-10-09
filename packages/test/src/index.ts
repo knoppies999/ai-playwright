@@ -1,7 +1,9 @@
 // Playwright Test integration (docs/03 §1): `test` with the `ai`, `gen` and `aiConfig` fixtures.
 import {
   Ai,
+  FilePlanStore,
   loadProvider,
+  planFilePath,
   resolveConfig,
   type AipwConfigInput,
   type AipwEvent,
@@ -102,10 +104,18 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
   ai: async ({ page, aiConfig, aipwProvider, baseURL, testIdAttribute, trace }, use, testInfo) => {
     const events: AipwEvent[] = [];
     let warnedAboutTrace = false;
+    const config = resolveConfig(aiConfig);
+    const specFile = relative(process.cwd(), testInfo.file);
     const ai = new Ai({
       page,
       provider: aipwProvider,
-      config: resolveConfig(aiConfig),
+      config,
+      // docs/06 §2: committed plans next to the spec; healed plans under heal.policy report go to .aipw/healed/.
+      cache: {
+        store: new FilePlanStore(planFilePath(testInfo.file, config.cache.dir)),
+        testTitle: testInfo.titlePath.slice(1).join(' > '),
+        healedStore: new FilePlanStore(join(process.cwd(), '.aipw', 'healed', `${specFile}.plans.json`)),
+      },
       baseURL,
       playwrightTestIdAttribute: testIdAttribute,
       wrapStep: (title, fn) => base.step(title, fn, { box: true }),

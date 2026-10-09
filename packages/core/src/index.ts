@@ -16,8 +16,10 @@ export type { ActResult, AiDeps, AssertOptions, LocateResult, Verdict } from './
 export type { ActionRecord, StepContext, StepKind, StepOptions, StepOutcome, TargetDescriptor } from './types.js';
 export {
   AiAssertionError,
+  AiCacheReplayOnlyMiss,
   AiError,
   AiExtractError,
+  AiHealedError,
   AiProviderError,
   AiStepError,
   type Callsite,
@@ -55,3 +57,8 @@ export {
 } from './locators/expr.js';
 export { synthesizeLocators, type LocatorCandidate, type Rung } from './locators/synth.js';
 export { parseSnapshot, pruneSnapshot, renderSnapshot } from './observe/snapshot.js';
+
+export { FilePlanStore, MemoryPlanStore, planFilePath, readPlanFile, type PlanStore } from './cache/store.js';
+export { stepKey } from './cache/keys.js';
+export { PlanFileSchema, stableStringify, type PlanFile, type StepPlan } from './cache/plan.js';
+export type { CacheMode } from './config.js';

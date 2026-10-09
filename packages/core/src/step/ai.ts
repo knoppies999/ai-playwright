@@ -5,10 +5,23 @@ import type { Locator, Page } from 'playwright-core';
 import { z } from 'zod';
 import { ActionExecutor } from '../actions/executor.js';
 import { actTools } from '../actions/schemas.js';
-import type { AipwConfig } from '../config.js';
+import { OrdinalCounter, stepKey } from '../cache/keys.js';
+import type { StepPlan } from '../cache/plan.js';
+import { planFromAct } from '../cache/record.js';
+import { describePlan, replayAct } from '../cache/replay.js';
+import type { PlanStore } from '../cache/store.js';
+import type { AipwConfig, CacheMode } from '../config.js';
 import { Redactor } from '../data/redactor.js';
 import { DataResolver, envSecrets } from '../data/resolver.js';
-import { AiAssertionError, AiExtractError, AiStepError, type Callsite, type StepFailureKind } from '../errors.js';
+import {
+  AiAssertionError,
+  AiCacheReplayOnlyMiss,
+  AiExtractError,
+  AiHealedError,
+  AiStepError,
+  type Callsite,
+  type StepFailureKind,
+} from '../errors.js';
 import { EventBus } from '../events/bus.js';
 import { runAgentLoop, trajectory } from '../loop/agent-loop.js';
 import { buildObservation, SYSTEM_PROMPTS } from '../loop/prompt.js';
@@ -38,6 +51,14 @@ export interface AiDeps {
   redactor?: Redactor;
   /** Values generated or extracted earlier in the test, shared across pages. */
   values?: Record<string, unknown>;
+  /** Plan cache for this test (docs/06). Without it every step goes to the AI. */
+  cache?: {
+    store: PlanStore;
+    /** "describe > test title" */
+    testTitle: string;
+    /** heal.policy report: healed plans go here instead of the committed plan file. */
+    healedStore?: PlanStore;
+  };
 }
 
 export interface ActResult {
@@ -45,7 +66,7 @@ export interface ActResult {
   evidence: string[];
   actions: ActionRecord[];
   values: Record<string, unknown>;
-  source: 'ai';
+  source: 'cache' | 'ai' | 'healed';
   usage: Usage;
 }
 
@@ -86,6 +107,7 @@ export class Ai {
   readonly redactor: Redactor;
   readonly values: Record<string, unknown>;
   private ordinal = 0;
+  private readonly stepOrdinals = new OrdinalCounter();
   private _page: Page;
   /** Usage of every step run through this instance. */
   usage: Usage = emptyUsage();
@@ -195,6 +217,29 @@ export class Ai {
     return this.deps.wrapStep ? this.deps.wrapStep(title, run) : run();
   }
 
+  /** Effective cache mode for one step: per-step option, then AIPW_CACHE, then config. */
+  private cacheMode(options: StepOptions): CacheMode {
+    if (options.cache === 'off') return 'ai-only';
+    if (options.cache === 'refresh') return 'refresh';
+    const env = process.env.AIPW_CACHE;
+    const modes: CacheMode[] = ['auto', 'replay-only', 'ai-only', 'refresh'];
+    return env && (modes as string[]).includes(env) ? (env as CacheMode) : this.config.cache.mode;
+  }
+
+  private stepKeyFor(kind: StepKind, instruction: string, options: StepOptions): string {
+    const testIdAttribute = this.deps.playwrightTestIdAttribute ?? 'data-testid';
+    return stepKey({
+      kind,
+      instruction,
+      dataKeys: Object.keys(options.data ?? {}),
+      secretNames: options.secrets ?? [],
+      // getByTestId('x') hides the attribute name, so it is part of the scope descriptor (spike 0.6).
+      scopeDescriptor: options.scope ? `${options.scope.toString()}|${testIdAttribute}` : undefined,
+      ordinal: this.stepOrdinals.next(kind, instruction, options.key),
+      pinned: options.key,
+    });
+  }
+
   private addUsage(u: Usage) {
     this.usage = addUsage(this.usage, u);
   }
@@ -230,13 +275,62 @@ export class Ai {
             allowSecretsAnywhere: this.config.secrets.allowAnyField,
             isAllowedUrl,
           });
+          // Plan cache (docs/06): replay on a hit, record on a miss, heal through the AI loop on a broken replay.
+          const cache = this.deps.cache;
+          const mode = this.cacheMode(options);
+          const key = this.stepKeyFor('act', instruction, options);
+          const startUrl = this._page.url();
+          let healing: { plan: StepPlan; reason: string } | undefined;
+          if (cache && (mode === 'auto' || mode === 'replay-only')) {
+            const plan = cache.store.get(cache.testTitle, key);
+            if (plan) {
+              const replay = await replayAct(plan, {
+                page: () => session.page,
+                executor,
+                events: this.events,
+                stepId: ctx.id,
+                waitMs: this.config.settle.maxMs,
+              });
+              this._page = session.page;
+              if (replay.ok) {
+                this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'hit', key });
+                return {
+                  summary: 'Replayed from the plan cache',
+                  evidence: [],
+                  actions: replay.records,
+                  values: this.values,
+                  source: 'cache',
+                  usage: emptyUsage(),
+                };
+              }
+              this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'broken', key, reason: replay.reason });
+              if (mode === 'replay-only') {
+                throw new AiStepError(
+                  'unexpected_state',
+                  `Replay failed at action ${replay.failedAt + 1}: ${replay.reason}. Re-record with AIPW_CACHE=auto (or refresh).`,
+                  { stepId: ctx.id, callsite: ctx.callsite },
+                );
+              }
+              healing = { plan, reason: replay.reason };
+            } else if (mode === 'replay-only') {
+              throw new AiCacheReplayOnlyMiss(instruction, { stepId: ctx.id, callsite: ctx.callsite });
+            } else {
+              this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'miss', key });
+            }
+          }
+          const healingHint = healing
+            ? [
+                `HEALING: a previously recorded plan for this step no longer works. Recorded plan: ${describePlan(healing.plan)}. ` +
+                  `Failure: ${healing.reason} Some of the plan may already have run. Complete the step on the current page; the UI may have changed.`,
+              ]
+            : [];
           const outcome = await runAgentLoop(ctx, {
             session,
             provider: this.deps.provider,
             executor,
             events: this.events,
             tools: actTools({ allowNavigation: options.allowNavigation ?? false }),
-            hints: options.hints ?? [],
+            hints: [...healingHint, ...(options.hints ?? [])],
             secretPlaceholders: data.secretPlaceholders,
             isAllowedUrl,
             maxActions: options.maxActions ?? this.config.steps.maxActions,
@@ -252,12 +346,42 @@ export class Ai {
               { trajectory: trajectory(outcome), snapshot: outcome.lastSnapshot },
             );
           }
+          if (cache && mode !== 'ai-only') {
+            const plan = planFromAct(instruction, outcome.actions, options.data ?? {}, {
+              provider: this.deps.provider.id,
+              model: this.deps.provider.model,
+              now: new Date(),
+              startUrl,
+              endUrl: session.page.url(),
+            });
+            const context = { stepId: ctx.id, callsite: ctx.callsite };
+            if (!healing) {
+              await cache.store.put(cache.testTitle, key, plan);
+              this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'stored', key });
+            } else {
+              this.events.emit({
+                type: 'heal',
+                stepId: ctx.id,
+                key,
+                source: 'ai',
+                policy: this.config.heal.policy,
+                before: describePlan(healing.plan),
+                after: describePlan(plan),
+                reason: healing.reason,
+              });
+              if (this.config.heal.policy === 'accept')
+                await cache.store.put(cache.testTitle, key, plan, { healed: true });
+              else if (this.config.heal.policy === 'report')
+                await cache.healedStore?.put(cache.testTitle, key, plan, { healed: true });
+              else throw new AiHealedError(instruction, describePlan(healing.plan), describePlan(plan), context);
+            }
+          }
           return {
             summary: outcome.summary,
             evidence: outcome.evidence,
             actions: outcome.actions,
             values: this.values,
-            source: 'ai',
+            source: healing ? 'healed' : 'ai',
             usage: outcome.usage,
           };
         } finally {

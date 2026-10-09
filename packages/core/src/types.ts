@@ -20,6 +20,10 @@ export interface StepOptions {
   timeout?: number;
   /** May the model call navigate (always limited to allowed origins). */
   allowNavigation?: boolean;
+  /** Per-step cache override: off = always AI, don't store; refresh = always AI, overwrite the plan. */
+  cache?: 'auto' | 'off' | 'refresh';
+  /** Pins the cache key so instruction edits don't orphan the plan (docs/06 §3). */
+  key?: string;
 }
 
 export interface StepContext {

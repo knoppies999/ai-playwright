@@ -22,6 +22,9 @@ export interface ExecutorOptions {
 
 class ActionError extends Error {}
 
+/** Replay: resolves a synthetic ref (e.g. "@t") to an element from the stored plan instead of the snapshot. */
+export type TargetResolver = (ref: string) => Promise<Locator>;
+
 /** Playwright errors carry long call logs; the model needs the first line and a little context. */
 export function shortError(error: unknown): string {
   const text = error instanceof Error ? error.message : String(error);
@@ -36,12 +39,22 @@ export class ActionExecutor {
     private readonly opts: ExecutorOptions,
   ) {}
 
+  /** Set for the duration of a replayed action. */
+  private resolver: TargetResolver | undefined;
+
   private get page() {
     return this.session.page;
   }
 
   /** Resolves a ref seen by the model to a live, unique element. */
   private async resolve(ref: string, obs: Observation): Promise<Locator> {
+    if (this.resolver) {
+      try {
+        return await this.resolver(ref);
+      } catch (error) {
+        throw new ActionError(error instanceof Error ? error.message : String(error));
+      }
+    }
     if (!obs.refs.has(ref))
       throw new ActionError(`Ref ${ref} is not in the current snapshot. Use a ref from the latest snapshot.`);
     const loc = this.page.locator(`aria-ref=${ref}`);
@@ -53,6 +66,7 @@ export class ActionExecutor {
   }
 
   private async describe(ref: string, loc: Locator, obs: Observation): Promise<TargetDescriptor> {
+    if (this.resolver) return { ref, candidates: [] }; // replay: the plan already has the locators
     const node = findByRef(obs.tree, ref)?.node;
     const role = node?.role;
     const name = node?.name;
@@ -79,7 +93,17 @@ export class ActionExecutor {
     if (!ok) throw new ActionError('Secrets can only be entered into password or one-time-code fields.');
   }
 
-  async execute(call: ToolCall, obs: Observation): Promise<ActionRecord> {
+  /** Runs one tool call. With `resolver`, refs are resolved from a stored plan (replay) instead of the snapshot. */
+  async execute(call: ToolCall, obs: Observation, resolver?: TargetResolver): Promise<ActionRecord> {
+    this.resolver = resolver;
+    try {
+      return await this.executeCall(call, obs);
+    } finally {
+      this.resolver = undefined;
+    }
+  }
+
+  private async executeCall(call: ToolCall, obs: Observation): Promise<ActionRecord> {
     const started = Date.now();
     const before = { url: this.page.url(), snapshotHash: obs.snapshotHash };
     const record: ActionRecord = {

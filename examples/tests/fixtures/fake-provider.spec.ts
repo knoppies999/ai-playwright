@@ -22,7 +22,8 @@ const test = base.extend<object, { aipwProvider: FakeProvider }>({
   aipwProvider: [async ({}, use) => use(provider), { scope: 'worker' }],
 });
 
-test.use({ aiConfig: { secrets: { map: { password: 'AIPW_FIXTURE_PASSWORD' } } } });
+// ai-only: this spec scripts the FakeProvider per test, so it must never replay a stored plan.
+test.use({ aiConfig: { secrets: { map: { password: 'AIPW_FIXTURE_PASSWORD' } }, cache: { mode: 'ai-only' } } });
 
 test.beforeEach(async ({ page }) => {
   process.env.AIPW_FIXTURE_PASSWORD = 'Sup3r-Secret!';
