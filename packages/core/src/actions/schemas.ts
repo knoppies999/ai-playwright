@@ -144,7 +144,34 @@ export function actTools(options: { allowNavigation: boolean }): ToolName[] {
   return all.filter((t) => t !== 'navigate' || options.allowNavigation);
 }
 
-export type ValidatedCall = { ok: true; call: ToolCall } | { ok: false; error: string };
+/** A user-registered function the model may call (docs/03 §7). */
+export interface CodeTool {
+  name: string;
+  description: string;
+  input: z.ZodObject;
+  run: (args: Record<string, unknown>) => unknown;
+}
+
+/** A validated call to a code tool. Built-in calls never carry `code`. */
+export interface CodeToolCall {
+  tool: string;
+  args: Record<string, unknown>;
+  code: true;
+}
+
+export type AnyToolCall = ToolCall | CodeToolCall;
+export const isCodeCall = (call: AnyToolCall): call is CodeToolCall => 'code' in call;
+
+export function codeToolSpecs(tools: Iterable<CodeTool>): ToolSpec[] {
+  return [...tools].map((t) => ({
+    name: t.name,
+    description: t.description,
+    schema: t.input,
+    jsonSchema: toJsonSchema(t.input),
+  }));
+}
+
+export type ValidatedCall = { ok: true; call: AnyToolCall } | { ok: false; error: string };
 
 /** Validates a raw provider call against the offered tools. */
 /**
@@ -160,7 +187,18 @@ function normaliseArgs(tool: string, args: unknown): unknown {
   return args;
 }
 
-export function validateCall(call: { tool: string; args: unknown }, offered: readonly string[]): ValidatedCall {
+export function validateCall(
+  call: { tool: string; args: unknown },
+  offered: readonly string[],
+  codeTools?: ReadonlyMap<string, CodeTool>,
+): ValidatedCall {
+  const code = codeTools?.get(call.tool);
+  if (code && offered.includes(call.tool)) {
+    const parsed = code.input.safeParse(call.args);
+    if (!parsed.success)
+      return { ok: false, error: `Invalid arguments for ${call.tool}: ${z.prettifyError(parsed.error)}` };
+    return { ok: true, call: { tool: call.tool, args: parsed.data as Record<string, unknown>, code: true } };
+  }
   if (!offered.includes(call.tool) || !(call.tool in TOOL_SCHEMAS)) {
     return { ok: false, error: `Unknown tool "${call.tool}". Use one of: ${offered.join(', ')}.` };
   }

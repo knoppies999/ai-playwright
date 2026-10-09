@@ -9,9 +9,11 @@ import { fingerprintOf } from '../locators/fingerprint.js';
 import { synthesizeLocators, type SynthOptions } from '../locators/synth.js';
 import type { StepSession } from '../step/session.js';
 import type { ActionRecord, TargetDescriptor } from '../types.js';
-import type { ToolCall } from './schemas.js';
+import { isCodeCall, type AnyToolCall, type CodeTool, type ToolCall } from './schemas.js';
 
 export interface ExecutorOptions {
+  /** User-registered code tools (docs/03 §7). */
+  codeTools?: ReadonlyMap<string, CodeTool>;
   data: DataResolver;
   synth: Omit<SynthOptions, 'role' | 'name'>;
   actionTimeoutMs: number;
@@ -97,7 +99,7 @@ export class ActionExecutor {
   }
 
   /** Runs one tool call. With `resolver`, refs are resolved from a stored plan (replay) instead of the snapshot. */
-  async execute(call: ToolCall, obs: Observation, resolver?: TargetResolver): Promise<ActionRecord> {
+  async execute(call: AnyToolCall, obs: Observation, resolver?: TargetResolver): Promise<ActionRecord> {
     this.resolver = resolver;
     try {
       return await this.executeCall(call, obs);
@@ -106,13 +108,38 @@ export class ActionExecutor {
     }
   }
 
-  private async executeCall(call: ToolCall, obs: Observation): Promise<ActionRecord> {
+  /** Runs a code tool. Its output (text, or JSON) goes back to the model; errors become the result. */
+  private async runCodeTool(
+    call: { tool: string; args: Record<string, unknown> },
+    record: ActionRecord,
+  ): Promise<void> {
+    const tool = this.opts.codeTools?.get(call.tool);
+    if (!tool) throw new ActionError(`Unknown code tool ${call.tool}.`);
+    try {
+      // Placeholders ({{data.x}}, {{values.x}}, {{secret.x}}, {{gen...}}) resolve here, for AI calls and replays alike.
+      // Secrets are allowed: code tools are trusted test code, not page fields.
+      const resolve = (v: unknown): unknown =>
+        typeof v === 'string'
+          ? this.resolveValue(v).value
+          : Array.isArray(v)
+            ? v.map(resolve)
+            : v && typeof v === 'object'
+              ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, resolve(x)]))
+              : v;
+      const out = await tool.run(resolve(call.args) as Record<string, unknown>);
+      record.output = (typeof out === 'string' ? out : (JSON.stringify(out) ?? 'done')).slice(0, 2000);
+    } catch (error) {
+      throw new ActionError(`${call.tool} failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  private async executeCall(call: AnyToolCall, obs: Observation): Promise<ActionRecord> {
     const started = Date.now();
     const before = { url: this.page.url(), snapshotHash: obs.snapshotHash };
     const record: ActionRecord = {
       tool: call.tool,
       args: call.args as Record<string, unknown>,
-      intent: 'intent' in call.args ? call.args.intent : undefined,
+      intent: !isCodeCall(call) && 'intent' in call.args ? call.args.intent : undefined,
       result: 'ok',
       before,
       after: { url: before.url },
@@ -127,7 +154,7 @@ export class ActionExecutor {
         onDialog = () => resolve('dialog');
         page.once('dialog', onDialog);
       });
-      const action = this.perform(call, obs, record);
+      const action = isCodeCall(call) ? this.runCodeTool(call, record) : this.perform(call, obs, record);
       action.catch(() => undefined);
       const winner = await Promise.race([action.then(() => 'done' as const), dialogOpened]).finally(() => {
         page.off('dialog', onDialog!);

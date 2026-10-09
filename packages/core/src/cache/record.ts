@@ -1,3 +1,4 @@
+import { TOOL_SCHEMAS } from '../actions/schemas.js';
 // Turning a successful AI step into a plan (docs/06 §4): no refs (rule 11), no resolved values —
 // literals that equal a data value become {{data.x}} again, so replays use the new run's data.
 import type { ActionRecord, TargetDescriptor } from '../types.js';
@@ -45,6 +46,23 @@ export function planArgs(
   return out;
 }
 
+/** Code tools: every string in the arguments is user data, so all of them are turned back into placeholders. */
+function codeToolArgs(
+  args: unknown,
+  data: Record<string, unknown>,
+  generated: Map<string, string>,
+): Record<string, unknown> {
+  const walk = (v: unknown): unknown =>
+    typeof v === 'string'
+      ? toPlaceholder(v, data, generated)
+      : Array.isArray(v)
+        ? v.map(walk)
+        : v && typeof v === 'object'
+          ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, walk(x)]))
+          : v;
+  return walk(args) as Record<string, unknown>;
+}
+
 /** Tools that don't change the page are not replayed. */
 const NOT_REPLAYED = new Set(['expand']);
 
@@ -69,7 +87,7 @@ export function planActions(records: ActionRecord[], data: Record<string, unknow
     .filter((r) => !(r.tool === 'wait_for' && r.args.ref)) // a ref-based wait has no durable target
     .map((r) => ({
       tool: r.tool,
-      args: planArgs(r.args, data, generated),
+      args: r.tool in TOOL_SCHEMAS ? planArgs(r.args, data, generated) : codeToolArgs(r.args, data, generated),
       ...(r.intent && { intent: r.intent }),
       ...(r.target && { target: toPlanTarget(r.target) }),
       ...(r.targets && { targets: r.targets.map(toPlanTarget) }),
