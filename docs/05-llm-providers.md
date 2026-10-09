@@ -147,6 +147,63 @@ Notes for the implementer:
 - Use the SDK's typed errors (`Anthropic.RateLimitError`, `Anthropic.APIError`) for retry/backoff decisions.
   The SDK already retries 429/5xx twice.
 
+## 3a. Adapter: Claude Code subscription (`@aipw/provider-claude-code`) — default on this machine
+
+Decision D12. Uses `@anthropic-ai/claude-agent-sdk`, which runs a bundled Claude Code process. With
+`ANTHROPIC_API_KEY` **unset**, it authenticates as the signed-in Claude Code user (`claude auth login`), so AI steps
+count against that **Claude plan's usage limits** instead of billing an API key. Personal, local use only: the
+pipeline keeps using Foundry, and a subscription login must never be shared by a team or used by a hosted service.
+
+Like the Copilot SDK, the Agent SDK is an agent runtime, so the adapter uses the same **capture** pattern: our tools
+are in-process MCP tools whose handlers record the call instead of running it.
+
+```ts
+import { createSdkMcpServer, query, tool } from '@anthropic-ai/claude-agent-sdk';
+
+async decide(req: DecisionRequest, signal?: AbortSignal): Promise<DecisionResponse> {
+  let captured: { tool: string; args: unknown } | undefined;
+  const server = createSdkMcpServer({
+    name: 'aipw', version,
+    tools: req.tools.map((t) => tool(t.name, t.description, zodShapeFor(t), async (args) => {
+      captured ??= { tool: t.name, args };
+      return { content: [{ type: 'text', text: 'Recorded. Stop now.' }] };
+    })),
+  });
+  for await (const msg of query({
+    prompt: `${req.context}\n\n${req.observation}`,
+    options: {
+      model: this.model,                     // undefined → the plan's default model
+      systemPrompt: req.system,              // replaces Claude Code's own system prompt
+      tools: [],                             // no built-in tools at all (no shell, files, web)
+      mcpServers: { aipw: server },
+      allowedTools: req.tools.map((t) => `mcp__aipw__${t.name}`),
+      permissionMode: 'dontAsk',             // anything not allowed is denied, never prompted
+      settingSources: [],                    // ignore ~/.claude settings, CLAUDE.md and hooks
+      persistSession: false,                 // don't write session transcripts
+      maxTurns: 1,                           // end right after the tool call (⚠ spike 0.5b)
+      cwd: emptyTempDir,
+      abortController,                       // wired to `signal`
+    },
+  })) { /* collect usage from the 'result' message */ }
+  return captured ? { call: captured, stop: 'tool', usage } : { stop: 'text', usage };
+}
+```
+
+`structured()` uses `outputFormat: { type: 'json_schema', schema }` and reads `structured_output` from the result
+message. No tools are needed.
+
+Notes:
+- **Tool schemas.** `tool()` takes a Zod raw shape, not JSON Schema. The adapter gets the Zod object from the tool
+  registry (Zod is the source of truth anyway). Tool names reach the model as `mcp__aipw__<name>`; the adapter strips the prefix.
+- **Usage.** The result message has `modelUsage` (tokens per model) and `total_cost_usd`. The cost is the API-equivalent
+  estimate, not what the subscription charges; reports show it as "equivalent cost" and count `requests`.
+- **Latency.** Every `query()` starts a Claude Code process. If spike 0.5b shows that dominates, keep one streaming-input
+  session per AI step and send each observation as the next message (the same fallback as Copilot, §5 item 4).
+- **Limits.** An uncached run makes one request per decision. Lean on the plan cache; `budget.perRunRequests` applies.
+- **Do not set `ANTHROPIC_API_KEY`** in the shell that runs tests with this provider, or the SDK silently uses the key.
+- Phase 0 found the CLI not signed in on this machine even though the desktop app was. The desktop app's sign-in doesn't
+  carry over: run `claude auth login` once. `aipw doctor --provider claude-code` will check `claude auth status`.
+
 ## 4. Adapter: OpenAI-compatible (`@aipw/provider-openai`) — pipelines (via Microsoft Foundry)
 
 Uses the official `openai` npm package against **any** Chat Completions-compatible endpoint. The pipelines use
@@ -285,6 +342,15 @@ async function decide(req: DecisionRequest): Promise<DecisionResponse> {
 6. Token usage reporting. Copilot bills in **premium requests** with per-model multipliers, not tokens. Report
    `requests` and treat `costUsd` as unknown. An uncached run can consume many premium requests, so lean on the cache.
 
+**Phase 0 type-level findings** (`@github/copilot-sdk` 1.0.19; still to be confirmed live by spike 0.3):
+- `defineTool(name, { isTerminal: true })` ends the agent turn after a successful call. That is exactly the capture
+  pattern (item 2), with no abort needed.
+- `availableTools` also accepts a `ToolSet` (`new ToolSet().addCustom('*')`), which can't match built-ins by accident.
+- Images: `attachments: [{ type: 'blob', data: base64, mimeType: 'image/jpeg' }]` (item 3).
+- Deny: the handler returns `{ kind: 'reject', feedback }` (item 5).
+- Usage arrives as `assistant.usage` session events (item 6), not on the final message.
+- `sendAndWait({ prompt, responseSchema })` takes a Zod schema, so `structured()` may not need the `submit_result` trick.
+
 **Fallback if the spike fails:** run Copilot-machine tests through the OpenAI adapter with the `github-models`
 preset (a PAT instead of a Copilot session). No engine changes are needed.
 
@@ -299,8 +365,9 @@ LLM calls never happen in unit tests.
 ```ts
 // aipw.config.ts
 export default defineAipwConfig({
-  provider: process.env.AIPW_PROVIDER ?? 'anthropic',
+  provider: process.env.AIPW_PROVIDER ?? 'claude-code',
   providers: {
+    'claude-code': { package: '@aipw/provider-claude-code', model: process.env.AIPW_CLAUDE_MODEL },  // undefined → plan default
     anthropic: { package: '@aipw/provider-anthropic', model: 'claude-opus-5-5' },
     foundry:   { package: '@aipw/provider-openai', preset: 'foundry',
                  resource: process.env.AZURE_FOUNDRY_RESOURCE, model: process.env.AIPW_FOUNDRY_DEPLOYMENT,
@@ -314,7 +381,8 @@ export default defineAipwConfig({
 
 | Where | `AIPW_PROVIDER` | Credentials |
 |---|---|---|
-| This machine (dev) | `anthropic` | `ANTHROPIC_API_KEY` or `ant auth login` |
+| This machine (dev) | `claude-code` | Claude Code sign-in (`claude auth login`), with `ANTHROPIC_API_KEY` unset |
+| This machine, with an API key | `anthropic` | `ANTHROPIC_API_KEY` |
 | Other machine (local) | `copilot` | Copilot sign-in on that machine |
 | Azure Pipelines | `foundry` | Entra ID via the pipeline's Azure service connection (keyless), or `AZURE_FOUNDRY_API_KEY` as a secret variable |
 

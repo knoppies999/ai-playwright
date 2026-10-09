@@ -30,7 +30,7 @@ test('admin can create a user', async ({ page, ai, gen }) => {
 | Hybrid scripting | Code calls AI, and English steps can call your code (registered tools such as `login`) | [03](docs/03-test-authoring-api.md) |
 | Page understanding | Playwright AI-mode accessibility snapshots with element refs, plus a screenshot fallback | [04](docs/04-agent-loop-and-perception.md) |
 | Element identification | Test-id attributes first (any spelling: `data-testid`, `data-test-id`, `data-test`…), then role/label/anchored locators, fingerprint healing, AI healing | [12](docs/12-element-identification.md) |
-| Provider-agnostic | Anthropic (dev here), OpenAI models on Microsoft Foundry (pipelines), GitHub Copilot SDK (local, another machine) | [05](docs/05-llm-providers.md) |
+| Provider-agnostic | Claude Code subscription (dev here, no API key), Anthropic API, OpenAI models on Microsoft Foundry (pipelines), GitHub Copilot SDK (local, another machine) | [05](docs/05-llm-providers.md) |
 | Deterministic replay | Successful AI steps are cached as locators and replayed without an LLM. Self-heals when the UI changes | [06](docs/06-caching-and-replay.md) |
 | **Nudge mode** | Step through a run, rewind, correct the AI, and get back a verified better step (instruction, hint or code) | [07](docs/07-nudge-mode.md) |
 | Valid test data | Generators (SA ID, Luhn, IBAN, email…), `{{data}}` and `{{secret}}` placeholders, redaction | [08](docs/08-test-data-and-secrets.md) |
@@ -55,6 +55,17 @@ Implementers (human, Copilot or Claude) start with [AGENTS.md](AGENTS.md).
 
 ## Status
 
-Design complete, not implemented yet. [docs/10-implementation-plan.md](docs/10-implementation-plan.md) starts with
-**Phase 0 spikes**. They confirm a few library behaviours the design relies on, and the doc
-flags each one with **⚠ verify in Phase 0**.
+**Phase 0 (spikes) is mostly done and Phase 1 (skeleton) is done.** The AI engine itself starts in Phase 2.
+
+- Phase 0 results and the design changes they caused are in [docs/11](docs/11-risks-and-open-questions.md) §3.
+  Three spikes still need another machine or a sign-in: 0.5b (`claude auth login` here), 0.3 (Copilot machine) and
+  0.4 (Foundry). See [spikes/README.md](spikes/README.md).
+- Phase 1 gave us the npm workspaces monorepo, the SauceDemo target profile and scenarios, a plain-Playwright smoke
+  spec, and CI (Azure Pipelines + GitHub Actions).
+
+```bash
+npm install
+npx playwright install chromium
+cp .env.example .env     # SauceDemo's public demo password
+npm run build && npm test && npm run e2e
+```

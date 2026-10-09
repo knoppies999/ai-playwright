@@ -16,7 +16,8 @@ machine, on a colleague's machine that only has GitHub Copilot, and in a CI pipe
 | D3 | The LLM contract is modelled on **OpenAI-compatible chat + function calling** | It is the lowest common denominator. Any OpenAI-compatible endpoint (OpenAI, Azure OpenAI, GitHub Models, Ollama, LM Studio, vLLM) works with no new code |
 | D4 | **Three provider adapters in v1**: OpenAI-compatible (CI pipelines, using **OpenAI models deployed in Microsoft Foundry**), GitHub Copilot SDK (local runs on another machine), Anthropic (development and testing on this machine) | User requirement |
 | D10 | **Test-id attributes are the first choice for locating elements**, in any spelling (`data-testid`, `data-test-id`, `datatestid`, `data-test`…). Then role/label/anchored locators, fingerprint healing and AI healing | User requirement. See [12](12-element-identification.md) |
-| D11 | **First target is a public web app** to check usability. A purpose-built demo app for hard edge cases and healing tests comes later | User decision |
+| D11 | **First target is a public web app** to check usability. A purpose-built demo app for hard edge cases and healing tests comes later. The app is **SauceDemo** (`www.saucedemo.com`) | User decision |
+| D12 | **A fourth adapter, `claude-code`, runs on a signed-in Claude Code subscription** through the Claude Agent SDK (no API key). It is the **default dev provider on this machine** and the first adapter built in Phase 2. The Anthropic API adapter stays for key-based use | User requirement: use the Claude plan's limits. Personal use only; pipelines keep using Foundry. See [05](05-llm-providers.md) §3a |
 | D5 | **The engine owns the agent loop.** Providers only answer "what is the next action?" | Same behaviour, limits, logging, caching and nudge support on every provider |
 | D6 | **One action per model turn**, a fresh prompt each turn (no growing chat history) | Simpler to cache, debug, rewind and swap providers. Cost stays flat per step |
 | D7 | **Accessibility snapshot first, screenshot second** | Cheaper, faster and more precise than pure vision. Vision covers canvas, icons and visual-only cues |
@@ -51,7 +52,7 @@ machine, on a colleague's machine that only has GitHub Copilot, and in a CI pipe
 
 ### FR-4 Providers
 - FR-4.1 Provider and model are chosen by config/env with no code change.
-- FR-4.2 Adapters: OpenAI-compatible (incl. Microsoft Foundry with keyless Entra ID auth), Anthropic, GitHub Copilot SDK.
+- FR-4.2 Adapters: OpenAI-compatible (incl. Microsoft Foundry with keyless Entra ID auth), Claude Code subscription (Claude Agent SDK), Anthropic API, GitHub Copilot SDK.
 - FR-4.3 New providers implement one small interface (`LlmProvider`).
 - FR-4.4 A provider conformance suite runs the same scenarios against every adapter.
 

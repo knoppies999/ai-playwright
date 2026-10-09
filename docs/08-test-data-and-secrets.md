@@ -76,12 +76,25 @@ Rules:
    URL-encoded forms) from every string the framework emits.
 2. Prefer **code** for authentication: log in via API or a `globalSetup` that saves `storageState`, and reuse it. The `login_as`
    code tool pattern ([03](03-test-authoring-api.md) §7) keeps credentials entirely out of AI steps.
-3. **Playwright traces and videos are outside the redactor's control.** A `fill` with a secret value will appear in the
-   trace's action parameters. Mitigations, in order of preference:
+3. **Playwright traces and videos are outside the redactor's control.** Spike 0.7 (Playwright 1.64) found the
+   secret in `trace.trace` in three places:
+
+   | How the value was set | Action params / log | DOM snapshots |
+   |---|---|---|
+   | `fill` | leaked | leaked |
+   | `pressSequentially` | leaked | leaked |
+   | `evaluate` (set `el.value`, dispatch `input`/`change`) | clean | **leaked**: snapshots record input values, even `type=password` |
+   | `evaluate` + tracing with `snapshots: false` | clean | none taken: **no leak** |
+
+   So `fillMode: 'evaluate'` alone is **not** enough. Mitigations, in order of preference:
    a. don't fill secrets via AI steps (rule 2);
-   b. `secrets.fillMode: 'evaluate'`: set the value through `locator.evaluate((el, v) => { el.value = v; el.dispatchEvent(...) })`
-      (the trace shows the call but not the argument value ⚠ verify), with a `pressSequentially('')` nudge for frameworks that need key events;
+   b. `secrets.fillMode: 'evaluate'` **and** traces without DOM snapshots for that test
+      (`use: { trace: { mode: 'retain-on-failure', snapshots: false } }`, screenshots are fine), with a
+      `pressSequentially('')` nudge for frameworks that need key events. When a step resolves a secret and the active
+      trace config has snapshots on, `@aipw/test` warns once per test;
    c. disable traces for that test.
+
+   The Phase 5 secret-leak check greps unzipped traces too, not only `.aipw/`, reports and plans.
 4. Secrets only resolve for fields that look like credential fields (`type=password`, or `autocomplete` containing
    `password`/`one-time-code`), unless `secrets.allowAnyField: true`. This stops a prompt-injected page from
    getting a secret typed into a visible text field.

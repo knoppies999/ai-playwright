@@ -22,7 +22,7 @@ is the source of truth for what to build next and when a phase is done.
 11. **Locators**: follow the ladder in [docs/12](docs/12-element-identification.md). Test-id attributes (any spelling) first.
     Refs are for the model only and must never be stored.
 
-## Commands (once Phase 1 exists)
+## Commands
 
 ```bash
 npm run build        # tsup, all packages
@@ -38,7 +38,7 @@ npm run lint && npm run typecheck
 |---|---|
 | Public test API (`ai`, `gen` fixtures) | `packages/test` |
 | Engine | `packages/core/src/{step,loop,observe,actions,locators,cache,data,hints,nudge,llm,events}` |
-| Provider adapters | `packages/provider-{anthropic,openai,copilot}` |
+| Provider adapters | `packages/provider-{claude-code,anthropic,openai,copilot}` |
 | CLI (`aipw`) | `packages/cli` |
 | Public target profiles + usability scenarios | `examples/targets/<name>` |
 | Hard-UI-pattern test app (Phase 4) | `examples/demo-app` |

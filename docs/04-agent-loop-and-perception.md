@@ -32,19 +32,33 @@ Refs resolve to locators with the `aria-ref=` selector engine:
 const target = page.locator(`aria-ref=${ref}`);
 ```
 
-> ⚠ **verify in Phase 0:** `mode: 'ai'` is documented on `locator.ariaSnapshot`. The `aria-ref=`
-> selector is what Playwright MCP uses, but it is not clearly part of the public, documented API.
-> If it is unavailable or unstable, use the **fallback**: an injected DOM walker that assigns
-> `data-aipw-ref` attributes and emits the same YAML shape (Observer has an interface for this:
-> `SnapshotSource`). [12](12-element-identification.md) §2 explains how the injection works, and why refs
-> are only needed while the AI is deciding, never on replay.
+> **Verified in Phase 0 (spike 0.1, Playwright 1.64.0).** `mode: 'ai'` is public API (`page.ariaSnapshot` and
+> `locator.ariaSnapshot`). The `aria-ref=` selector works but is **still undocumented**: it isn't in Playwright's
+> public types. On SauceDemo, playwright.dev and three iframe pages, every ref resolved to exactly one element.
+> That includes iframe refs (`f1e3`, nested frames too), and filling an input inside an iframe through its ref worked.
+> Because the selector is undocumented, Playwright stays pinned and `SnapshotSource` keeps the injected walker
+> ([12](12-element-identification.md) §2 R2) as a tested fallback. The spike 0.1b prototype matched Playwright's
+> interactive-element count on every page.
 
-Refs are **only valid for the snapshot that produced them**. The executor rejects stale refs
-(a ref not in the latest snapshot) and asks the model to re-decide.
+Ref behaviour found in spike 0.1:
+- A ref belongs to an **element**, not a snapshot. An unchanged element keeps its ref across snapshots, and refs are
+  never reused for other elements. When the element is gone (re-rendered or navigated away), the ref matches 0 elements.
+  The executor must check `count()` before acting, because an action on a dead ref waits for the full timeout.
+- The executor still treats a ref missing from the *latest* snapshot as stale and asks the model to re-decide.
+
+**Input values are in the snapshot, including password fields** (`textbox "Password" [ref=e13]: secret_sauce`). The
+Observer must mask the values of `type=password` and credential-autocomplete fields before anything reaches a prompt
+(AGENTS.md rule 5). The Redactor is the second line of defence.
+
+**Snapshots keep changing for a few hundred ms after a page "loads"**: images enter the tree as they finish loading,
+and some controls appear late. The Observer therefore re-snapshots until two consecutive snapshots are identical
+(capped by `settle.maxMs`). That also makes `snapshotHash` deterministic.
 
 ### 1.2 Snapshot pruning (token budget)
 
-Raw snapshots of real admin apps can be 20–100k tokens. The Observer prunes before sending:
+Raw snapshots of real admin apps can be 20–100k tokens. Spike 0.2 measured SauceDemo at 140–1,560 tokens per page,
+but `playwright.dev/docs/api/class-page` at ~197k tokens. Steps 3–4 alone only got that down to ~192k, so step 5
+(the budget) does most of the work on big pages. The Observer prunes before sending:
 
 1. **Scope**: if the step has `scope`, snapshot only that locator.
 2. **Modal focus**: if an open `dialog`/`alertdialog` exists, snapshot the dialog plus a 1-line summary of the rest.
@@ -215,7 +229,7 @@ The adapter returns `{ tool, args, reasoning? }`. The loop validates `args` with
 | Custom comboboxes | `type` into the input, then `click` the option from the new snapshot |
 | Date pickers | Prefer `fill` on the input if editable. Otherwise navigate the calendar. Ship a hint pack for common libraries |
 | Virtualized lists | Pruned summary says "N more rows". Model uses search/filter, or `scroll` |
-| iframes | AI-mode snapshots include iframe content. Refs resolve across frames (⚠ verify in Phase 0) |
+| iframes | AI-mode snapshots include iframe content. Refs resolve across frames, nested frames included (verified in spike 0.1) |
 | Shadow DOM | ARIA snapshots pierce open shadow roots. Closed roots need vision |
 | Native dialogs | Captured and shown as `dialogs`. The model must call `handle_dialog` |
 | New tabs | Shown in `tabs`. `switch_tab` |
