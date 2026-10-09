@@ -27,7 +27,7 @@ flowchart LR
     pk["@aipw/provider-claude-code<br/>(Claude subscription)"]
     pa["@aipw/provider-anthropic"]
     po["@aipw/provider-openai<br/>(OpenAI, Azure, GH Models, Ollama…)"]
-    pc["@aipw/provider-copilot"]
+    pc["@aipw/provider-copilot<br/>(GitHub Copilot CLI)"]
   end
 
   browser[("Playwright Page")]
@@ -69,7 +69,7 @@ ai-playwright/
 │  ├─ provider-claude-code/ @aipw/provider-claude-code (dep: @anthropic-ai/claude-agent-sdk)
 │  ├─ provider-anthropic/   @aipw/provider-anthropic  (dep: @anthropic-ai/sdk)
 │  ├─ provider-openai/      @aipw/provider-openai     (dep: openai)
-│  ├─ provider-copilot/     @aipw/provider-copilot    (dep: @github/copilot-sdk)
+│  ├─ provider-copilot/     @aipw/provider-copilot    (dep: @github/copilot-sdk = the Copilot CLI engine)
 │  ├─ test/                 @aipw/test — Playwright Test fixtures (`ai`, `gen`), reporter, config loader
 │  └─ cli/                  @aipw/cli — `aipw nudge`, `aipw doctor`, `aipw cache …`
 ├─ examples/

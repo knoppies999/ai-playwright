@@ -27,7 +27,7 @@
 |---|---|---|
 | Q1 | ~~Which application first?~~ **A public web app, for usability** (decision D11): **SauceDemo** (`www.saucedemo.com`) | ~~Phase 0~~ answered |
 | Q2 | ~~OpenAI or Azure OpenAI?~~ **OpenAI model on Microsoft Foundry.** Still open: which model/deployment, key vs keyless (service connection), data-residency constraints | Phase 0 (spike 0.4) |
-| Q3 | Which Copilot plan and models are available on the other machine? Is it allowed to use Copilot for automated test runs under your org policy? | Phase 0 (spike 0.3) |
+| Q3 | Which Copilot plan and models does Copilot CLI offer on the other machine? Is it allowed to use Copilot for automated test runs under your org policy? | Phase 0 (spike 0.3) |
 | Q4 | ~~Test ids?~~ **Test-id attributes come first, in any spelling** (decision D10). Spike 0.1c: SauceDemo uses `data-test` only | ~~Phase 0~~ answered |
 | Q5 | Do test environments have a reset/seed API? It determines how good rewind and verification can be | Phase 6 |
 | Q6 | ~~Repo home?~~ **A private GitHub repo**, branch + PR per change. CI YAML exists for both Azure Pipelines and GitHub Actions. Still open: package feed for publishing (`@aipw/*` packages are `private: true` until then) | Phase 7 |

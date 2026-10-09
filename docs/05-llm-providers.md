@@ -304,10 +304,13 @@ Notes:
   using the `AnthropicFoundry` client from `@anthropic-ai/foundry-sdk`, not this adapter. Server-side `fallbacks` are not
   available on Foundry, so the adapter omits them there.
 
-## 5. Adapter: GitHub Copilot SDK (`@aipw/provider-copilot`) — local runs on another machine
+## 5. Adapter: GitHub Copilot CLI (`@aipw/provider-copilot`) — local runs on another machine
 
-Uses `@github/copilot-sdk` (GA since June 2026). It bundles the Copilot CLI runtime and authenticates as the
-logged-in Copilot user (or a `GITHUB_TOKEN`), so that machine needs a Copilot licence and **no separate API key**.
+Decision D13: "Copilot" means **GitHub Copilot CLI**. The adapter drives the Copilot CLI engine through
+`@github/copilot-sdk` (GA since June 2026), the CLI's programmatic interface: it ships the same runtime (a per-platform
+binary), uses the same Copilot sign-in (or a `GITHUB_TOKEN`) and spends the same premium requests. Running tests
+through it is running them through Copilot CLI, without the terminal UI. That machine needs a Copilot licence and
+**no separate API key**. (Shelling out to `copilot -p` is an alternative, but the SDK gives typed tool capture and usage events.)
 
 The Copilot SDK is an *agent runtime*: it runs its own loop and calls tools itself. To keep our engine in
 charge of the loop (D5), the adapter **captures** the tool call instead of letting Copilot execute anything:
@@ -372,6 +375,15 @@ async function decide(req: DecisionRequest): Promise<DecisionResponse> {
 **Fallback if the spike fails:** run Copilot-machine tests through the OpenAI adapter with the `github-models`
 preset (a PAT instead of a Copilot session). No engine changes are needed.
 
+### 5.1 Copilot in VS Code (not a provider, D13)
+
+Copilot in VS Code was considered and left out for now. The options, if it's wanted later:
+
+| Option | How | Trade-off |
+|---|---|---|
+| VS Code Copilot as the AI behind test runs | VS Code only exposes its Copilot models to extensions, through the Language Model API (`vscode.lm`, with tool calling). A small aipw extension would relay `decide`/`structured` from the test runner over localhost | Local only, and only while VS Code is open. Never in CI |
+| Copilot Chat drives aipw | The Phase 8 MCP server: act/assert/locate and "turn this into a spec" as MCP tools, usable from Copilot Chat agent mode and from Copilot CLI | Copilot is the agent here, not aipw's provider. Good for authoring and fixing tests |
+
 ## 6. Fake provider (unit tests)
 
 `FakeProvider` in core replays a scripted list of decisions keyed by step and turn, with optional
@@ -401,7 +413,7 @@ export default defineAipwConfig({
 |---|---|---|
 | This machine (dev) | `claude-code` | Claude Code sign-in (`claude auth login`), with `ANTHROPIC_API_KEY` unset |
 | This machine, with an API key | `anthropic` | `ANTHROPIC_API_KEY` |
-| Other machine (local) | `copilot` | Copilot sign-in on that machine |
+| Other machine (local) | `copilot` | Copilot CLI sign-in on that machine (or `GITHUB_TOKEN`) |
 | Azure Pipelines | `foundry` | Entra ID via the pipeline's Azure service connection (keyless), or `AZURE_FOUNDRY_API_KEY` as a secret variable |
 
 Optional: a different model for cheap sub-tasks (`assertModel`, `extractModel`), configured per provider. Off by default.
