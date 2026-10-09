@@ -13,6 +13,6 @@ describe('traceRecordsDom', () => {
     [{ mode: 'retain-on-failure', snapshots: { dom: false } }, false],
     [{ mode: 'retain-on-failure', snapshots: { aria: true } }, true],
   ] as const)('%j → %s', (trace, expected) => {
-    expect(traceRecordsDom(trace)).toBe(expected);
+    expect(traceRecordsDom(trace as Parameters<typeof traceRecordsDom>[0])).toBe(expected);
   });
 });
