@@ -23,5 +23,8 @@
   },
   "dependencies": {
     "@aipw/core": "0.0.0"
+  },
+  "peerDependencies": {
+    "playwright-core": "^1.64.0"
   }
 }
