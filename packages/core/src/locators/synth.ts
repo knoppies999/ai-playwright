@@ -18,7 +18,7 @@ export interface LocatorCandidate {
 export interface SynthOptions {
   /** Configured test-id attributes (any spelling) plus the ones detected for this origin. */
   testIdAttributes: readonly string[];
-  /** Playwright's `testIdAttribute`: matching ids are emitted as getByTestId(). */
+  /** Playwright's `testIdAttribute` (may be a comma-separated list): matching ids become getByTestId(). */
   playwrightTestIdAttribute: string;
   rejectTestIdValues: readonly RegExp[];
   rejectIdPatterns?: readonly RegExp[];
@@ -176,15 +176,16 @@ export async function synthesizeLocators(page: Page, target: Locator, opts: Synt
 
     // Ladder rungs in order; each base expression is tried as-is, then anchored inside a repeated item (L5).
     const bases: { rung: Rung; expr: LocatorExpr }[] = [];
+    // Playwright 1.64 accepts a comma-separated testIdAttribute list.
+    const pwTestIdAttrs = opts.playwrightTestIdAttribute.split(',').map((a) => a.trim().toLowerCase());
     for (const t of facts.testIds) {
       if (isRejectedTestIdValue(t.value, opts.rejectTestIdValues)) continue;
       if (!isConfiguredTestIdAttribute(t.attr, opts.testIdAttributes) && !looksLikeTestIdAttribute(t.attr)) continue;
       bases.push({
         rung: 'L1',
-        expr:
-          t.attr.toLowerCase() === opts.playwrightTestIdAttribute.toLowerCase()
-            ? [{ m: 'getByTestId', id: t.value }]
-            : [{ m: 'locator', selector: css(t.attr, t.value) }],
+        expr: pwTestIdAttrs.includes(t.attr.toLowerCase())
+          ? [{ m: 'getByTestId', id: t.value }]
+          : [{ m: 'locator', selector: css(t.attr, t.value) }],
       });
     }
     if (opts.role && !NO_ROLE_LOCATOR.has(opts.role) && opts.name && opts.name.length <= 80) {

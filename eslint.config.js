@@ -13,6 +13,8 @@ export default tseslint.config(
       // AGENTS.md rule 4: stored locator strings are interpreted, never evaluated.
       'no-eval': 'error',
       'no-new-func': 'error',
+      // Playwright fixtures must destructure their first argument, even when they use nothing: async ({}, use) => …
+      'no-empty-pattern': ['error', { allowObjectPatternsAsParameters: true }],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     },
   },

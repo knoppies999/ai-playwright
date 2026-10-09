@@ -1,3 +1,6 @@
+// Ambient `*.md` module types, needed when other packages typecheck core from source.
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+/// <reference path="../md.d.ts" />
 // Prompt builder (docs/04 §4). The prompt is rebuilt every turn, ordered from most stable to most
 // volatile for prompt caching: system → tools → hints → task → history → observation.
 import type { Observation } from '../observe/observer.js';

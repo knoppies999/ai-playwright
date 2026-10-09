@@ -41,11 +41,13 @@ export async function decideWithRepair(
 ): Promise<Decision> {
   let usage = emptyUsage();
   let problem = '';
+  let lastText: string | undefined;
   for (let attempt = 0; attempt < 2; attempt++) {
     const request =
       attempt === 0 ? req : { ...req, context: `${req.context}\n\nYOUR PREVIOUS REPLY WAS INVALID\n${problem}` };
     const res = await provider.decide(request, signal);
     usage = addUsage(usage, res.usage);
+    lastText = res.text;
     if (res.stop === 'refusal')
       throw new AiProviderError('refusal', `The model refused: ${res.text ?? 'no explanation'}`);
     if (!res.call) {
@@ -58,7 +60,8 @@ export async function decideWithRepair(
   }
   throw new AiProviderError(
     'no_tool_call',
-    `The model did not produce a valid tool call after a repair turn: ${problem}`,
+    `The model did not produce a valid tool call after a repair turn: ${problem}` +
+      (lastText ? `\nIts last reply: ${lastText.slice(0, 500)}` : ''),
   );
 }
 

@@ -12,6 +12,10 @@ const markdownAsText: Plugin = {
 
 export default defineConfig({
   plugins: [markdownAsText],
+  resolve: {
+    // Test workspace packages from source, never from a stale dist/.
+    alias: [{ find: /^@aipw\/([a-z-]+)$/, replacement: `${import.meta.dirname}/packages/$1/src/index.ts` }],
+  },
   test: {
     include: ['packages/*/test/**/*.test.ts'],
     environment: 'node',

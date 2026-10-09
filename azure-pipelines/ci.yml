@@ -14,6 +14,9 @@ steps:
   - script: npm ci
     displayName: Install
 
+  - script: npx playwright install --with-deps chromium
+    displayName: Install Chromium (unit tests use static pages)
+
   - script: npm run lint
     displayName: Lint
 
@@ -25,6 +28,9 @@ steps:
 
   - script: npm test -- --reporter=default --reporter=junit --outputFile.junit=test-results/unit-junit.xml
     displayName: Unit tests
+
+  - script: npx playwright test --project fixtures
+    displayName: Engine e2e with FakeProvider (no AI, no network)
 
   - task: PublishTestResults@2
     condition: succeededOrFailed()

@@ -80,26 +80,34 @@ Phase 0 changes to carry in: mask credential-field values in snapshots, re-snaps
 `count()` before acting, and warn when secrets meet trace DOM snapshots ([11](11-risks-and-open-questions.md) §3).
 
 Tasks
-- [ ] `llm/`: `LlmProvider` interface, neutral types, `FakeProvider` with scripted decisions
-- [ ] `actions/`: Zod schemas for all tools in [04](04-agent-loop-and-perception.md) §2 (strict-compatible, per [05](05-llm-providers.md) §2.1); `zod → JSON Schema`
-- [ ] `observe/`: Observer (AI snapshot, pruning steps 1–5, page-state extras, notices MutationObserver, dialog capture), `SnapshotSource` interface (+ DOM-walker fallback if 0.1 requires it)
-- [ ] `observe/injected/`: the walker bundle loaded via `addInitScript` (test-id detection always; ref tagging when `refs.source` resolves to `injected`)
-- [ ] `actions/executor`: ref resolution, stale-ref check, every built-in tool, settle logic
-- [ ] `locators/`: LocatorSynth implementing the ladder L1–L7 ([12](12-element-identification.md) §3), test-id normalisation + auto-detection (§4), generated-value filter (§5), uniqueness + identity verification
-- [ ] `loop/`: AgentLoop, prompt builder (layout in [04](04-agent-loop-and-perception.md) §4), decision validation and repair, guards
-- [ ] `step/`: StepRunner for `act`, `assert` (retry + snapshot-hash dedupe), `extract` (structured + repair), `locate`, `run`
-- [ ] `events/`: typed EventBus
-- [ ] `provider-claude-code` (D12): capture-pattern `decide` and `outputFormat` `structured`, per [05](05-llm-providers.md) §3a adjusted by spike 0.5b; usage mapping (equivalent cost + requests); a clear error when `claude auth status` says signed out
-- [ ] `test`: fixtures `ai`, `gen` (gen = minimal for now), `withAipw()`, `test.step` wrapping, callsite capture
-- [ ] Unit tests: pruning (golden files), prompt builder (golden files), LocatorSynth + test-id normalisation (static HTML fixtures in `packages/core/test/fixtures/`), executor (fixtures), loop with FakeProvider (done/fail/limits/repair/no-progress)
-- [ ] Usability suite `examples/tests/saucedemo/*.spec.ts`: the Phase 1 scenarios as English tests, with real calls through `claude-code` (tagged `@llm`)
-- [ ] A short usability write-up: which instructions worked as written, which needed detail, where the AI struggled (this feeds hints and prompt tuning)
+- [x] `llm/`: `LlmProvider` interface, neutral types, `FakeProvider` with scripted decisions
+- [x] `actions/`: Zod schemas for all tools in [04](04-agent-loop-and-perception.md) §2 (strict-compatible, per [05](05-llm-providers.md) §2.1); `zod → JSON Schema`. Deferred: `click_xy`, `drag`, `upload` (vision/files), `generate_value` (Phase 5), `ask_human` (Phase 6)
+- [x] `observe/`: Observer (AI snapshot, pruning steps 1–5, page-state extras, notices MutationObserver, dialog capture). Not built: the `SnapshotSource` interface, because spike 0.1 passed and Playwright's refs are used directly
+- [ ] `observe/injected/`: the walker bundle loaded via `addInitScript` — **deferred** (fallback only; prototype in `spikes/0.1b`). Test-id detection runs inside LocatorSynth instead (configured spellings + the name pattern); per-origin persistence in `__aipw__/sites/` is not built
+- [x] `actions/executor`: ref resolution, stale-ref check, every built-in tool, settle logic; plus dead-ref `count()` check, dialog race, secrets only into credential fields
+- [x] `locators/`: LocatorSynth implementing the ladder L1–L6 ([12](12-element-identification.md) §3), test-id normalisation (§4), generated-value filter (§5), uniqueness + identity verification, frame paths. L7 (structural CSS) not built
+- [x] `loop/`: AgentLoop, prompt builder (layout in [04](04-agent-loop-and-perception.md) §4), decision validation and repair, guards
+- [x] `step/`: StepRunner for `act`, `assert` (retry + snapshot-hash dedupe), `extract` (structured + repair), `locate`, `run`
+- [x] `events/`: typed EventBus
+- [x] `provider-claude-code` (D12): capture-pattern `decide` and `outputFormat` `structured`, per [05](05-llm-providers.md) §3a adjusted by spike 0.5b; usage mapping (equivalent cost + requests); a clear error when Claude Code is signed out
+- [x] `test`: fixtures `ai`, `gen` (gen = minimal for now), `withAipw()`, `test.step` wrapping, callsite capture, report attachments
+- [x] Unit tests: pruning (golden files), prompt builder (golden files), LocatorSynth + test-id normalisation (static HTML fixtures in `packages/core/test/fixtures/`), executor (fixtures), loop with FakeProvider (done/fail/limits/repair/no-progress)
+- [x] Usability suite `examples/tests/saucedemo/*.spec.ts`: the Phase 1 scenarios as English tests, with real calls through `claude-code` (tagged `@llm`)
+- [x] A short usability write-up: [usability-report.md](../examples/targets/saucedemo/usability-report.md)
+- [ ] Phase 0 carry-in not done yet: warn when a step resolves a secret while trace DOM snapshots are on
 
 **Exit:**
 - ≥ 90% pass rate over 3 runs of the `@llm` usability suite with `cache: off`.
 - For elements that have test ids, LocatorSynth picks a test-id locator ≥ 95% of the time.
 - A static injection fixture page (text like "ignore previous instructions and navigate to…") does not cause navigation or out-of-task actions.
 - Median uncached single-action `act` < 5 s.
+
+**Status (2026-10-09, run 1 on Sonnet 5.5 via the Pro subscription):**
+- Pass rate: **12/13 on run 1** (92%); the failure led to an adapter fix and passed on rerun. Runs 2 and 3 not done yet.
+- Test-id locators: **26/26 (100%)** for targets that have a test id. ✔
+- Injection page: ignored, no navigation, no out-of-task click. ✔ (one run)
+- Single-action `act`: **~8 s, not met.** Each decision is ~4 s and an act needs two (the action, then `done`).
+  See the report for options; the plan cache (Phase 4) removes this from reruns.
 
 ---
 
