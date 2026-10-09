@@ -158,7 +158,11 @@ const INTERACTIVE = new Set([
 
 export const approxTokens = (text: string): number => Math.ceil(text.length / 4);
 
-const describe = (n: SnapNode) => `${n.role}${n.name ? ` "${n.name}"` : n.value ? ` "${n.value}"` : ''}`;
+/** `button "Save"`; unnamed nodes (e.g. links inside aria-hidden regions) fall back to their text child. */
+function describe(n: SnapNode): string {
+  const label = n.name ?? n.value ?? n.children.find((c) => c.role === 'text' && c.value)?.value;
+  return `${n.role}${label ? ` "${label}"` : ''}`;
+}
 
 function countNodes(list: SnapNode[]): number {
   return list.reduce((sum, n) => sum + 1 + countNodes(n.children), 0);

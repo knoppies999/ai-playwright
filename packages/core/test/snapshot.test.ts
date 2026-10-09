@@ -10,7 +10,7 @@ import {
 } from '../src/observe/snapshot.js';
 import { expectGolden, fixture } from './golden.js';
 
-const SNAPSHOTS = ['saucedemo-inventory', 'saucedemo-menu-open', 'saucedemo-checkout-info', 'iframes'];
+const SNAPSHOTS = ['saucedemo-inventory', 'saucedemo-menu-animating', 'saucedemo-checkout-info', 'iframes'];
 
 describe('parseSnapshot / renderSnapshot', () => {
   it.each(SNAPSHOTS)('round-trips %s byte for byte', (name) => {

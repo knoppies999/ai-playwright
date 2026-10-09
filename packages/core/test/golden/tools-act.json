@@ -1,0 +1,549 @@
+[
+  {
+    "name": "click",
+    "description": "Click an element.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "ref": {
+          "type": "string",
+          "description": "Element ref from the current snapshot, e.g. \"e12\" or \"f1e3\""
+        },
+        "button": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "left",
+                "right",
+                "middle"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Default left"
+        },
+        "modifiers": {
+          "anyOf": [
+            {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "Alt",
+                  "Control",
+                  "Meta",
+                  "Shift"
+                ]
+              }
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Keys held during the click"
+        },
+        "clickCount": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "2 for a double click"
+        },
+        "intent": {
+          "type": "string",
+          "description": "What this action is trying to do, in at most 15 words"
+        }
+      },
+      "required": [
+        "ref",
+        "button",
+        "modifiers",
+        "clickCount",
+        "intent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "hover",
+    "description": "Move the mouse over an element, e.g. to open a hover menu. The pointer stays there.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "ref": {
+          "type": "string",
+          "description": "Element ref from the current snapshot, e.g. \"e12\" or \"f1e3\""
+        },
+        "intent": {
+          "type": "string",
+          "description": "What this action is trying to do, in at most 15 words"
+        }
+      },
+      "required": [
+        "ref",
+        "intent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "fill",
+    "description": "Replace the contents of a text field.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "ref": {
+          "type": "string",
+          "description": "Element ref from the current snapshot, e.g. \"e12\" or \"f1e3\""
+        },
+        "value": {
+          "type": "string",
+          "description": "Text to put in the field. May contain {{data.x}} or {{secret.x}} placeholders"
+        },
+        "intent": {
+          "type": "string",
+          "description": "What this action is trying to do, in at most 15 words"
+        }
+      },
+      "required": [
+        "ref",
+        "value",
+        "intent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "type",
+    "description": "Type into a field key by key (for comboboxes and widgets that react to key presses).",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "ref": {
+          "type": "string",
+          "description": "Element ref from the current snapshot, e.g. \"e12\" or \"f1e3\""
+        },
+        "text": {
+          "type": "string",
+          "description": "Typed key by key, for widgets that need key events (comboboxes)"
+        },
+        "submit": {
+          "description": "Press Enter afterwards",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "intent": {
+          "type": "string",
+          "description": "What this action is trying to do, in at most 15 words"
+        }
+      },
+      "required": [
+        "ref",
+        "text",
+        "submit",
+        "intent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "fill_form",
+    "description": "Fill several simple text fields in one action.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "fields": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "ref": {
+                "type": "string",
+                "description": "Element ref from the current snapshot, e.g. \"e12\" or \"f1e3\""
+              },
+              "value": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "ref",
+              "value"
+            ],
+            "additionalProperties": false
+          },
+          "description": "Several simple fields at once"
+        },
+        "intent": {
+          "type": "string",
+          "description": "What this action is trying to do, in at most 15 words"
+        }
+      },
+      "required": [
+        "fields",
+        "intent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "select_option",
+    "description": "Choose options in a native <select> element. Custom dropdowns need click instead.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "ref": {
+          "type": "string",
+          "description": "Element ref from the current snapshot, e.g. \"e12\" or \"f1e3\""
+        },
+        "values": {
+          "minItems": 1,
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Option labels or values of a native <select>"
+        },
+        "intent": {
+          "type": "string",
+          "description": "What this action is trying to do, in at most 15 words"
+        }
+      },
+      "required": [
+        "ref",
+        "values",
+        "intent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "set_checked",
+    "description": "Check or uncheck a checkbox, radio button or switch.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "ref": {
+          "type": "string",
+          "description": "Element ref from the current snapshot, e.g. \"e12\" or \"f1e3\""
+        },
+        "checked": {
+          "type": "boolean"
+        },
+        "intent": {
+          "type": "string",
+          "description": "What this action is trying to do, in at most 15 words"
+        }
+      },
+      "required": [
+        "ref",
+        "checked",
+        "intent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "press",
+    "description": "Press a key or key chord.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "description": "A key or chord, e.g. \"Enter\", \"Escape\", \"Control+A\""
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "type": "string",
+              "description": "Element ref from the current snapshot, e.g. \"e12\" or \"f1e3\""
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Element to focus first, or null for the focused element"
+        },
+        "intent": {
+          "type": "string",
+          "description": "What this action is trying to do, in at most 15 words"
+        }
+      },
+      "required": [
+        "key",
+        "ref",
+        "intent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "scroll",
+    "description": "Scroll the page or an element, for lazy loading and long lists.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "ref": {
+          "anyOf": [
+            {
+              "type": "string",
+              "description": "Element ref from the current snapshot, e.g. \"e12\" or \"f1e3\""
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Scrollable element, or null for the page"
+        },
+        "direction": {
+          "type": "string",
+          "enum": [
+            "up",
+            "down",
+            "left",
+            "right"
+          ]
+        },
+        "amount": {
+          "anyOf": [
+            {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 10
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Screens to scroll, default 1"
+        },
+        "intent": {
+          "type": "string",
+          "description": "What this action is trying to do, in at most 15 words"
+        }
+      },
+      "required": [
+        "ref",
+        "direction",
+        "amount",
+        "intent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "wait_for",
+    "description": "Wait for text or an element to appear or disappear, when the page is still loading.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "text": {
+          "description": "Wait until this text is visible",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ref": {
+          "anyOf": [
+            {
+              "type": "string",
+              "description": "Element ref from the current snapshot, e.g. \"e12\" or \"f1e3\""
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "state": {
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": [
+                "visible",
+                "hidden"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "For ref: wait for this state, default visible"
+        },
+        "ms": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 10000
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Fixed wait, only if nothing else fits"
+        },
+        "intent": {
+          "type": "string",
+          "description": "What this action is trying to do, in at most 15 words"
+        }
+      },
+      "required": [
+        "text",
+        "ref",
+        "state",
+        "ms",
+        "intent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "expand",
+    "description": "Show the full snapshot of a truncated subtree. Does not touch the page.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "ref": {
+          "type": "string",
+          "description": "Ref of a truncated subtree to show in full"
+        }
+      },
+      "required": [
+        "ref"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "handle_dialog",
+    "description": "Accept or dismiss the native browser dialog (alert, confirm, prompt) that is open.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "accept": {
+          "type": "boolean"
+        },
+        "promptText": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "intent": {
+          "type": "string",
+          "description": "What this action is trying to do, in at most 15 words"
+        }
+      },
+      "required": [
+        "accept",
+        "promptText",
+        "intent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "switch_tab",
+    "description": "Make another open tab active.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "index": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "intent": {
+          "type": "string",
+          "description": "What this action is trying to do, in at most 15 words"
+        }
+      },
+      "required": [
+        "index",
+        "intent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "go_back",
+    "description": "Go back in browser history.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "intent": {
+          "type": "string",
+          "description": "What this action is trying to do, in at most 15 words"
+        }
+      },
+      "required": [
+        "intent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "done",
+    "description": "Finish the step: it is complete. Quote page text that shows success.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string",
+          "description": "What was done"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Text quoted from the page that shows the step succeeded"
+        }
+      },
+      "required": [
+        "summary",
+        "evidence"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
+    "name": "fail",
+    "description": "Stop: the step cannot be completed. Use the most specific kind.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "not_found",
+            "ambiguous",
+            "blocked",
+            "unexpected_state"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "reason"
+      ],
+      "additionalProperties": false
+    }
+  }
+]

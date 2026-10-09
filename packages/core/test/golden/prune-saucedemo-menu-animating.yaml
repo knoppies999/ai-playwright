@@ -2,7 +2,7 @@
   - group:
     - button "Open Menu" [active] [ref=e8]
     - img "Open Menu" [ref=e9]
-    - hidden: contains button "All Items", button "Dynamic Catalog", link, button "Logout", button "Reset App State", button "Close Menu" (not usable until it is shown)
+    - hidden: contains button "All Items", button "Dynamic Catalog", link "About", button "Logout", button "Reset App State", button "Close Menu" (not usable until it is shown)
     - generic [ref=e22]: Swag Labs
     - button "Cart, empty" [ref=e25]
   - group:

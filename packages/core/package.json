@@ -15,7 +15,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --clean --sourcemap --target node22",
+    "build": "tsup src/index.ts --format esm --dts --clean --sourcemap --target node22 --loader .md=text",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {

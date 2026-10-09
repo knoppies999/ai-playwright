@@ -15,7 +15,9 @@ const USAGE: Usage = { inputTokens: 100, outputTokens: 10, requests: 1 };
 export type ScriptedDecision =
   | { tool: string; args: Record<string, unknown> }
   | { text: string }
-  | ((req: DecisionRequest) => { tool: string; args: Record<string, unknown> } | { text: string });
+  | ((req: DecisionRequest) => Decision | Promise<Decision>);
+
+type Decision = { tool: string; args: Record<string, unknown> } | { text: string };
 
 export type ScriptedStructured = unknown | ((req: StructuredRequest) => unknown);
 
@@ -52,7 +54,7 @@ export class FakeProvider implements LlmProvider {
     this.decisionRequests.push(req);
     const next = this.decisions.shift();
     if (next === undefined) throw new Error('FakeProvider: no scripted decision left');
-    const d = typeof next === 'function' ? next(req) : next;
+    const d = typeof next === 'function' ? await next(req) : next;
     if ('text' in d) return { text: d.text, stop: 'text', usage: USAGE };
     return { call: { tool: d.tool, args: d.args }, stop: 'tool', usage: USAGE };
   }
