@@ -88,6 +88,7 @@ async function decide(variant: string, maxTurns: number): Promise<Run> {
     allowedTools: ours,
     permissionMode: 'dontAsk', // anything not in allowedTools is denied without asking
     settingSources: [], // ignore ~/.claude settings, CLAUDE.md, hooks
+    strictMcpConfig: true, // only the MCP servers passed here: no claude.ai account connectors
     persistSession: false,
     maxTurns,
     cwd: mkdtempSync(join(tmpdir(), 'aipw-spike-')),
@@ -95,23 +96,28 @@ async function decide(variant: string, maxTurns: number): Promise<Run> {
 
   const run: Run = { variant, ms: 0, captured, otherToolUses: [], builtinsOffered: [] };
   const started = performance.now();
-  for await (const msg of query({ prompt: TASK, options }) as AsyncIterable<SDKMessage>) {
-    if (msg.type === 'system' && msg.subtype === 'init') {
-      run.apiKeySource = msg.apiKeySource;
-      run.model = msg.model;
-      run.builtinsOffered = msg.tools.filter((t) => !t.startsWith('mcp__aipw__'));
-    }
-    if (msg.type === 'assistant') {
-      for (const block of msg.message.content) {
-        if (block.type === 'tool_use' && !block.name.startsWith('mcp__aipw__')) run.otherToolUses.push(block.name);
+  try {
+    for await (const msg of query({ prompt: TASK, options }) as AsyncIterable<SDKMessage>) {
+      if (msg.type === 'system' && msg.subtype === 'init') {
+        run.apiKeySource = msg.apiKeySource;
+        run.model = msg.model;
+        run.builtinsOffered = msg.tools.filter((t) => !t.startsWith('mcp__aipw__'));
+      }
+      if (msg.type === 'assistant') {
+        for (const block of msg.message.content) {
+          if (block.type === 'tool_use' && !block.name.startsWith('mcp__aipw__')) run.otherToolUses.push(block.name);
+        }
+      }
+      if (msg.type === 'result') {
+        run.resultSubtype = msg.subtype;
+        run.numTurns = msg.num_turns;
+        run.costUsd = msg.total_cost_usd;
+        run.usage = msg.modelUsage;
       }
     }
-    if (msg.type === 'result') {
-      run.resultSubtype = msg.subtype;
-      run.numTurns = msg.num_turns;
-      run.costUsd = msg.total_cost_usd;
-      run.usage = msg.modelUsage;
-    }
+  } catch (error) {
+    // maxTurns: 1 ends with "Reached maximum number of turns", which the SDK throws after the result message.
+    run.resultSubtype = `${run.resultSubtype ?? ''} threw: ${String(error).slice(0, 80)}`;
   }
   run.ms = Math.round(performance.now() - started);
   return run;
@@ -136,7 +142,11 @@ async function structured(): Promise<Run> {
       settingSources: [],
       persistSession: false,
       permissionMode: 'dontAsk',
-      outputFormat: { type: 'json_schema', schema: z.toJSONSchema(schema) as Record<string, unknown> },
+      // The CLI rejects Zod's "$schema": draft 2020-12 marker, so drop it.
+      outputFormat: {
+        type: 'json_schema',
+        schema: (({ $schema: _, ...s }) => s)(z.toJSONSchema(schema)) as Record<string, unknown>,
+      },
       cwd: mkdtempSync(join(tmpdir(), 'aipw-spike-')),
     },
   }) as AsyncIterable<SDKMessage>) {
@@ -153,8 +163,8 @@ async function structured(): Promise<Run> {
 }
 
 const runs: Run[] = [];
-for (let i = 0; i < 3; i++) runs.push(await decide(`maxTurns=1 #${i + 1}`, 1));
-for (let i = 0; i < 2; i++) runs.push(await decide(`maxTurns=3 #${i + 1}`, 3));
+for (let i = 0; i < 2; i++) runs.push(await decide(`maxTurns=1 #${i + 1}`, 1));
+runs.push(await decide('maxTurns=3', 3));
 runs.push(await structured());
 
 console.table(

@@ -186,26 +186,34 @@ async decide(req: DecisionRequest, signal?: AbortSignal): Promise<DecisionRespon
       allowedTools: req.tools.map((t) => `mcp__aipw__${t.name}`),
       permissionMode: 'dontAsk',             // anything not allowed is denied, never prompted
       settingSources: [],                    // ignore ~/.claude settings, CLAUDE.md and hooks
+      strictMcpConfig: true,                 // only our server: no claude.ai account connectors (spike 0.5b)
       persistSession: false,                 // don't write session transcripts
-      maxTurns: 1,                           // end right after the tool call (⚠ spike 0.5b)
+      maxTurns: 1,                           // end right after the tool call: ~5 s instead of ~9 s (spike 0.5b)
       cwd: emptyTempDir,
       abortController,                       // wired to `signal`
     },
   })) { /* collect usage from the 'result' message */ }
+  // maxTurns: 1 makes the iterator throw "Reached maximum number of turns" after the result message.
+  // The adapter catches exactly that error when a call was captured; anything else is a real failure.
   return captured ? { call: captured, stop: 'tool', usage } : { stop: 'text', usage };
 }
 ```
 
 `structured()` uses `outputFormat: { type: 'json_schema', schema }` and reads `structured_output` from the result
-message. No tools are needed.
+message. No tools are needed. Strip the `$schema` key from `z.toJSONSchema()` output first: the CLI rejects Zod's
+draft 2020-12 marker.
 
 Notes:
 - **Tool schemas.** `tool()` takes a Zod raw shape, not JSON Schema. The adapter gets the Zod object from the tool
   registry (Zod is the source of truth anyway). Tool names reach the model as `mcp__aipw__<name>`; the adapter strips the prefix.
 - **Usage.** The result message has `modelUsage` (tokens per model) and `total_cost_usd`. The cost is the API-equivalent
   estimate, not what the subscription charges; reports show it as "equivalent cost" and count `requests`.
-- **Latency.** Every `query()` starts a Claude Code process. If spike 0.5b shows that dominates, keep one streaming-input
-  session per AI step and send each observation as the next message (the same fallback as Copilot, §5 item 4).
+- **Latency.** Every `query()` starts a Claude Code process. Spike 0.5b measured ~5 s per decision on Opus 5.5 (Pro
+  plan), process start included, and ~$0.012 equivalent cost. That's acceptable for now. If it becomes the bottleneck,
+  try a faster model (`AIPW_CLAUDE_MODEL`) first, then one streaming-input session per AI step (the Copilot fallback, §5 item 4).
+- **Safety.** `tools: []` only removes *built-in* tools. Without `strictMcpConfig: true`, the model was also offered the
+  account's claude.ai connectors (e.g. a docs connector). `allowedTools` + `dontAsk` would still deny them, but they
+  must not be offered at all.
 - **Limits.** An uncached run makes one request per decision. Lean on the plan cache; `budget.perRunRequests` applies.
 - **Do not set `ANTHROPIC_API_KEY`** in the shell that runs tests with this provider, or the SDK silently uses the key.
 - Phase 0 found the CLI not signed in on this machine even though the desktop app was. The desktop app's sign-in doesn't

@@ -14,7 +14,7 @@ Not part of the build, lint or CI. Run from the repo root with `npx tsx spikes/<
 | 0.3 Copilot SDK | `0.3-copilot-sdk.ts [modelId]` | `npm install` in `spikes/`, Copilot sign-in | **Run on the Copilot machine** |
 | 0.4 Foundry | `0.4-foundry.ts` | `npm install` in `spikes/`, `az login`, `AZURE_FOUNDRY_RESOURCE`, `AIPW_FOUNDRY_DEPLOYMENT` | **Run with Foundry access** |
 | 0.5 Anthropic API | `0.5-anthropic-api.ts [model]` | `npm install` in `spikes/`, `ANTHROPIC_API_KEY` | Deferred (no key) |
-| 0.5b Claude Agent SDK | `0.5b-claude-agent-sdk.ts [model]` | `npm install` in `spikes/`, `claude auth login`, **no** `ANTHROPIC_API_KEY` | **Run after signing in** (about 8 small requests on your plan) |
+| 0.5b Claude Agent SDK | `0.5b-claude-agent-sdk.ts [model]` | `npm install` in `spikes/`, `claude auth login`, **no** `ANTHROPIC_API_KEY` | Done (4 small requests on your plan per run) |
 | 0.6 toString / highlight | `0.6-tostring-highlight.ts` | Root install | Done |
 | 0.7 trace secrets | `0.7-trace-secrets.ts` | Root install | Done |
 

@@ -58,7 +58,7 @@ Implementers (human, Copilot or Claude) start with [AGENTS.md](AGENTS.md).
 **Phase 0 (spikes) is mostly done and Phase 1 (skeleton) is done.** The AI engine itself starts in Phase 2.
 
 - Phase 0 results and the design changes they caused are in [docs/11](docs/11-risks-and-open-questions.md) §3.
-  Three spikes still need another machine or a sign-in: 0.5b (`claude auth login` here), 0.3 (Copilot machine) and
+  Two spikes still need another machine: 0.3 (Copilot machine) and
   0.4 (Foundry). See [spikes/README.md](spikes/README.md).
 - Phase 1 gave us the npm workspaces monorepo, the SauceDemo target profile and scenarios, a plain-Playwright smoke
   spec, and CI (Azure Pipelines + GitHub Actions).

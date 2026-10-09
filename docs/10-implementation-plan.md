@@ -48,8 +48,8 @@ Record each answer in `docs/11-risks-and-open-questions.md` and adjust the desig
 
 **Exit:** every question has a written answer. The design is adjusted (e.g., DOM-walker fallback for refs, session-per-step for Copilot).
 
-**Status (2026-10-09):** 0.1, 0.1b, 0.1c, 0.2, 0.6 and 0.7 done on this machine; results and design changes are in
-[11](11-risks-and-open-questions.md) §3. Waiting on: **0.5b** (needs `claude auth login` here), **0.3** (Copilot machine),
+**Status (2026-10-09):** 0.1, 0.1b, 0.1c, 0.2, 0.5b, 0.6 and 0.7 done on this machine; results and design changes are in
+[11](11-risks-and-open-questions.md) §3. Waiting on: **0.3** (Copilot machine),
 **0.4** (Foundry access). 0.5 is deferred until there is an API key. Phase 1 went ahead in parallel because none of
 the open spikes affect it.
 
