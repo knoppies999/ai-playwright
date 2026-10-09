@@ -55,7 +55,7 @@ Implementers (human, Copilot or Claude) start with [AGENTS.md](AGENTS.md).
 
 ## Status
 
-**Phase 0 (spikes) is mostly done and Phase 1 (skeleton) is done.** The AI engine itself starts in Phase 2.
+**Phases 0–1 are done (two spikes still need other machines). Phase 2, the AI engine, works end to end** on the Claude Code subscription: 12 of 13 SauceDemo scenarios passed on the first live run ([report](examples/targets/saucedemo/usability-report.md)).
 
 - Phase 0 results and the design changes they caused are in [docs/11](docs/11-risks-and-open-questions.md) §3.
   Two spikes still need another machine: 0.3 (Copilot machine) and
@@ -67,5 +67,7 @@ Implementers (human, Copilot or Claude) start with [AGENTS.md](AGENTS.md).
 npm install
 npx playwright install chromium
 cp .env.example .env     # SauceDemo's public demo password
-npm run build && npm test && npm run e2e
+npm run build && npm test && npm run e2e   # no AI calls
+claude auth login        # once, for the claude-code provider
+npm run e2e:llm          # SauceDemo usability suite: real AI calls on your Claude plan
 ```

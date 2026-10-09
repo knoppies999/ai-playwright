@@ -10,3 +10,48 @@ export {
   normaliseAttributeName,
 } from './locators/test-ids.js';
 export type { DetectedTestIdAttribute } from './locators/test-ids.js';
+
+export { Ai } from './step/ai.js';
+export type { ActResult, AiDeps, AssertOptions, LocateResult, Verdict } from './step/ai.js';
+export type { ActionRecord, StepContext, StepKind, StepOptions, StepOutcome, TargetDescriptor } from './types.js';
+export {
+  AiAssertionError,
+  AiError,
+  AiExtractError,
+  AiProviderError,
+  AiStepError,
+  type Callsite,
+  type ProviderErrorKind,
+  type StepFailureKind,
+} from './errors.js';
+export { EventBus, type AipwEvent, type Listener } from './events/bus.js';
+export { Redactor, REDACTED } from './data/redactor.js';
+
+export { addUsage, emptyUsage } from './llm/provider.js';
+export type {
+  DecisionRequest,
+  DecisionResponse,
+  ImageInput,
+  JsonSchema,
+  LlmProvider,
+  ProviderCapabilities,
+  ProviderFactory,
+  StopReason,
+  StructuredRequest,
+  StructuredResponse,
+  ToolSpec,
+  Usage,
+} from './llm/provider.js';
+export { FakeProvider, type ScriptedDecision, type ScriptedStructured } from './llm/fake-provider.js';
+export { DEFAULT_PROVIDERS, loadProvider } from './llm/loader.js';
+
+export { TOOL_SCHEMAS, toJsonSchema, toolSpecs, type ToolCall, type ToolName } from './actions/schemas.js';
+export {
+  buildLocator,
+  describeLocator,
+  LocatorExprSchema,
+  type LocatorExpr,
+  type LocatorStep,
+} from './locators/expr.js';
+export { synthesizeLocators, type LocatorCandidate, type Rung } from './locators/synth.js';
+export { parseSnapshot, pruneSnapshot, renderSnapshot } from './observe/snapshot.js';

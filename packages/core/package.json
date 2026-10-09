@@ -15,10 +15,13 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --clean --sourcemap --target node22",
+    "build": "tsup src/index.ts --format esm --dts --clean --sourcemap --target node22 --loader .md=text",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {
     "zod": "^4.6.5"
+  },
+  "peerDependencies": {
+    "playwright-core": "^1.64.0"
   }
 }

@@ -1,0 +1,17 @@
+HINTS
+- Postal codes are 4 digits
+
+TASK
+kind: act
+instruction: Fill in the checkout form and continue
+DATA (use these values exactly; you may also write {{data.<key>}}):
+{
+  "firstName": "Thandi",
+  "lastName": "Mokoena",
+  "postalCode": "2196"
+}
+SECRETS (pass these placeholders verbatim; you never see the values): {{secret.password}}
+
+HISTORY (actions already taken in this step)
+#1 click button "Continue" [e30] (try to continue) → ok
+#2 fill textbox "First Name" [e22] value="{{data.firstName}}" (first name) → FAILED: Error: locator.fill: Timeout 5000ms exceeded.

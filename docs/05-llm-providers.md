@@ -214,6 +214,9 @@ Notes:
 - **Safety.** `tools: []` only removes *built-in* tools. Without `strictMcpConfig: true`, the model was also offered the
   account's claude.ai connectors (e.g. a docs connector). `allowedTools` + `dontAsk` would still deny them, but they
   must not be offered at all.
+- **Rejected calls.** Claude Code checks tool input against the Zod shape *before* calling our handler. A call that
+  fails that check never reaches the handler. The first live run lost a `done` call this way, so the adapter also
+  reads raw `tool_use` blocks and passes such a call to the engine, whose validator sends a precise repair message.
 - **Limits.** An uncached run makes one request per decision. Lean on the plan cache; `budget.perRunRequests` applies.
 - **Do not set `ANTHROPIC_API_KEY`** in the shell that runs tests with this provider, or the SDK silently uses the key.
 - Phase 0 found the CLI not signed in on this machine even though the desktop app was. The desktop app's sign-in doesn't

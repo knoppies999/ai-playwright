@@ -6,3 +6,5 @@ playwright-report/
 docs/
 spikes/out/
 *.md
+packages/*/test/fixtures/
+packages/*/test/golden/
