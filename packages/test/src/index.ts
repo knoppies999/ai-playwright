@@ -4,6 +4,7 @@ import {
   createGenerators,
   FilePlanStore,
   loadProvider,
+  NudgeController,
   planFilePath,
   resolveConfig,
   type AipwConfigInput,
@@ -98,11 +99,14 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     let warnedAboutTrace = false;
     const config = resolveConfig(aiConfig);
     const specFile = relative(process.cwd(), testInfo.file);
+    // Under `aipw nudge` (AIPW_NUDGE_PORT set), connect to the driver so the human can step through (docs/07).
+    const nudge = await NudgeController.fromEnv({ file: specFile, title: testInfo.titlePath.slice(1).join(' > ') });
     const ai = new Ai({
       page,
       provider: aipwProvider,
       config,
       gen,
+      nudge,
       // docs/06 §2: committed plans next to the spec; healed plans under heal.policy report go to .aipw/healed/.
       cache: {
         store: new FilePlanStore(planFilePath(testInfo.file, config.cache.dir)),
@@ -129,7 +133,11 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       }
     });
 
-    await use(ai);
+    try {
+      await use(ai);
+    } finally {
+      nudge?.close();
+    }
 
     // Report attachments (docs/09 §2.1). Events are already redacted.
     const decisions = events.filter((e) => e.type !== 'observation');
