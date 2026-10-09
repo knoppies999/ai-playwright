@@ -60,7 +60,25 @@ export const AipwConfigSchema = z.object({
       allowAnyField: z.boolean().default(false),
     })
     .prefault({}),
+  cache: z
+    .object({
+      /** docs/06 §1. AIPW_CACHE overrides it. */
+      mode: z.enum(['auto', 'replay-only', 'ai-only', 'refresh']).default('auto'),
+      /** Plan files live in this folder next to each spec. */
+      dir: z.string().default('__aipw__'),
+    })
+    .prefault({}),
+  heal: z
+    .object({
+      /** accept: write the healed plan · report: keep the old plan, write the new one to .aipw/healed/ · fail: fail the test. */
+      policy: z.enum(['accept', 'report', 'fail']).default(process.env.CI ? 'report' : 'accept'),
+      /** Fingerprint heals cost nothing and are deterministic, so they are allowed in replay-only mode. */
+      fingerprintInReplayOnly: z.boolean().default(true),
+    })
+    .prefault({}),
 });
+
+export type CacheMode = AipwConfig['cache']['mode'];
 
 export type AipwConfigInput = z.input<typeof AipwConfigSchema>;
 export type AipwConfig = z.output<typeof AipwConfigSchema>;
