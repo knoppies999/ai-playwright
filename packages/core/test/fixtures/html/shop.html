@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Shop fixture</title>
+  </head>
+  <body>
+    <header>
+      <button aria-label="Open Menu" id=":r1f:">☰</button>
+      <a href="#cart" data-test="shopping-cart-link">Cart</a>
+    </header>
+    <main>
+      <h1>Products</h1>
+      <div class="inventory_list">
+        <div class="inventory_item" data-test="inventory-item">
+          <a href="#p1" data-test="item-1-title-link"><div data-test="inventory-item-name">Backpack</div></a>
+          <div data-test="inventory-item-price">$29.99</div>
+          <button data-test="add-to-cart-backpack">Add to cart</button>
+        </div>
+        <div class="inventory_item" data-test="inventory-item">
+          <a href="#p2" data-test="item-2-title-link"><div data-test="inventory-item-name">Bike Light</div></a>
+          <div data-test="inventory-item-price">$9.99</div>
+          <button data-test="add-to-cart-bike-light">Add to cart</button>
+        </div>
+      </div>
+      <table>
+        <tr>
+          <td>thandi@example.com</td>
+          <td><button>Edit</button></td>
+        </tr>
+        <tr>
+          <td>sipho@example.com</td>
+          <td><button>Edit</button></td>
+        </tr>
+      </table>
+      <form aria-label="Checkout">
+        <label for="first">First Name</label><input id="first" name="firstName" />
+        <input placeholder="Zip/Postal Code" name="postalCode" id="input-48213" />
+        <input type="password" aria-label="Password" />
+        <button type="submit" id="checkout-continue">Continue</button>
+      </form>
+      <p>Forgot password?</p>
+      <span data-testid="a81f9c2d0b">generated id</span>
+    </main>
+  </body>
+</html>

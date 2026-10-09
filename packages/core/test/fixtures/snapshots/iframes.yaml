@@ -1,0 +1,13 @@
+- generic [active] [ref=e1]:
+  - heading "Frames" [level=1] [ref=e2]
+  - button "Outside" [ref=e3]
+  - iframe [ref=e4]:
+    - generic [ref=f1e1]:
+      - button "Inside frame" [ref=f1e2]
+      - textbox "Inner field" [ref=f1e3]
+  - iframe [ref=e5]:
+    - generic [ref=f2e1]:
+      - paragraph [ref=f2e2]: Level 1
+      - iframe [ref=f2e3]:
+        - link "Deep link" [ref=f3e2] [cursor=pointer]:
+          - /url: "#x"

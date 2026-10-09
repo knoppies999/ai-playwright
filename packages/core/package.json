@@ -20,5 +20,8 @@
   },
   "dependencies": {
     "zod": "^4.6.5"
+  },
+  "peerDependencies": {
+    "playwright-core": "^1.64.0"
   }
 }
