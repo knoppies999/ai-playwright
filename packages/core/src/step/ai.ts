@@ -14,6 +14,7 @@ import { applyHeals, describePlan, healByFingerprint, replayAct, resolveTarget }
 import type { PlanStore } from '../cache/store.js';
 import type { AipwConfig, CacheMode } from '../config.js';
 import { Redactor } from '../data/redactor.js';
+import { createGenerators, type Generators } from '../data/generators.js';
 import { DataResolver, envSecrets } from '../data/resolver.js';
 import {
   AiAssertionError,
@@ -55,6 +56,8 @@ export interface AiDeps {
   redactor?: Redactor;
   /** Values generated or extracted earlier in the test, shared across pages. */
   values?: Record<string, unknown>;
+  /** Test-data generators, seeded per test (docs/08 §3). Shared with the gen fixture. */
+  gen?: Generators;
   /** Plan cache for this test (docs/06). Without it every step goes to the AI. */
   cache?: {
     store: PlanStore;
@@ -138,6 +141,7 @@ export class Ai {
   readonly values: Record<string, unknown>;
   private ordinal = 0;
   private readonly stepOrdinals = new OrdinalCounter();
+  readonly gen: Generators;
   private _page: Page;
   /** Usage of every step run through this instance. */
   usage: Usage = emptyUsage();
@@ -147,6 +151,7 @@ export class Ai {
     this.redactor = deps.redactor ?? new Redactor();
     this.events = deps.events ?? new EventBus(this.redactor);
     this.values = deps.values ?? {};
+    this.gen = deps.gen ?? createGenerators({ seed: deps.idPrefix ?? 'aipw' });
   }
 
   /** The active page: changes when an AI step switches tabs. */
@@ -317,6 +322,7 @@ export class Ai {
             envSecrets(this.config.secrets.map),
             this.values,
             this.redactor,
+            this.gen,
           );
           const isAllowedUrl = this.isAllowed(this.allowedOrigins(this._page.url()));
           const executor = new ActionExecutor(session, {

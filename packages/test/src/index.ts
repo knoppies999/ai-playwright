@@ -1,6 +1,7 @@
 // Playwright Test integration (docs/03 §1): `test` with the `ai`, `gen` and `aiConfig` fixtures.
 import {
   Ai,
+  createGenerators,
   FilePlanStore,
   loadProvider,
   planFilePath,
@@ -8,6 +9,7 @@ import {
   type AipwConfigInput,
   type AipwEvent,
   type Callsite,
+  type Generators,
   type LlmProvider,
 } from '@aipw/core';
 import { test as base, type PlaywrightTestConfig } from '@playwright/test';
@@ -20,21 +22,11 @@ export { expect } from '@playwright/test';
 export type { Locator, Page } from '@playwright/test';
 export * from '@aipw/core';
 
-/** Test-data generators. Phase 5 adds SA ID, Luhn, IBAN, phone and the rest (docs/08 §3). */
-export interface Generators {
-  /** A unique address per call: aipw+<run>-<n>@example.com. */
-  email(domain?: string): string;
-  uuid(): string;
-}
-
-function createGenerators(): Generators {
-  const run = randomUUID().slice(0, 8);
-  let n = 0;
-  return {
-    email: (domain = 'example.com') => `aipw+${run}-${++n}@${domain}`,
-    uuid: () => randomUUID(),
-  };
-}
+/**
+ * Seed for this run's generated data (docs/08 §3): AIPW_SEED reproduces a run's values (nudge rewinds
+ * set it); otherwise every run gets fresh values, which keeps server-side uniqueness checks happy.
+ */
+const RUN_SEED = process.env.AIPW_SEED ?? randomUUID().slice(0, 8);
 
 const CONFIG_NAMES = ['aipw.config.ts', 'aipw.config.mts', 'aipw.config.js', 'aipw.config.mjs'];
 
@@ -101,7 +93,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     { scope: 'worker' },
   ],
 
-  ai: async ({ page, aiConfig, aipwProvider, baseURL, testIdAttribute, trace }, use, testInfo) => {
+  ai: async ({ page, aiConfig, aipwProvider, baseURL, testIdAttribute, trace, gen }, use, testInfo) => {
     const events: AipwEvent[] = [];
     let warnedAboutTrace = false;
     const config = resolveConfig(aiConfig);
@@ -110,6 +102,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       page,
       provider: aipwProvider,
       config,
+      gen,
       // docs/06 §2: committed plans next to the spec; healed plans under heal.policy report go to .aipw/healed/.
       cache: {
         store: new FilePlanStore(planFilePath(testInfo.file, config.cache.dir)),
@@ -160,7 +153,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     }
   },
 
-  gen: async ({}, use) => use(createGenerators()),
+  gen: async ({}, use, testInfo) => use(createGenerators({ seed: `${testInfo.testId}:${RUN_SEED}`, runId: RUN_SEED })),
 });
 
 /** Playwright config helper (docs/03 §1). AI steps are slow, so the default test timeout is 3 minutes. */

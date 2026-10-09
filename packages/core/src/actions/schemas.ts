@@ -69,6 +69,21 @@ export const TOOL_SCHEMAS = {
   switch_tab: z.strictObject({ index: z.number().int().min(0), intent }),
   go_back: z.strictObject({ intent }),
   navigate: z.strictObject({ url: z.string().describe('Absolute URL on an allowed origin'), intent }),
+  generate_value: z.strictObject({
+    kind: z
+      .string()
+      .describe(
+        'email, phone, saId, luhn, testCard, iban, vatNumber, date, uuid, slug, words, firstName, lastName, or a custom generator',
+      ),
+    params: z
+      .string()
+      .nullable()
+      .describe(
+        'JSON object of options, e.g. {"born":"1990-04-12","gender":"F"} for saId, {"country":"ZA"} for phone or iban',
+      ),
+    as: z.string().nullable().describe('Name to keep the value under, usable later as {{values.<name>}}'),
+    intent,
+  }),
   done: z.strictObject({
     summary: z.string().describe('What was done'),
     evidence: z.array(z.string()).describe('Text quoted from the page that shows the step succeeded'),
@@ -99,6 +114,8 @@ export const TOOL_DESCRIPTIONS: Record<ToolName, string> = {
   switch_tab: 'Make another open tab active.',
   go_back: 'Go back in browser history.',
   navigate: 'Open a URL. Only allowed origins.',
+  generate_value:
+    'Get a valid test value (SA ID number, IBAN, card number, email, phone…) from a generator instead of inventing one. The value appears in the history.',
   done: 'Finish the step: it is complete. Quote page text that shows success.',
   fail: 'Stop: the step cannot be completed. Use the most specific kind.',
 };
