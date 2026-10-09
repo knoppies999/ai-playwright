@@ -1,0 +1,24 @@
+{
+  "name": "@aipw/core",
+  "version": "0.0.0",
+  "private": true,
+  "description": "aipw engine: step runner, agent loop, observer, executor, locators, cache. No provider SDK or test-runner dependency.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean --sourcemap --target node22",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "zod": "^4.6.5"
+  }
+}

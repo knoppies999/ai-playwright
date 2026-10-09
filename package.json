@@ -1,0 +1,35 @@
+{
+  "name": "aipw",
+  "private": true,
+  "type": "module",
+  "description": "AI-driven Playwright testing (monorepo root)",
+  "engines": {
+    "node": ">=22"
+  },
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w @aipw/core && npm run build -w @aipw/test -w @aipw/provider-claude-code -w @aipw/provider-anthropic -w @aipw/provider-openai -w @aipw/provider-copilot -w @aipw/cli",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "e2e": "playwright test",
+    "e2e:llm": "playwright test --grep @llm",
+    "lint": "eslint . && prettier --check .",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit -p tsconfig.json && npm run typecheck --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "1.64.0",
+    "@types/node": "^24.0.0",
+    "eslint": "^10.12.0",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.9",
+    "tsup": "^8.5.1",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.71.1",
+    "vitest": "^5.0.3"
+  }
+}

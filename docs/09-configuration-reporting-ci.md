@@ -9,7 +9,7 @@
 import { defineAipwConfig } from '@aipw/core';
 
 export default defineAipwConfig({
-  provider: process.env.AIPW_PROVIDER ?? 'anthropic',
+  provider: process.env.AIPW_PROVIDER ?? 'claude-code',
   providers: { /* see docs/05 §7 */ },
 
   steps: {
@@ -59,10 +59,11 @@ export default defineAipwConfig({
 |---|---|
 | `AIPW_PROVIDER` | Provider key from `providers` |
 | `AIPW_MODEL` | Overrides the selected provider's model |
+| `AIPW_CLAUDE_MODEL` | Model for the `claude-code` provider (unset = the plan's default) |
 | `AIPW_CACHE` | Cache mode |
 | `AIPW_LOG` | `debug` prints every prompt and response (redacted) |
 | `AIPW_NUDGE_PORT`, `AIPW_NUDGE_RESUME_AT` | Set by `aipw nudge`. Don't set these by hand |
-| `ANTHROPIC_API_KEY` | Anthropic adapter |
+| `ANTHROPIC_API_KEY` | Anthropic API adapter. **Leave unset for `claude-code`**: if it is set, the Agent SDK bills the key instead of your subscription |
 | `AZURE_FOUNDRY_RESOURCE`, `AIPW_FOUNDRY_DEPLOYMENT` | Foundry preset (pipelines): resource name and model deployment name |
 | `AZURE_FOUNDRY_API_KEY` | Foundry with an API key. Leave unset for keyless Entra ID auth (`DefaultAzureCredential`) |
 | `OPENAI_API_KEY`, `AIPW_OPENAI_MODEL` | OpenAI directly |

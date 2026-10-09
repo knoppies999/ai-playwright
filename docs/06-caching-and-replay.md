@@ -40,8 +40,9 @@ stepKey = sha1( kind + normalise(instruction) + sorted(dataKeys) + sorted(secret
   `options.key` to pin it.
 - **Data keys, not data values**: `{ email: gen.email() }` produces a new value every run but hits the same plan.
 - `ordinal`: the nth call with the same instruction in the same test (two `ai.act('Save')` calls get different keys).
-- `scopeDescriptor`: a readable description of the scope locator (⚠ verify in Phase 0 that `locator.toString()` gives a
-  stable `getByRole(...)`-style string. If not, require `options.key` when `scope` is used).
+- `scopeDescriptor`: `locator.toString()` of the scope locator. Spike 0.6 confirmed it is readable and stable across
+  pages and runs, e.g. `getByRole('dialog', { name: 'New user' }).getByRole('button', { name: 'Save' })`. Caveat:
+  `getByTestId('x')` doesn't include the attribute name, so the active test-id attribute is added to the key separately.
 
 ## 4. Plan format
 

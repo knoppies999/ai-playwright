@@ -1,0 +1,24 @@
+{
+  "name": "@aipw/provider-claude-code",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Claude Agent SDK adapter for aipw: runs on a signed-in Claude Code subscription (development on this machine).",
+  "type": "module",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean --sourcemap --target node22",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@aipw/core": "0.0.0"
+  }
+}

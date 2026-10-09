@@ -22,7 +22,7 @@ export default defineConfig(withAipw({
 import { defineAipwConfig } from '@aipw/core';
 
 export default defineAipwConfig({
-  provider: process.env.AIPW_PROVIDER ?? 'anthropic',
+  provider: process.env.AIPW_PROVIDER ?? 'claude-code',
   cache: { mode: process.env.AIPW_CACHE ?? 'auto' },
 });
 ```

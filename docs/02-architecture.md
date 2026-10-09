@@ -24,6 +24,7 @@ flowchart LR
   end
 
   subgraph Providers["Provider packages"]
+    pk["@aipw/provider-claude-code<br/>(Claude subscription)"]
     pa["@aipw/provider-anthropic"]
     po["@aipw/provider-openai<br/>(OpenAI, Azure, GH Models, Ollama…)"]
     pc["@aipw/provider-copilot"]
@@ -65,6 +66,7 @@ ai-playwright/
 │  │  ├─ src/nudge/         NudgeController, rewind, remedy synthesis, source patcher
 │  │  ├─ src/llm/           LlmProvider interface, neutral message types, FakeProvider
 │  │  └─ src/events/        typed event bus
+│  ├─ provider-claude-code/ @aipw/provider-claude-code (dep: @anthropic-ai/claude-agent-sdk)
 │  ├─ provider-anthropic/   @aipw/provider-anthropic  (dep: @anthropic-ai/sdk)
 │  ├─ provider-openai/      @aipw/provider-openai     (dep: openai)
 │  ├─ provider-copilot/     @aipw/provider-copilot    (dep: @github/copilot-sdk)

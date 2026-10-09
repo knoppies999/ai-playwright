@@ -1,0 +1,24 @@
+{
+  "name": "@aipw/provider-openai",
+  "version": "0.0.0",
+  "private": true,
+  "description": "OpenAI-compatible adapter for aipw (Microsoft Foundry in pipelines, OpenAI, GitHub Models, Ollama).",
+  "type": "module",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean --sourcemap --target node22",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@aipw/core": "0.0.0"
+  }
+}
