@@ -94,7 +94,7 @@ Tasks
 - [x] Unit tests: pruning (golden files), prompt builder (golden files), LocatorSynth + test-id normalisation (static HTML fixtures in `packages/core/test/fixtures/`), executor (fixtures), loop with FakeProvider (done/fail/limits/repair/no-progress)
 - [x] Usability suite `examples/tests/saucedemo/*.spec.ts`: the Phase 1 scenarios as English tests, with real calls through `claude-code` (tagged `@llm`)
 - [x] A short usability write-up: [usability-report.md](../examples/targets/saucedemo/usability-report.md)
-- [ ] Phase 0 carry-in not done yet: warn when a step resolves a secret while trace DOM snapshots are on
+- [x] Phase 0 carry-in: `@aipw/test` warns (annotation + console) when an AI step enters a secret while trace DOM snapshots are on
 
 **Exit:**
 - ≥ 90% pass rate over 3 runs of the `@llm` usability suite with `cache: off`.

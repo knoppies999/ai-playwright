@@ -30,7 +30,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto(`${ORIGIN}/`);
 });
 
-test('logs in through the ai fixture and attaches redacted decisions', async ({ page, ai }) => {
+test('logs in through the ai fixture and attaches redacted decisions', async ({ page, ai }, testInfo) => {
   provider.script(
     pick('textbox "Username"', 'fill', { value: 'standard_user' }),
     pick('textbox "Password"', 'fill', { value: '{{secret.password}}' }),
@@ -45,6 +45,8 @@ test('logs in through the ai fixture and attaches redacted decisions', async ({ 
 
   // The fixture attaches decisions after the test; check the live events instead.
   expect(JSON.stringify(provider.decisionRequests)).not.toContain('Sup3r-Secret!');
+  // The project traces with DOM snapshots (retain-on-failure), so entering a secret must raise the spike 0.7 warning.
+  expect(testInfo.annotations.map((a) => a.type)).toContain('warning');
 });
 
 test('locate returns a durable test-id locator', async ({ ai }) => {
