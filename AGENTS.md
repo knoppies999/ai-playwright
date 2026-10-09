@@ -27,7 +27,8 @@ is the source of truth for what to build next and when a phase is done.
 ```bash
 npm run build        # tsup, all packages
 npm test             # vitest unit tests (no network)
-npm run e2e          # Playwright suites with FakeProvider (fixtures; demo app from Phase 4)
+npm run e2e          # FakeProvider suites (fixtures, demo-app healing) + SauceDemo smoke; no AI
+npx aipw cache stats  # plan files: steps, heals, steps that still need AI on replay
 npm run e2e:llm      # @llm-tagged suite with AIPW_PROVIDER (spends money)
 npm run lint && npm run typecheck
 ```

@@ -201,6 +201,9 @@ Each stored target also gets a **fingerprint**:
 
 When every stored locator fails, the injected script scores all elements with the same role/tag on the page
 against the fingerprint: a weighted similarity, with test id > name > ancestors > text > attributes > position.
+As built: weights test id 0.20, name 0.20, text 0.15, ancestors 0.15, label/placeholder 0.10, attributes 0.10, position
+0.10; features neither side has are dropped and the rest renormalised. A test id with the same attribute but a new value
+scores 0.5 (a rename), so "renamed id, same name and place" clears 0.80. `section`/`article`/`aside` count as ancestors.
 If the best score is ≥ 0.80 **and** at least 0.15 ahead of the runner-up, it is accepted as a heal with
 `source: 'fingerprint'`. New locators are synthesised for it and the plan is updated. Otherwise healing escalates to AI.
 

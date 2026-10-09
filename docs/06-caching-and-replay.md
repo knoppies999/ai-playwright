@@ -83,6 +83,10 @@ stepKey = sha1( kind + normalise(instruction) + sorted(dataKeys) + sorted(secret
 }
 ```
 
+> **As built (Phase 4):** locators are stored as structured locator expressions (`[{ "m": "getByTestId", "id": "save" }]`)
+> plus a readable `display` string, instead of strings that need parsing. Replays don't write `stats` (committed plans would
+> change on every run); only heals do. Plan files are excluded from Prettier because the stable writer owns their format.
+
 - `args` keep **placeholders** (`{{data.email}}`, `{{secret.pw}}`, `{{gen.saId({...})}}`), never resolved values.
 - `locators` are **Playwright locator expressions** stored as strings and parsed by a small, safe interpreter that
   allows only `getBy*`, `locator`, `filter`, `nth`, `first`, `last` and string/regex/option-object args. **Never `eval`.**
@@ -117,6 +121,13 @@ Replay runs the compiled check with Playwright's `expect` and the assert timeout
 - Conditions the model can't compile ("the chart trends upward") are stored as `"compiled": null` and always use the AI.
 
 ### Extract in the cache
+
+> **As built:** the model reports, for every leaf of the value, its JSON path and the element it read it from
+> (`"0.name" → e43`). At record time the engine rebuilds the value from those elements itself and stores the sources only
+> if the rebuild matches what the model returned. Replay reads and converts the text (numbers, strings, booleans, enums, and
+> arrays/objects of them) with **no model call at all**, which keeps `replay-only` at zero calls.
+> Compiled text checks (`toContainText`, `toHaveText`) also require the element to be visible, because `ai.assert` is about
+> what the page shows.
 
 The cache stores the **source locators** (where the data was read from). Replay reads `innerText` from them and:
 - for primitive schemas (`z.number()`, `z.string()`, enums) → deterministic coercion, no LLM.
