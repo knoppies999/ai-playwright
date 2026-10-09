@@ -283,6 +283,20 @@ export class ActionExecutor {
         await this.page.goBack({ timeout, waitUntil: 'domcontentloaded' });
         break;
       }
+      case 'generate_value': {
+        let params: Record<string, unknown>;
+        try {
+          params = call.args.params ? (JSON.parse(call.args.params) as Record<string, unknown>) : {};
+        } catch {
+          throw new ActionError('params must be a JSON object, e.g. {"born":"1990-04-12"}.');
+        }
+        try {
+          record.output = this.opts.data.generateValue(call.args.kind, params, call.args.as);
+        } catch (error) {
+          throw new ActionError(error instanceof Error ? error.message : String(error));
+        }
+        return;
+      }
       case 'navigate': {
         if (!this.opts.isAllowedUrl(call.args.url))
           throw new ActionError(`Navigation to ${call.args.url} is not allowed.`);
