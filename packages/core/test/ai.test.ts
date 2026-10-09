@@ -218,14 +218,14 @@ function provider_wait(): ScriptedDecision {
 describe('ai.assert / check', () => {
   it('passes on a positive verdict', async () => {
     const page = await openApp();
-    const provider = new FakeProvider([], [{ pass: true, reason: 'shown', evidence: ['Login'] }]);
+    const provider = new FakeProvider([], [{ pass: true, reason: 'shown', evidence: ['Login'], check: null }]);
     await expect(makeAi(page, provider).ai.assert('A login form is shown')).resolves.toMatchObject({ pass: true });
     expect(provider.structuredRequests[0]!.prompt).toContain('ASSERTION: A login form is shown');
   });
 
   it('judges each distinct snapshot once and throws AiAssertionError at the timeout', async () => {
     const page = await openApp();
-    const provider = new FakeProvider([], [{ pass: false, reason: 'not there', evidence: [] }]);
+    const provider = new FakeProvider([], [{ pass: false, reason: 'not there', evidence: [], check: null }]);
     const error = await makeAi(page, provider)
       .ai.assert('Welcome is shown', { timeout: 1200 })
       .catch((e) => e);
@@ -238,8 +238,8 @@ describe('ai.assert / check', () => {
     const provider = new FakeProvider(
       [],
       [
-        { pass: false, reason: 'not yet', evidence: [] },
-        { pass: true, reason: 'now', evidence: ['Welcome back!'] },
+        { pass: false, reason: 'not yet', evidence: [], check: null },
+        { pass: true, reason: 'now', evidence: ['Welcome back!'], check: null },
       ],
     );
     setTimeout(() => void page.evaluate(() => (document.getElementById('welcome')!.hidden = false)), 300);
@@ -250,7 +250,7 @@ describe('ai.assert / check', () => {
 
   it('check returns the verdict instead of throwing', async () => {
     const page = await openApp();
-    const provider = new FakeProvider([], [{ pass: false, reason: 'no', evidence: [] }]);
+    const provider = new FakeProvider([], [{ pass: false, reason: 'no', evidence: [], check: null }]);
     await expect(makeAi(page, provider).ai.check('Is there an error?')).resolves.toMatchObject({ pass: false });
   });
 });
@@ -261,8 +261,8 @@ describe('ai.extract', () => {
     const provider = new FakeProvider(
       [],
       [
-        { value: 'two', note: null },
-        { value: 2, note: null },
+        { value: 'two', note: null, sources: [] },
+        { value: 2, note: null, sources: [] },
       ],
     );
     await expect(makeAi(page, provider).ai.extract('number of buttons', z.number())).resolves.toBe(2);
@@ -274,8 +274,8 @@ describe('ai.extract', () => {
     const provider = new FakeProvider(
       [],
       [
-        { value: 'x', note: null },
-        { value: 'y', note: null },
+        { value: 'x', note: null, sources: [] },
+        { value: 'y', note: null, sources: [] },
       ],
     );
     await expect(makeAi(page, provider).ai.extract('a number', z.number())).rejects.toBeInstanceOf(AiExtractError);
@@ -312,8 +312,8 @@ describe('ai.run', () => {
     const provider = new FakeProvider(
       [done('clicked')],
       [
-        { pass: true, reason: 'ok', evidence: [] },
-        { value: 'Login', note: null },
+        { pass: true, reason: 'ok', evidence: [], check: null },
+        { value: 'Login', note: null, sources: [] },
       ],
     );
     const { ai, events } = makeAi(page, provider);

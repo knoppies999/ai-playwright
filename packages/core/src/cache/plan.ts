@@ -77,8 +77,8 @@ const StepPlanBase = z.strictObject({
   actions: z.array(PlanActionSchema).optional(),
   /** assert: null means the condition couldn't be compiled and is always judged by AI. */
   compiled: z.array(CompiledCheckSchema).nullable().optional(),
-  /** extract: where the data was read from. */
-  sources: z.array(PlanTargetSchema).optional(),
+  /** extract: for each leaf value, its JSON path ("" for a single value, "0.name", "total") and source element. */
+  sources: z.array(z.strictObject({ path: z.string(), target: PlanTargetSchema })).optional(),
   /** locate */
   target: PlanTargetSchema.optional(),
   stats: z.strictObject({ heals: z.number().int(), lastHealAt: z.string().optional() }),

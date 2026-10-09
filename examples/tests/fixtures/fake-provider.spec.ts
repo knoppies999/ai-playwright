@@ -38,7 +38,7 @@ test('logs in through the ai fixture and attaches redacted decisions', async ({ 
     pick('button "Login"', 'click', click),
     { tool: 'done', args: { summary: 'Logged in', evidence: ['Welcome back!'] } },
   );
-  provider.answer({ pass: true, reason: 'The welcome text is shown', evidence: ['Welcome back!'] });
+  provider.answer({ pass: true, reason: 'The welcome text is shown', evidence: ['Welcome back!'], check: null });
 
   await ai.act('Log in as the standard user', { secrets: ['password'] });
   await ai.assert('A welcome message is shown');

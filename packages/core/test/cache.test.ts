@@ -237,3 +237,117 @@ describe('fingerprint healing (L8)', () => {
     expect(error.message).toMatch(/Replay failed/);
   });
 });
+
+describe('caching assert, extract and locate', () => {
+  const refOf = (text: string, prompt: string) => {
+    const ref = /\[ref=([^\]]+)\]/.exec(prompt.split('\n').find((l) => l.includes(text)) ?? '')?.[1];
+    if (!ref) throw new Error(`no ref for "${text}"`);
+    return ref;
+  };
+  const shop =
+    (prices = ['$29.99', '$9.99']) =>
+    (s: string) =>
+      s.replace(
+        '<main>',
+        `<main><ul aria-label="Prices"><li data-test="price-1">${prices[0]}</li><li data-test="price-2">${prices[1]}</li></ul>`,
+      );
+
+  it('assert replays its compiled check with no AI, and the AI re-judges when it fails', async () => {
+    const store = new MemoryPlanStore();
+    const page = await openApp();
+    await page.evaluate(() => (document.getElementById('welcome')!.hidden = false));
+    const recorder = new FakeProvider(
+      [],
+      [
+        (req: { prompt: string }) => ({
+          pass: true,
+          reason: 'shown',
+          evidence: ['Welcome back!'],
+          check: {
+            expect: 'toContainText',
+            ref: refOf('Welcome back!', req.prompt),
+            args: ['Welcome back'],
+            not: false,
+          },
+        }),
+      ],
+    );
+    await makeAi(page, recorder, store).ai.assert('A welcome message is shown');
+    const plan = Object.values(store.file.tests[TEST]!)[0]!;
+    expect(plan.compiled![0]).toMatchObject({ expect: 'toContainText', args: ['Welcome back'] });
+
+    const replayer = new FakeProvider();
+    const { ai, events } = makeAi(page, replayer, store);
+    await expect(ai.assert('A welcome message is shown')).resolves.toMatchObject({ pass: true });
+    expect(replayer.structuredRequests).toHaveLength(0);
+    expect(events.find((e) => e.type === 'cache')).toMatchObject({ outcome: 'hit' });
+
+    // The message disappears: the compiled check fails, the AI re-judges and confirms the failure.
+    await page.evaluate(() => (document.getElementById('welcome')!.hidden = true));
+    const judge = new FakeProvider([], [{ pass: false, reason: 'no welcome', evidence: [], check: null }]);
+    await expect(makeAi(page, judge, store).ai.assert('A welcome message is shown', { timeout: 300 })).rejects.toThrow(
+      /AI assertion failed/,
+    );
+    expect(judge.structuredRequests).toHaveLength(1);
+  });
+
+  it('extract replays from its source elements and reads the new values', async () => {
+    const store = new MemoryPlanStore();
+    const recorder = new FakeProvider(
+      [],
+      [
+        (req: { prompt: string }) => ({
+          value: [29.99, 9.99],
+          note: null,
+          sources: [
+            { path: '0', ref: refOf('$29.99', req.prompt) },
+            { path: '1', ref: refOf('$9.99', req.prompt) },
+          ],
+        }),
+      ],
+    );
+    const prices = (await import('zod')).z.array((await import('zod')).z.number());
+    await expect(makeAi(await openApp(shop()), recorder, store).ai.extract('the prices', prices)).resolves.toEqual([
+      29.99, 9.99,
+    ]);
+
+    const replayer = new FakeProvider();
+    const value = await makeAi(await openApp(shop(['$31.50', '$8.00'])), replayer, store, {
+      cache: { mode: 'replay-only' },
+    }).ai.extract('the prices', prices);
+    expect(value).toEqual([31.5, 8]);
+    expect(replayer.structuredRequests).toHaveLength(0);
+  });
+
+  it('extract does not store sources that would not rebuild the value', async () => {
+    const store = new MemoryPlanStore();
+    const recorder = new FakeProvider(
+      [],
+      [
+        (req: { prompt: string }) => ({
+          value: 123,
+          note: null,
+          sources: [{ path: '', ref: refOf('$29.99', req.prompt) }],
+        }),
+      ],
+    );
+    const z = (await import('zod')).z;
+    await makeAi(await openApp(shop()), recorder, store).ai.extract('some number', z.number());
+    expect(Object.values(store.file.tests[TEST]!)[0]!.sources).toEqual([]);
+  });
+
+  it('locate replays its stored target with no AI', async () => {
+    const store = new MemoryPlanStore();
+    const recorder = new FakeProvider(
+      [],
+      [(req: { prompt: string }) => ({ ref: refOf('button "Save"', req.prompt), reason: 'save' })],
+    );
+    await makeAi(await openApp(), recorder, store).ai.locate('the save button');
+    const replayer = new FakeProvider();
+    const loc = await makeAi(await openApp(), replayer, store, { cache: { mode: 'replay-only' } }).ai.locate(
+      'the save button',
+    );
+    expect(loc.toString()).toBe("getByTestId('save')");
+    expect(replayer.structuredRequests).toHaveLength(0);
+  });
+});

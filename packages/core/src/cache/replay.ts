@@ -84,7 +84,7 @@ export interface ReplayDeps {
 }
 
 /** L8: find the element by fingerprint and give it fresh, verified locators. */
-async function healByFingerprint(page: Page, target: PlanTarget, synth: Omit<SynthOptions, 'role' | 'name'>) {
+export async function healByFingerprint(page: Page, target: PlanTarget, synth: Omit<SynthOptions, 'role' | 'name'>) {
   if (!target.fingerprint) return undefined;
   const match = await findByFingerprint(page, target.fingerprint);
   if (!match) return undefined;
