@@ -20,6 +20,8 @@ export interface ExecutorOptions {
   settle: { maxMs: number; networkQuietMs: number };
   expandMaxTokens: number;
   allowSecretsAnywhere: boolean;
+  /** docs/08 §4 rule 3b: 'evaluate' sets secret values by script instead of typing them. */
+  secretFillMode?: 'fill' | 'evaluate';
   isAllowedUrl: (url: string) => boolean;
 }
 
@@ -86,6 +88,26 @@ export class ActionExecutor {
       if (error instanceof PlaceholderError) throw new ActionError(error.message);
       throw error;
     }
+  }
+
+  /**
+   * Fills a field. A secret with secretFillMode 'evaluate' is set by script (through the native value setter,
+   * so React-style controlled inputs see it) and announced with input/change events: the trace then shows
+   * the call but not the value (spike 0.7).
+   */
+  private async fillValue(loc: Locator, value: string, secret: boolean, timeout: number): Promise<void> {
+    if (!secret || this.opts.secretFillMode !== 'evaluate') {
+      await loc.fill(value, { timeout });
+      return;
+    }
+    await loc.evaluate((el, v) => {
+      const input = el as HTMLInputElement;
+      const setter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(input), 'value')?.set;
+      if (setter) setter.call(input, v);
+      else input.value = v;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }, value);
   }
 
   /** docs/08 §4 rule 4: secrets only go into credential fields, so an injected page can't harvest them. */
@@ -194,7 +216,7 @@ export class ActionExecutor {
         record.target = await this.describe(call.args.ref, loc, obs);
         const { value, usesSecret } = this.resolveValue(call.args.value);
         await this.guardSecret(loc, usesSecret);
-        await loc.fill(value, { timeout });
+        await this.fillValue(loc, value, usesSecret, timeout);
         break;
       }
       case 'type': {
@@ -202,7 +224,8 @@ export class ActionExecutor {
         record.target = await this.describe(call.args.ref, loc, obs);
         const { value, usesSecret } = this.resolveValue(call.args.text);
         await this.guardSecret(loc, usesSecret);
-        await loc.pressSequentially(value, { timeout, delay: 20 });
+        if (usesSecret && this.opts.secretFillMode === 'evaluate') await this.fillValue(loc, value, true, timeout);
+        else await loc.pressSequentially(value, { timeout, delay: 20 });
         if (call.args.submit) await loc.press('Enter', { timeout });
         break;
       }
@@ -215,9 +238,9 @@ export class ActionExecutor {
           record.targets.push(await this.describe(f.ref, loc, obs));
           const resolved = this.resolveValue(f.value);
           await this.guardSecret(loc, resolved.usesSecret);
-          fields.push({ loc, value: resolved.value });
+          fields.push({ loc, value: resolved.value, secret: resolved.usesSecret });
         }
-        for (const f of fields) await f.loc.fill(f.value, { timeout });
+        for (const f of fields) await this.fillValue(f.loc, f.value, f.secret, timeout);
         break;
       }
       case 'select_option': {
