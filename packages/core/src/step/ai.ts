@@ -515,7 +515,16 @@ export class Ai {
   /** Turns the model's proposed check into a validated compiled check, or null if it doesn't hold now. */
   private async compileCheck(obs: Observation, check: Verdict['check'], page: Page): Promise<CompiledCheck | null> {
     if (!check) return null;
-    const target = check.expect === 'toHaveURL' ? undefined : await this.targetFor(obs, check.ref);
+    let target = check.expect === 'toHaveURL' ? undefined : await this.targetFor(obs, check.ref);
+    // A container without a durable locator (e.g. a plain list): for visibility, its first descendant
+    // that has one is visible exactly when the container is.
+    if (!target && check.ref && (check.expect === 'toBeVisible' || check.expect === 'toBeHidden')) {
+      const queue = [...(findByRef(obs.tree, check.ref)?.node.children ?? [])];
+      for (let n = queue.shift(); n && !target; n = queue.shift()) {
+        if (n.ref) target = await this.targetFor(obs, n.ref);
+        queue.push(...n.children);
+      }
+    }
     if (check.expect !== 'toHaveURL' && !target) return null;
     const compiled: CompiledCheck = {
       expect: check.expect,
@@ -557,6 +566,7 @@ export class Ai {
             pass: value.pass,
             reason: value.reason,
             evidence: value.evidence,
+            check: value.check ?? null,
             usage,
           });
           if (value.pass) return { verdict: value, compiled: await this.compileCheck(obs, value.check, session.page) };

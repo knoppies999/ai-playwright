@@ -19,7 +19,16 @@ export type AipwEvent =
     }
   | { type: 'action'; stepId: string; record: ActionRecord }
   | { type: 'observation'; stepId: string; url: string; snapshot: string; snapshotHash: string }
-  | { type: 'verdict'; stepId: string; pass: boolean; reason: string; evidence: string[]; usage: Usage }
+  | {
+      type: 'verdict';
+      stepId: string;
+      pass: boolean;
+      reason: string;
+      evidence: string[];
+      /** The compiled check the model proposed, for review in reports (risk R6: weak checks). */
+      check?: unknown;
+      usage: Usage;
+    }
   | { type: 'cache'; stepId: string; key: string; outcome: 'hit' | 'miss' | 'broken' | 'stored'; reason?: string }
   | {
       type: 'heal';
