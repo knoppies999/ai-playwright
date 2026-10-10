@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Demo · Dashboard</title>
+    <script src="/shared.js"></script>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 0;
+      }
+      header {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        background: #eef;
+      }
+      .menu {
+        position: relative;
+      }
+      .flyout {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        background: white;
+        border: 1px solid #ccc;
+        padding: 0.25rem;
+        display: none;
+      }
+      .menu:hover .flyout,
+      .menu:focus-within .flyout {
+        display: block;
+      } /* hover-only menu */
+      .flyout a {
+        display: block;
+        padding: 0.25rem 0.5rem;
+        white-space: nowrap;
+      }
+      main {
+        padding: 1rem;
+      }
+      section {
+        border: 1px solid #ddd;
+        padding: 0.5rem;
+        margin: 0.5rem 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <strong>Demo admin</strong>
+      <nav aria-label="Main" id="nav"></nav>
+    </header>
+    <main>
+      <h1>Dashboard</h1>
+      <!-- Two identical "Save" buttons: only their test ids and sections tell them apart. -->
+      <section aria-label="Profile">
+        <h2>Profile</h2>
+        <button data-save="profile">Save</button>
+      </section>
+      <section aria-label="Notifications">
+        <h2>Notifications</h2>
+        <button data-save="notifications">Save</button>
+      </section>
+      <p role="status" id="status"></p>
+    </main>
+    <script>
+      const { v } = window.DEMO;
+      // Variant A: Settings is a hover flyout in the header with Users and Roles.
+      // Variant B: the menu moved into "Admin", and "Users" is now called "People".
+      document.getElementById('nav').innerHTML = v(
+        `<div class="menu"><button aria-haspopup="true">Settings</button>
+           <div class="flyout"><a href="/users">Users</a><a href="#roles">Roles</a></div></div>`,
+        `<div class="menu"><button aria-haspopup="true">Admin</button>
+           <div class="flyout"><a href="#audit">Audit log</a><a href="/users">People</a></div></div>`,
+      );
+      // Test ids renamed in B; the buttons look and sit exactly where they did (fingerprint heals).
+      // No ids on these buttons: their test id is the only durable locator, so renaming it needs a heal.
+      for (const [key, label, a, b] of [
+        ['profile', 'Profile', 'save-profile', 'profile-save'],
+        ['notifications', 'Notifications', 'save-notifications', 'notifications-save'],
+      ]) {
+        const button = document.querySelector(`[data-save="${key}"]`);
+        button.dataset.testid = v(a, b);
+        button.addEventListener('click', () => (document.getElementById('status').textContent = `${label} saved`));
+      }
+    </script>
+  </body>
+</html>

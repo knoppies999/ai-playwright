@@ -1,7 +1,9 @@
 // Playwright Test integration (docs/03 §1): `test` with the `ai`, `gen` and `aiConfig` fixtures.
 import {
   Ai,
+  FilePlanStore,
   loadProvider,
+  planFilePath,
   resolveConfig,
   type AipwConfigInput,
   type AipwEvent,
@@ -63,6 +65,18 @@ function captureCallsite(): Callsite | undefined {
   return undefined;
 }
 
+const usesSecret = (args: Record<string, unknown>) => /\{\{\s*secret\./.test(JSON.stringify(args));
+
+type TraceOption = string | { mode: string; snapshots?: boolean | { dom?: boolean } };
+
+/** True if this trace setting records DOM snapshots (the default whenever tracing is on). */
+export function traceRecordsDom(trace: TraceOption): boolean {
+  if (typeof trace === 'string') return trace !== 'off';
+  if (trace.mode === 'off') return false;
+  const s = trace.snapshots;
+  return s === undefined || s === true || (typeof s === 'object' && s.dom !== false);
+}
+
 interface TestFixtures {
   ai: Ai;
   gen: Generators;
@@ -87,19 +101,40 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     { scope: 'worker' },
   ],
 
-  ai: async ({ page, aiConfig, aipwProvider, baseURL, testIdAttribute }, use, testInfo) => {
+  ai: async ({ page, aiConfig, aipwProvider, baseURL, testIdAttribute, trace }, use, testInfo) => {
     const events: AipwEvent[] = [];
+    let warnedAboutTrace = false;
+    const config = resolveConfig(aiConfig);
+    const specFile = relative(process.cwd(), testInfo.file);
     const ai = new Ai({
       page,
       provider: aipwProvider,
-      config: resolveConfig(aiConfig),
+      config,
+      // docs/06 §2: committed plans next to the spec; healed plans under heal.policy report go to .aipw/healed/.
+      cache: {
+        store: new FilePlanStore(planFilePath(testInfo.file, config.cache.dir)),
+        testTitle: testInfo.titlePath.slice(1).join(' > '),
+        healedStore: new FilePlanStore(join(process.cwd(), '.aipw', 'healed', `${specFile}.plans.json`)),
+      },
       baseURL,
       playwrightTestIdAttribute: testIdAttribute,
       wrapStep: (title, fn) => base.step(title, fn, { box: true }),
       captureCallsite,
       idPrefix: testInfo.testId,
     });
-    ai.events.on((e) => events.push(e));
+    ai.events.on((e) => {
+      events.push(e);
+      // Spike 0.7: trace DOM snapshots record input values, password fields included, whatever fill method
+      // was used. A secret typed by an AI step while they are on ends up in trace.zip (docs/08 §4 rule 3).
+      if (!warnedAboutTrace && e.type === 'action' && usesSecret(e.record.args) && traceRecordsDom(trace)) {
+        warnedAboutTrace = true;
+        const message =
+          'aipw: an AI step entered a secret while trace DOM snapshots are on, so the value can end up in the trace. ' +
+          "Use code-based login, or test.use({ trace: { mode: 'retain-on-failure', snapshots: false } }) for this test.";
+        testInfo.annotations.push({ type: 'warning', description: message });
+        console.warn(message);
+      }
+    });
 
     await use(ai);
 

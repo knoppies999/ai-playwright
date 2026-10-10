@@ -18,4 +18,9 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
     },
   },
+  {
+    // Demo app client scripts run in the browser.
+    files: ['examples/demo-app/public/**'],
+    languageOptions: { globals: { ...globals.browser } },
+  },
 );

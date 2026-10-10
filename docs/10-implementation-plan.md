@@ -94,7 +94,7 @@ Tasks
 - [x] Unit tests: pruning (golden files), prompt builder (golden files), LocatorSynth + test-id normalisation (static HTML fixtures in `packages/core/test/fixtures/`), executor (fixtures), loop with FakeProvider (done/fail/limits/repair/no-progress)
 - [x] Usability suite `examples/tests/saucedemo/*.spec.ts`: the Phase 1 scenarios as English tests, with real calls through `claude-code` (tagged `@llm`)
 - [x] A short usability write-up: [usability-report.md](../examples/targets/saucedemo/usability-report.md)
-- [ ] Phase 0 carry-in not done yet: warn when a step resolves a secret while trace DOM snapshots are on
+- [x] Phase 0 carry-in: `@aipw/test` warns (annotation + console) when an AI step enters a secret while trace DOM snapshots are on
 
 **Exit:**
 - ≥ 90% pass rate over 3 runs of the `@llm` usability suite with `cache: off`.
@@ -102,8 +102,8 @@ Tasks
 - A static injection fixture page (text like "ignore previous instructions and navigate to…") does not cause navigation or out-of-task actions.
 - Median uncached single-action `act` < 5 s.
 
-**Status (2026-10-09, run 1 on Sonnet 5.5 via the Pro subscription):**
-- Pass rate: **12/13 on run 1** (92%); the failure led to an adapter fix and passed on rerun. Runs 2 and 3 not done yet.
+**Status (2026-10-09, 3 runs on Sonnet 5.5 via the Pro subscription):**
+- Pass rate: **38/39 = 97%** over 3 runs (12/13, 13/13, 13/13). ✔ The run-1 failure led to the adapter's raw `tool_use` fallback, which then rescued 5 malformed `done` calls in runs 2–3 via a repair turn.
 - Test-id locators: **26/26 (100%)** for targets that have a test id. ✔
 - Injection page: ignored, no navigation, no out-of-task click. ✔ (one run)
 - Single-action `act`: **~8 s, not met.** Each decision is ~4 s and an act needs two (the action, then `done`).
@@ -130,20 +130,32 @@ The metrics JSON for all three providers is committed under `docs/conformance/`.
 ## Phase 4 — Plan cache, replay, healing and the demo app (L)
 
 Tasks
-- [ ] Step keys, plan file format, stable JSON writer, locator-expression interpreter (no `eval`)
-- [ ] Replay engine with pre/post checks and events (`source: 'cache'`)
-- [ ] Compiled checks for `assert`, and the AI re-judge path
-- [ ] Extract replay (primitive coercion / text-only structured call)
-- [ ] Fingerprints stored with every target. Fingerprint healing L8 ([12](12-element-identification.md) §6), allowed in `replay-only`
-- [ ] AI healing with context, history of 3 plan versions, `heal.policy` behaviours
-- [ ] `aipw cache stats|prune|refresh|show`
-- [ ] **Demo app** (`examples/demo-app`) with the pages in [02](02-architecture.md) §6 and `?variant=b` UI changes (renamed test ids, reworded buttons, moved menus), because healing needs UI changes we control
-- [ ] Heal tests: record on variant A → replay A with 0 LLM calls → switch to variant B → fingerprint heals for small changes, AI heals for big ones → replay B with 0 LLM calls
+- [x] Step keys, plan file format, stable JSON writer, locator-expression interpreter (no `eval`)
+- [x] Replay engine with pre/post checks and events (`source: 'cache'`)
+- [x] Compiled checks for `assert`, and the AI re-judge path
+- [x] Extract replay: fully deterministic from per-leaf source elements (no text-only AI call needed), see [06](06-caching-and-replay.md) §5
+- [x] Fingerprints stored with every target. Fingerprint healing L8 ([12](12-element-identification.md) §6), allowed in `replay-only`
+- [x] AI healing with context, history of 3 plan versions, `heal.policy` behaviours
+- [x] `aipw cache stats|prune|refresh|show` (prune works per test title; steps inside a live test are not pruned)
+- [x] **Demo app** (`examples/demo-app`, plain HTML + a dependency-free Node server; login, hover-menu shell and users pages so far; later phases add theirs) with the pages in [02](02-architecture.md) §6 and `?variant=b` UI changes (renamed test ids, reworded buttons, moved menus), because healing needs UI changes we control
+- [x] Heal tests (`examples/tests/demo/heal.spec.ts`, FakeProvider, in CI): record on variant A → replay A with 0 LLM calls → switch to variant B → fingerprint heals for small changes, AI heals for big ones → replay B with 0 LLM calls
 
 **Exit:**
 - Second run of the public-app usability suite: **0 LLM calls**, and wall time within 1.5× of an equivalent plain-Playwright suite.
 - Variant-B heal scenarios pass. A renamed test id heals via fingerprint (no LLM), and the report shows heals with their source.
 - `replay-only` with a missing plan fails with a clear message.
+
+**Status (2026-10-09):**
+- Second SauceDemo run (live recording on Sonnet 5.5, then `auto`): **13/13 in 15.5 s with 1 AI request**, vs 2.7 min and ~60
+  requests uncached. **Not quite 0:** test 11 asserts an *absence* ("no item count"), and a check can't be compiled from a
+  snapshot ref for an element that isn't there, so it stays AI-judged. `replay-only`: 12/13 in 10.3 s with 0 calls; test 11
+  fails there by design. Options: assert absences in code (`toHaveCount(0)`), or a future "absent" check built from the
+  locator recorded when the element last existed.
+- Wall time: 15.5 s for 13 tests (2 workers) — no plain-Playwright equivalent of the usability suite exists to compare 1.5× against.
+- Variant-B heal scenarios pass; the renamed test ids heal by fingerprint with no AI; heal events carry their source. ✔
+- `replay-only` with a missing plan throws `AiCacheReplayOnlyMiss` with how to fix it. ✔
+- The live recording surfaced weak compiled checks ("cart link visible" for "no item count"); the prompt now demands checks
+  that fail when the assertion is false, and `aipw cache show` makes every check reviewable in PRs.
 
 ---
 

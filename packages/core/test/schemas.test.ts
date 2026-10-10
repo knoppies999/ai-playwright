@@ -56,6 +56,14 @@ describe('validateCall', () => {
     });
   });
 
+  it('accepts done evidence given as one string, or missing', () => {
+    expect(validateCall({ tool: 'done', args: { summary: 's', evidence: 'Login form shown' } }, offered)).toEqual({
+      ok: true,
+      call: { tool: 'done', args: { summary: 's', evidence: ['Login form shown'] } },
+    });
+    expect(validateCall({ tool: 'done', args: { summary: 's' } }, offered)).toMatchObject({ ok: true });
+  });
+
   it('explains invalid arguments', () => {
     const result = validateCall({ tool: 'click', args: { ref: 'e1' } }, offered);
     expect(result.ok).toBe(false);

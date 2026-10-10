@@ -22,7 +22,8 @@ const test = base.extend<object, { aipwProvider: FakeProvider }>({
   aipwProvider: [async ({}, use) => use(provider), { scope: 'worker' }],
 });
 
-test.use({ aiConfig: { secrets: { map: { password: 'AIPW_FIXTURE_PASSWORD' } } } });
+// ai-only: this spec scripts the FakeProvider per test, so it must never replay a stored plan.
+test.use({ aiConfig: { secrets: { map: { password: 'AIPW_FIXTURE_PASSWORD' } }, cache: { mode: 'ai-only' } } });
 
 test.beforeEach(async ({ page }) => {
   process.env.AIPW_FIXTURE_PASSWORD = 'Sup3r-Secret!';
@@ -30,14 +31,14 @@ test.beforeEach(async ({ page }) => {
   await page.goto(`${ORIGIN}/`);
 });
 
-test('logs in through the ai fixture and attaches redacted decisions', async ({ page, ai }) => {
+test('logs in through the ai fixture and attaches redacted decisions', async ({ page, ai }, testInfo) => {
   provider.script(
     pick('textbox "Username"', 'fill', { value: 'standard_user' }),
     pick('textbox "Password"', 'fill', { value: '{{secret.password}}' }),
     pick('button "Login"', 'click', click),
     { tool: 'done', args: { summary: 'Logged in', evidence: ['Welcome back!'] } },
   );
-  provider.answer({ pass: true, reason: 'The welcome text is shown', evidence: ['Welcome back!'] });
+  provider.answer({ pass: true, reason: 'The welcome text is shown', evidence: ['Welcome back!'], check: null });
 
   await ai.act('Log in as the standard user', { secrets: ['password'] });
   await ai.assert('A welcome message is shown');
@@ -45,6 +46,8 @@ test('logs in through the ai fixture and attaches redacted decisions', async ({ 
 
   // The fixture attaches decisions after the test; check the live events instead.
   expect(JSON.stringify(provider.decisionRequests)).not.toContain('Sup3r-Secret!');
+  // The project traces with DOM snapshots (retain-on-failure), so entering a secret must raise the spike 0.7 warning.
+  expect(testInfo.annotations.map((a) => a.type)).toContain('warning');
 });
 
 test('locate returns a durable test-id locator', async ({ ai }) => {

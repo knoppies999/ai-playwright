@@ -1,5 +1,6 @@
 // Core data types (docs/02 §5).
 import type { Locator } from 'playwright-core';
+import type { Fingerprint } from './cache/plan.js';
 import type { Callsite } from './errors.js';
 import type { Usage } from './llm/provider.js';
 import type { LocatorCandidate } from './locators/synth.js';
@@ -19,6 +20,10 @@ export interface StepOptions {
   timeout?: number;
   /** May the model call navigate (always limited to allowed origins). */
   allowNavigation?: boolean;
+  /** Per-step cache override: off = always AI, don't store; refresh = always AI, overwrite the plan. */
+  cache?: 'auto' | 'off' | 'refresh';
+  /** Pins the cache key so instruction edits don't orphan the plan (docs/06 §3). */
+  key?: string;
 }
 
 export interface StepContext {
@@ -36,6 +41,8 @@ export interface TargetDescriptor {
   name?: string;
   /** Verified durable locators, best first (docs/12 §3). */
   candidates: LocatorCandidate[];
+  /** For healing without AI when every locator fails (docs/12 §6). */
+  fingerprint?: Fingerprint;
 }
 
 export interface ActionRecord {

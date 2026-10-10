@@ -13,11 +13,13 @@
     "build": "npm run build -w @aipw/core && npm run build -w @aipw/test -w @aipw/provider-claude-code -w @aipw/provider-anthropic -w @aipw/provider-openai -w @aipw/provider-copilot -w @aipw/cli",
     "test": "vitest run",
     "test:watch": "vitest",
-    "e2e": "npm run build && playwright test --project fixtures --project saucedemo",
+    "e2e": "npm run build && playwright test --project fixtures --project demo --project saucedemo",
     "e2e:llm": "npm run build && playwright test --project saucedemo-llm",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
-    "typecheck": "tsc --noEmit -p tsconfig.json && npm run typecheck --workspaces --if-present"
+    "typecheck": "tsc --noEmit -p tsconfig.json && npm run typecheck --workspaces --if-present",
+    "check": "npm run lint && npm run typecheck && npm test",
+    "demo-app": "node examples/demo-app/server.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

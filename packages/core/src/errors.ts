@@ -66,6 +66,31 @@ export class AiExtractError extends AiError {
   }
 }
 
+/** replay-only mode and no plan exists for the step (docs/03 §10). */
+export class AiCacheReplayOnlyMiss extends AiError {
+  constructor(
+    readonly instruction: string,
+    context: AiErrorContext = {},
+  ) {
+    super(
+      `No cached plan for "${instruction}" and the cache is replay-only. Record it locally first (AIPW_CACHE=auto), then commit the plan file.`,
+      context,
+    );
+  }
+}
+
+/** heal.policy = fail: the step healed, and plan changes must be reviewed. */
+export class AiHealedError extends AiError {
+  constructor(
+    readonly instruction: string,
+    readonly before: string,
+    readonly after: string,
+    context: AiErrorContext = {},
+  ) {
+    super(`Step healed, please review: "${instruction}"\nWas: ${before}\nNow: ${after}`, context);
+  }
+}
+
 export type ProviderErrorKind =
   'auth' | 'rate_limit' | 'refusal' | 'content_filter' | 'no_tool_call' | 'network' | 'other';
 

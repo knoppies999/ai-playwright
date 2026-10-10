@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Demo · Log in</title>
+    <script src="/shared.js"></script>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 2rem;
+      }
+      form {
+        display: grid;
+        gap: 0.5rem;
+        max-width: 20rem;
+      }
+      .error {
+        color: #b00020;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Demo admin</h1>
+    <form id="login" aria-label="Log in">
+      <label>Username <input name="username" autocomplete="username" /></label>
+      <label>Password <input name="password" type="password" autocomplete="current-password" /></label>
+      <button type="submit" id="submit"></button>
+      <p class="error" role="alert" hidden></p>
+    </form>
+    <script>
+      const { v } = window.DEMO;
+      const button = document.getElementById('submit');
+      button.textContent = 'Log in';
+      button.dataset.testid = v('login-submit', 'sign-in-submit'); // renamed in B: role + name still match
+      document.getElementById('login').addEventListener('submit', (event) => {
+        event.preventDefault();
+        const data = new FormData(event.target);
+        if (data.get('username') === 'admin' && data.get('password') === 'demo-password') {
+          sessionStorage.setItem('user', 'admin');
+          location.href = '/app';
+        } else {
+          const error = document.querySelector('.error');
+          error.textContent = 'Wrong username or password';
+          error.hidden = false;
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -29,8 +29,8 @@ steps:
   - script: npm test -- --reporter=default --reporter=junit --outputFile.junit=test-results/unit-junit.xml
     displayName: Unit tests
 
-  - script: npx playwright test --project fixtures
-    displayName: Engine e2e with FakeProvider (no AI, no network)
+  - script: npx playwright test --project fixtures --project demo
+    displayName: Engine and healing e2e with FakeProvider (no AI, localhost only)
 
   - task: PublishTestResults@2
     condition: succeededOrFailed()

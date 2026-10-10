@@ -8,3 +8,4 @@ spikes/out/
 *.md
 packages/*/test/fixtures/
 packages/*/test/golden/
+**/__aipw__/
