@@ -15,6 +15,10 @@ export interface StepSummary {
   status: 'passed' | 'failed';
   ms: number;
   decisions: number;
+  /** Decisions that needed a repair turn (no or invalid tool call): schema adherence, for conformance. */
+  repairs: number;
+  /** Latency of each decide() call, ms. */
+  decisionMs: number[];
   usage: Usage;
   heal?: { source: 'fingerprint' | 'ai'; before: string; after: string };
   error?: string;
@@ -43,14 +47,19 @@ export function stepsFromEvents(events: AipwEvent[]): StepSummary[] {
         status: 'passed',
         ms: 0,
         decisions: 0,
+        repairs: 0,
+        decisionMs: [],
         usage: emptyUsage(),
       });
       continue;
     }
     const step = 'stepId' in e ? steps.get(e.stepId) : undefined;
     if (!step) continue;
-    if (e.type === 'decision') step.decisions++;
-    else if (e.type === 'cache' && e.outcome === 'hit') cached.add(e.stepId);
+    if (e.type === 'decision') {
+      step.decisions++;
+      step.decisionMs.push(e.ms);
+      if (e.repaired) step.repairs++;
+    } else if (e.type === 'cache' && e.outcome === 'hit') cached.add(e.stepId);
     else if (e.type === 'heal') step.heal = { source: e.source, before: e.before, after: e.after };
     else if (e.type === 'step:end') {
       step.status = e.status;
