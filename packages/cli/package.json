@@ -22,7 +22,8 @@
     "aipw": "./dist/cli.js"
   },
   "dependencies": {
-    "@aipw/core": "0.0.0"
+    "@aipw/core": "0.0.0",
+    "typescript": "~6.0.3"
   },
   "peerDependencies": {
     "playwright-core": "^1.64.0"
