@@ -1,0 +1,71 @@
+# Nightly AI E2E for a project that uses aipw (docs/09 §3): cache auto, heals reported (not written), the model on
+# Microsoft Foundry with keyless auth. The test step runs inside AzureCLI@2 with an Azure Resource Manager service
+# connection (workload identity federation), so DefaultAzureCredential uses the signed-in Azure CLI and no model key
+# is stored anywhere. The connection's identity needs an inference role (Cognitive Services OpenAI User / Azure AI User)
+# on the Foundry resource.
+#
+# With an API key instead: replace AzureCLI@2 with a plain script step and map
+# AZURE_FOUNDRY_API_KEY: $(AZURE_FOUNDRY_API_KEY) from a secret (or Key Vault-linked) variable.
+trigger: none
+schedules:
+  - cron: '0 2 * * *'
+    displayName: Nightly AI E2E
+    branches: { include: [main] }
+    always: true
+
+pool: { vmImage: ubuntu-latest }
+
+variables:
+  - group: aipw-e2e # AZURE_FOUNDRY_RESOURCE, AIPW_FOUNDRY_DEPLOYMENT, secret TEST_* passwords
+  - name: AIPW_PROVIDER
+    value: foundry
+  - name: AIPW_CACHE
+    value: auto
+
+steps:
+  - task: UseNode@1
+    inputs: { version: '22.x' }
+
+  - script: npm ci
+    displayName: Install
+
+  - script: npx playwright install --with-deps chromium
+    displayName: Install browsers
+
+  - script: npx aipw hints lint
+    displayName: Lint hints
+
+  - task: AzureCLI@2
+    displayName: Run E2E
+    inputs:
+      azureSubscription: 'sc-aipw-foundry' # ARM service connection (workload identity federation)
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: npx playwright test
+    env:
+      CI: 'true'
+      AZURE_FOUNDRY_RESOURCE: $(AZURE_FOUNDRY_RESOURCE)
+      AIPW_FOUNDRY_DEPLOYMENT: $(AIPW_FOUNDRY_DEPLOYMENT)
+      TEST_ADMIN_PASSWORD: $(TEST_ADMIN_PASSWORD) # secret variables must be mapped explicitly
+      PLAYWRIGHT_JUNIT_OUTPUT_NAME: test-results/junit.xml
+
+  # @aipw/test/reporter has already added the run summary tab (##vso[task.uploadsummary]).
+  - script: npx aipw summary
+    displayName: Run summary
+    condition: succeededOrFailed()
+
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: JUnit
+      testResultsFiles: test-results/junit.xml
+      testRunTitle: AI E2E (nightly)
+
+  - task: PublishPipelineArtifact@1
+    condition: succeededOrFailed()
+    inputs: { targetPath: playwright-report, artifact: playwright-report }
+
+  # Summary, logs and healed plans (heal.policy report writes them to .aipw/healed/): review and commit.
+  - task: PublishPipelineArtifact@1
+    condition: succeededOrFailed()
+    inputs: { targetPath: .aipw, artifact: aipw-run }

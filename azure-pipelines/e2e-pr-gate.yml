@@ -1,0 +1,44 @@
+# PR gate for a project that uses aipw (docs/09 §3): replay committed plans only. No LLM, no Azure login, no model
+# variables. A missing or broken plan fails the run; the developer records or refreshes it locally and commits it.
+# Attach this pipeline to the target branch through the branch policy's build validation.
+trigger: none
+pr:
+  branches: { include: [main] }
+
+pool: { vmImage: ubuntu-latest }
+
+variables:
+  AIPW_CACHE: replay-only
+  CI: 'true'
+
+steps:
+  - task: UseNode@1
+    inputs: { version: '22.x' }
+
+  - script: npm ci
+    displayName: Install
+
+  - script: npx playwright install --with-deps chromium
+    displayName: Install browsers
+
+  # The Playwright config must include ['@aipw/test/reporter'] and the junit reporter.
+  - script: npx playwright test
+    displayName: Run E2E (replay-only)
+    env:
+      PLAYWRIGHT_JUNIT_OUTPUT_NAME: test-results/junit.xml
+      TEST_ADMIN_PASSWORD: $(TEST_ADMIN_PASSWORD) # secret variables must be mapped explicitly
+
+  # The gate's promise: zero model calls. Fingerprint heals are free and allowed; AI heals are not.
+  - script: npx aipw summary --max-llm-calls 0
+    displayName: Check no LLM calls
+
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testResultsFormat: JUnit
+      testResultsFiles: test-results/junit.xml
+      testRunTitle: AI E2E (PR gate)
+
+  - task: PublishPipelineArtifact@1
+    condition: failed()
+    inputs: { targetPath: playwright-report, artifact: playwright-report }
