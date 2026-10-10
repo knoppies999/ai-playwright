@@ -210,8 +210,8 @@ Watch provider rate limits; the adapters back off on 429.
 | Command | Purpose |
 |---|---|
 | `aipw nudge <spec[:line]> [--break] [--at] [--fresh] [--verify]` | Nudge mode ([07](07-nudge-mode.md)) |
-| `aipw doctor [--provider x] [--url u]` | Check config, credentials, model access, tool calling, vision and strict-schema support (prints compat flags). With `--url`: detected test-id attributes and ref-source health for that site |
+| `aipw doctor [--provider x] [--probe]` | Check the config, the provider's package and credentials, secret variables, hints and budgets. `--probe` adds one live tool-calling and structured-output call. (Not built: `--url` site checks) |
 | `aipw cache stats\|prune\|refresh\|show` | Cache maintenance ([06](06-caching-and-replay.md) §8) |
 | `aipw hints lint [dir]` | Check hints files for duplicates, repeated sections, hints outside a section, and size |
 | `aipw summary [--max-llm-calls N] [--max-cost USD]` | Print the last run summary; fail when the run used the model more than allowed (the PR gate uses `--max-llm-calls 0`) |
-| `aipw conformance --provider x` | Run the conformance suite and write the metrics JSON |
+| `aipw conformance --provider x [--project p] [--out dir]` | Run the usability suite with `ai-only` and write `conformance-<provider>-<model>.json` |
