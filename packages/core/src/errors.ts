@@ -95,13 +95,17 @@ export type ProviderErrorKind =
   'auth' | 'rate_limit' | 'refusal' | 'content_filter' | 'no_tool_call' | 'network' | 'other';
 
 export class AiProviderError extends AiError {
+  /** For rate limits: how long the provider says to wait (Retry-After), if it said. */
+  readonly retryAfterMs?: number;
+
   constructor(
     readonly kind: ProviderErrorKind,
     message: string,
     context: AiErrorContext = {},
-    options?: ErrorOptions,
+    options?: ErrorOptions & { retryAfterMs?: number },
   ) {
     super(message, context, options);
+    if (options?.retryAfterMs !== undefined) this.retryAfterMs = options.retryAfterMs;
   }
 }
 

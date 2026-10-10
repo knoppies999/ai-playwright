@@ -42,6 +42,7 @@ import { EventBus } from '../events/bus.js';
 import { runAgentLoop, trajectory } from '../loop/agent-loop.js';
 import { buildObservation, SYSTEM_PROMPTS } from '../loop/prompt.js';
 import { BudgetGuard, withBudget } from '../llm/budget.js';
+import { withRetry } from '../llm/retry.js';
 import { addUsage, emptyUsage, type LlmProvider, type Usage } from '../llm/provider.js';
 import { buildLocator } from '../locators/expr.js';
 import { fingerprintOf } from '../locators/fingerprint.js';
@@ -190,7 +191,8 @@ export class Ai {
       deps.config.pricing,
       `${deps.provider.id}:${deps.provider.model}`,
     );
-    this.deps = { ...deps, provider: withBudget(deps.provider, this.budget) };
+    // Rate limits are retried inside the budget guard, so only calls that succeed are counted.
+    this.deps = { ...deps, provider: withBudget(withRetry(deps.provider, deps.config.retry), this.budget) };
     this._page = deps.page;
     this.redactor = deps.redactor ?? new Redactor();
     this.events = deps.events ?? new EventBus(this.redactor);

@@ -100,6 +100,15 @@ export const AipwConfigSchema = z.object({
       perRunRequests: z.number().int().positive().optional(),
     })
     .prefault({}),
+  /** Retries for rate limits (429) and network errors, with exponential backoff and full jitter. */
+  retry: z
+    .object({
+      retries: z.number().int().min(0).default(4),
+      baseMs: z.number().int().positive().default(1_000),
+      /** Longest single wait; a provider asking to wait longer than this fails the call instead. */
+      maxMs: z.number().int().positive().default(30_000),
+    })
+    .prefault({}),
   /** USD per 1M tokens, keyed "provider:model", for cost estimates when the provider gives none. */
   pricing: z
     .record(z.string(), z.object({ input: z.number(), output: z.number(), cacheRead: z.number().optional() }))
