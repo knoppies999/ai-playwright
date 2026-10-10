@@ -125,7 +125,12 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       },
       baseURL,
       playwrightTestIdAttribute: testIdAttribute,
-      wrapStep: (title, fn) => base.step(title, fn, { box: true }),
+      // Each AI step is a test.step with its files attached to it, and each action a nested step (docs/09 §2.1).
+      wrapStep: (title, fn) =>
+        base.step(title, (step) => fn((name, body, contentType) => step.attach(name, { body, contentType })), {
+          box: true,
+        }),
+      wrapAction: (title, fn) => base.step(title, fn),
       captureCallsite,
       idPrefix: testInfo.testId,
     });
@@ -149,14 +154,6 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       nudge?.close();
     }
 
-    // Report attachments (docs/09 §2.1). Events are already redacted.
-    const decisions = events.filter((e) => e.type !== 'observation');
-    if (decisions.length) {
-      await testInfo.attach('aipw-decisions.json', {
-        body: JSON.stringify(decisions, null, 2),
-        contentType: 'application/json',
-      });
-    }
     // Per-test step summary for the run summary reporter (docs/09 §2.2).
     const steps = stepsFromEvents(events);
     if (steps.length) {
@@ -173,11 +170,6 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         steps,
       };
       await testInfo.attach(SUMMARY_ATTACHMENT, { body: JSON.stringify(summary), contentType: 'application/json' });
-    }
-    const failed = testInfo.status !== testInfo.expectedStatus;
-    const lastSnapshot = events.findLast((e) => e.type === 'observation');
-    if (failed && lastSnapshot?.type === 'observation') {
-      await testInfo.attach('aipw-snapshot.yaml', { body: lastSnapshot.snapshot, contentType: 'text/yaml' });
     }
     if (ai.usage.requests > 0) {
       const cost = ai.usage.costUsd !== undefined ? `, ~$${ai.usage.costUsd.toFixed(3)} API-equivalent` : '';
