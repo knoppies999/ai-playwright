@@ -194,8 +194,20 @@ function mapError(error: unknown): AiProviderError {
       { cause: error },
     );
   }
-  if (/rate.?limit|usage limit|limit reached|429|overloaded/i.test(text)) {
-    return new AiProviderError('rate_limit', `Claude plan limit or rate limit: ${text}`, {}, { cause: error });
+  // A plan's usage limit resets in hours: retrying would only wait, so it says so and fails now.
+  if (/usage limit|limit reached/i.test(text)) {
+    return new AiProviderError(
+      'rate_limit',
+      `Claude plan usage limit reached: ${text}`,
+      {},
+      {
+        cause: error,
+        retryAfterMs: Number.POSITIVE_INFINITY,
+      },
+    );
+  }
+  if (/rate.?limit|429|overloaded|529/i.test(text)) {
+    return new AiProviderError('rate_limit', `Claude rate limit: ${text}`, {}, { cause: error });
   }
   return new AiProviderError('other', `Claude Code failed: ${text}`, {}, { cause: error });
 }

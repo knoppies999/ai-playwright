@@ -17,6 +17,7 @@ export type { ActionRecord, StepContext, StepKind, StepOptions, StepOutcome, Tar
 export {
   AiAssertionError,
   AiCacheReplayOnlyMiss,
+  AiBudgetExceeded,
   AiError,
   AiExtractError,
   AiHealedError,
@@ -30,6 +31,8 @@ export { EventBus, type AipwEvent, type Listener } from './events/bus.js';
 export { Redactor, REDACTED } from './data/redactor.js';
 
 export { addUsage, emptyUsage } from './llm/provider.js';
+export { BudgetGuard, costOf, resetRunBudget, withBudget, type BudgetLimits, type PricingTable } from './llm/budget.js';
+export { backoffMs, withRetry, type RetryOptions } from './llm/retry.js';
 export type {
   DecisionRequest,
   DecisionResponse,
@@ -85,3 +88,33 @@ export {
   type Generators,
   type Person,
 } from './data/generators.js';
+export { NudgeController, type NudgeOptions } from './nudge/controller.js';
+export { NudgeServer, ScriptedUi, type NudgeUi, type Verification } from './nudge/server.js';
+export {
+  NUDGE_PROTOCOL_VERSION,
+  NudgeCommandSchema,
+  NudgeQuit,
+  PauseStateSchema,
+  RewindSignal,
+  VerifyDone,
+  VerifyJobSchema,
+  type BreakLevel,
+  type NudgeCommand,
+  type PauseState,
+  type RemedyBasis,
+  type RemedyOption,
+  type VerifyJob,
+} from './nudge/protocol.js';
+export { hintFileName, loadHints, writeHint, type NewHint } from './hints/store.js';
+export {
+  codeRemedy,
+  finalTargets,
+  matchesBasis,
+  remedyOptions,
+  targetFacts,
+  RemedySchema,
+  remedyPrompt,
+  synthesizeRemedy,
+  type Remedy,
+  type RemedyInput,
+} from './nudge/remedy.js';

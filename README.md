@@ -51,6 +51,9 @@ test('admin can create a user', async ({ page, ai, gen }) => {
 11. [Risks and open questions](docs/11-risks-and-open-questions.md)
 12. [Element identification](docs/12-element-identification.md): refs vs locators, test ids, how injection works
 
+Guides: [Getting started in 10 minutes](docs/guides/getting-started.md) ·
+[Writing good instructions](docs/guides/writing-instructions.md) · [Troubleshooting](docs/guides/troubleshooting.md)
+
 Implementers (human, Copilot or Claude) start with [AGENTS.md](AGENTS.md).
 
 ## Status

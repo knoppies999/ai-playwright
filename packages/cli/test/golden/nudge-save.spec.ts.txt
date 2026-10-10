@@ -1,0 +1,7 @@
+import { test } from '@aipw/test';
+
+test('save notification settings', async ({ ai }) => {
+  await ai.act('Log in as the demo admin');
+  await ai.act('Save');
+  await ai.assert('"Notifications saved" is shown');
+});

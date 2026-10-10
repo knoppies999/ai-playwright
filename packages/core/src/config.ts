@@ -68,6 +68,12 @@ export const AipwConfigSchema = z.object({
       allowAnyField: z.boolean().default(false),
     })
     .prefault({}),
+  hints: z
+    .object({
+      /** Folder with hints/<host-port>.md files, relative to the working directory (docs/09 §1). */
+      dir: z.string().default('hints'),
+    })
+    .prefault({}),
   cache: z
     .object({
       /** docs/06 §1. AIPW_CACHE overrides it. */
@@ -84,6 +90,29 @@ export const AipwConfigSchema = z.object({
       fingerprintInReplayOnly: z.boolean().default(true),
     })
     .prefault({}),
+  /** Hard stops (docs/09 §1). A step or run that goes over fails with AiBudgetExceeded. */
+  budget: z
+    .object({
+      perStepUsd: z.number().positive().optional(),
+      /** Per Playwright worker process: workers don't share a counter. */
+      perRunUsd: z.number().positive().optional(),
+      /** For providers without token pricing (Copilot); also per worker. */
+      perRunRequests: z.number().int().positive().optional(),
+    })
+    .prefault({}),
+  /** Retries for rate limits (429) and network errors, with exponential backoff and full jitter. */
+  retry: z
+    .object({
+      retries: z.number().int().min(0).default(4),
+      baseMs: z.number().int().positive().default(1_000),
+      /** Longest single wait; a provider asking to wait longer than this fails the call instead. */
+      maxMs: z.number().int().positive().default(30_000),
+    })
+    .prefault({}),
+  /** USD per 1M tokens, keyed "provider:model", for cost estimates when the provider gives none. */
+  pricing: z
+    .record(z.string(), z.object({ input: z.number(), output: z.number(), cacheRead: z.number().optional() }))
+    .default({}),
 });
 
 export type CacheMode = AipwConfig['cache']['mode'];

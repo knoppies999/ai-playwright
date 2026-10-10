@@ -95,12 +95,30 @@ export type ProviderErrorKind =
   'auth' | 'rate_limit' | 'refusal' | 'content_filter' | 'no_tool_call' | 'network' | 'other';
 
 export class AiProviderError extends AiError {
+  /** For rate limits: how long the provider says to wait (Retry-After), if it said. */
+  readonly retryAfterMs?: number;
+
   constructor(
     readonly kind: ProviderErrorKind,
     message: string,
     context: AiErrorContext = {},
-    options?: ErrorOptions,
+    options?: ErrorOptions & { retryAfterMs?: number },
   ) {
     super(message, context, options);
+    if (options?.retryAfterMs !== undefined) this.retryAfterMs = options.retryAfterMs;
+  }
+}
+
+/** A budget limit from config.budget was reached (docs/09 §1). The step fails; later steps in the run do too. */
+export class AiBudgetExceeded extends AiError {
+  constructor(
+    readonly scope: 'step' | 'run',
+    readonly spent: string,
+    context: AiErrorContext = {},
+  ) {
+    super(
+      `aipw budget exceeded for this ${scope === 'run' ? 'run (this worker)' : 'step'}: ${spent}. Raise budget.${scope === 'run' ? 'perRun…' : 'perStepUsd'} in aipw.config.ts, or replay from cache.`,
+      context,
+    );
   }
 }

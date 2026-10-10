@@ -64,7 +64,7 @@ function codeToolArgs(
 }
 
 /** Tools that don't change the page are not replayed. */
-const NOT_REPLAYED = new Set(['expand']);
+const NOT_REPLAYED = new Set(['expand', 'ask_human']);
 
 /** Values produced by generate_value in this step → the placeholder that reproduces them on replay. */
 function generatedPlaceholders(records: ActionRecord[]): Map<string, string> {

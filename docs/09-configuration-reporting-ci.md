@@ -39,11 +39,12 @@ export default defineAipwConfig({
   hints: { dir: 'hints' },
   secrets: { provider: 'env', map: { adminPassword: 'TEST_ADMIN_PASSWORD' } },
 
-  budget: {                       // hard stops
+  budget: {                       // hard stops: the step fails with AiBudgetExceeded
     perStepUsd: 0.50,
-    perRunUsd: 20,
+    perRunUsd: 20,                // "run" = one Playwright worker process (workers don't share a counter)
     perRunRequests: 2_000,        // for providers without token pricing (Copilot)
   },
+  retry: { retries: 4, baseMs: 1_000, maxMs: 30_000 },   // 429 / network: backoff with full jitter
   pricing: {                      // USD per 1M tokens, for cost estimates in reports
     'anthropic:claude-opus-5-5': { input: 4, output: 20, cacheRead: 0.2 },
   },
@@ -91,14 +92,14 @@ the current URL are injected, capped at 1 500 tokens.
 
 ### 2.1 In the Playwright HTML report
 
-Each AI step is a `test.step` titled `ai.act: Open Settings > Users`, with a nested step per action
-(`hover button "Settings"`). Attachments on the AI step:
+Each AI step is a `test.step` titled `ai.act: Open Settings > Users`, with a nested step per action the AI performs
+(`hover button "Settings"`; cached replays don't add nested steps). Attachments on the AI step:
 
 | Attachment | Content |
 |---|---|
 | `aipw-decisions.json` | Per decision: tool, args (redacted), intent, reasoning, usage, latency |
 | `aipw-snapshot.yaml` | The pruned snapshot from the last decision (and the failing one on error) |
-| `aipw-screenshot.jpg` | On failure, heal, or when vision was used |
+| `aipw-screenshot.jpg` | On failure or heal (password inputs masked) |
 | `aipw-heal.json` | Old vs new plan (heals only) |
 
 Trace viewer still works as normal. AI steps appear as groups around the Playwright actions they caused.
@@ -211,5 +212,6 @@ Watch provider rate limits; the adapters back off on 429.
 | `aipw nudge <spec[:line]> [--break] [--at] [--fresh] [--verify]` | Nudge mode ([07](07-nudge-mode.md)) |
 | `aipw doctor [--provider x] [--url u]` | Check config, credentials, model access, tool calling, vision and strict-schema support (prints compat flags). With `--url`: detected test-id attributes and ref-source health for that site |
 | `aipw cache stats\|prune\|refresh\|show` | Cache maintenance ([06](06-caching-and-replay.md) §8) |
-| `aipw hints lint` | Check hints files for duplicates and size |
+| `aipw hints lint [dir]` | Check hints files for duplicates, repeated sections, hints outside a section, and size |
+| `aipw summary [--max-llm-calls N] [--max-cost USD]` | Print the last run summary; fail when the run used the model more than allowed (the PR gate uses `--max-llm-calls 0`) |
 | `aipw conformance --provider x` | Run the conformance suite and write the metrics JSON |

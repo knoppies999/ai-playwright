@@ -9,12 +9,14 @@ import SYSTEM_ACT from './prompts/system-act.md';
 import SYSTEM_ASSERT from './prompts/system-assert.md';
 import SYSTEM_EXTRACT from './prompts/system-extract.md';
 import SYSTEM_LOCATE from './prompts/system-locate.md';
+import SYSTEM_OPTIONS from './prompts/system-options.md';
 
 export const SYSTEM_PROMPTS = {
   act: SYSTEM_ACT.trim(),
   assert: SYSTEM_ASSERT.trim(),
   extract: SYSTEM_EXTRACT.trim(),
   locate: SYSTEM_LOCATE.trim(),
+  options: SYSTEM_OPTIONS.trim(),
 } as const;
 
 export interface HistoryEntry {

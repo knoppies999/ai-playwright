@@ -1,0 +1,2 @@
+-   await ai.act('Save');
++   await ai.act('Click "Save" in the Notifications section');

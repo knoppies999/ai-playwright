@@ -1,3 +1,4 @@
+import { resolve } from 'node:path';
 // The public API behind the `ai` fixture (docs/03): act, assert, check, extract, locate, run.
 // Every call is one step: it opens a StepSession, runs the loop or a structured judgement, emits
 // events and closes the session. Plan caching (Phase 4) will sit in front of the loop here.
@@ -15,6 +16,18 @@ import type { PlanStore } from '../cache/store.js';
 import type { AipwConfig, CacheMode } from '../config.js';
 import { Redactor } from '../data/redactor.js';
 import { createGenerators, type Generators } from '../data/generators.js';
+import { loadHints } from '../hints/store.js';
+import type { NudgeController } from '../nudge/controller.js';
+import { VerifyDone, type PauseState, type VerifyJob } from '../nudge/protocol.js';
+import {
+  codeRemedy,
+  finalTargets,
+  matchesBasis,
+  remedyOptions,
+  synthesizeRemedy,
+  targetFacts,
+  type RemedyInput,
+} from '../nudge/remedy.js';
 import { DataResolver, secretSource } from '../data/resolver.js';
 import {
   AiAssertionError,
@@ -25,16 +38,18 @@ import {
   type Callsite,
   type StepFailureKind,
 } from '../errors.js';
-import { EventBus } from '../events/bus.js';
+import { EventBus, type AipwEvent } from '../events/bus.js';
 import { runAgentLoop, trajectory } from '../loop/agent-loop.js';
 import { buildObservation, SYSTEM_PROMPTS } from '../loop/prompt.js';
+import { BudgetGuard, withBudget } from '../llm/budget.js';
+import { withRetry } from '../llm/retry.js';
 import { addUsage, emptyUsage, type LlmProvider, type Usage } from '../llm/provider.js';
 import { buildLocator } from '../locators/expr.js';
 import { fingerprintOf } from '../locators/fingerprint.js';
 import { synthesizeLocators, type LocatorCandidate, type Rung } from '../locators/synth.js';
 import type { Observation } from '../observe/observer.js';
 import { findByRef } from '../observe/snapshot.js';
-import type { ActionRecord, StepContext, StepKind, StepOptions } from '../types.js';
+import type { ActionRecord, StepContext, StepKind, StepOptions, StepOutcome } from '../types.js';
 import { StepSession } from './session.js';
 import { StructuredValidationError, structuredWithRepair } from './structured.js';
 
@@ -46,8 +61,10 @@ export interface AiDeps {
   baseURL?: string;
   /** Playwright's testIdAttribute (`use.testIdAttribute`), so matching ids become getByTestId(). */
   playwrightTestIdAttribute?: string;
-  /** Wraps each AI step, e.g. in Playwright's test.step. */
-  wrapStep?: <T>(title: string, fn: () => Promise<T>) => Promise<T>;
+  /** Wraps each AI step, e.g. in Playwright's test.step; `attach` adds files to that step (docs/09 §2.1). */
+  wrapStep?: <T>(title: string, fn: (attach?: StepAttach) => Promise<T>) => Promise<T>;
+  /** Wraps each action an AI step performs, e.g. in a nested test.step. */
+  wrapAction?: <T>(title: string, fn: () => Promise<T>) => Promise<T>;
   /** Where the ai.* call was made, for errors and reports. */
   captureCallsite?: () => Callsite | undefined;
   /** Prefix for step ids, e.g. the test id. */
@@ -60,6 +77,8 @@ export interface AiDeps {
   gen?: Generators;
   /** Code tools registered with ai.tools.register, shared with ai.on(page). */
   codeTools?: Map<string, CodeTool>;
+  /** Nudge mode (docs/07): set by @aipw/test when run under `aipw nudge`. */
+  nudge?: NudgeController;
   /** Plan cache for this test (docs/06). Without it every step goes to the AI. */
   cache?: {
     store: PlanStore;
@@ -75,7 +94,7 @@ export interface ActResult {
   evidence: string[];
   actions: ActionRecord[];
   values: Record<string, unknown>;
-  source: 'cache' | 'ai' | 'healed';
+  source: 'cache' | 'ai' | 'healed' | 'nudged';
   usage: Usage;
 }
 
@@ -137,6 +156,9 @@ const ASSERT_VERBS = /^(verify|check|assert|expect|ensure)\b[:\s]*/i;
 const EXTRACT_LINE = /^(?:extract|read|get)\s+(.+?)\s+as\s+([A-Za-z_]\w*)\s*$/i;
 const BULLET = /^(?:[-*•]|\d+[.)])\s+/;
 
+/** Adds a file to the current AI step in the report. */
+export type StepAttach = (name: string, body: string | Buffer, contentType: string) => Promise<void>;
+
 export class Ai {
   readonly events: EventBus;
   readonly redactor: Redactor;
@@ -165,7 +187,17 @@ export class Ai {
   /** Usage of every step run through this instance. */
   usage: Usage = emptyUsage();
 
+  private readonly budget: BudgetGuard;
+
   constructor(private readonly deps: AiDeps) {
+    // Every model call is counted against config.budget (docs/09 §1). on() shares the wrapped provider.
+    this.budget = new BudgetGuard(
+      deps.config.budget,
+      deps.config.pricing,
+      `${deps.provider.id}:${deps.provider.model}`,
+    );
+    // Rate limits are retried inside the budget guard, so only calls that succeed are counted.
+    this.deps = { ...deps, provider: withBudget(withRetry(deps.provider, deps.config.retry), this.budget) };
     this._page = deps.page;
     this.redactor = deps.redactor ?? new Redactor();
     this.events = deps.events ?? new EventBus(this.redactor);
@@ -178,6 +210,12 @@ export class Ai {
   get page(): Page {
     return this._page;
   }
+
+  /** Nudge hooks (docs/07 §5.2); no-ops outside nudge mode. */
+  readonly nudgeHooks = {
+    /** Runs before a rewind restarts the test: reset server-side state here. */
+    onRewind: (hook: () => unknown) => this.deps.nudge?.onRewind(hook),
+  };
 
   /** An `ai` bound to another page, sharing events, values and secrets. */
   on(page: Page): Ai {
@@ -247,9 +285,15 @@ export class Ai {
       callsite,
     };
     const title = this.redactor.redact(`ai.${kind}: ${instruction}`).slice(0, 200);
-    const run = async () => {
+    const run = async (attach?: StepAttach) => {
       const started = Date.now();
+      const stepEvents: AipwEvent[] = [];
+      const unsubscribe =
+        attach && kind !== 'run'
+          ? this.events.on((e) => 'stepId' in e && e.stepId === ctx.id && stepEvents.push(e))
+          : undefined;
       this.events.emit({ type: 'step:start', stepId: ctx.id, kind, instruction, callsite });
+      if (kind !== 'run') this.budget.startStep();
       const before = this.usage;
       try {
         const result = await fn(ctx);
@@ -262,6 +306,7 @@ export class Ai {
           ms: Date.now() - started,
           usage: diff(this.usage, before),
         });
+        if (attach && unsubscribe) await this.attachStepFiles(attach, stepEvents, false);
         return result;
       } catch (error) {
         this.events.emit({
@@ -274,10 +319,33 @@ export class Ai {
           usage: diff(this.usage, before),
           error: error instanceof Error ? error.message : String(error),
         });
+        if (attach && unsubscribe) await this.attachStepFiles(attach, stepEvents, true);
         throw error;
+      } finally {
+        unsubscribe?.();
       }
     };
     return this.deps.wrapStep ? this.deps.wrapStep(title, run) : run();
+  }
+
+  /**
+   * Files on the AI step in the report (docs/09 §2.1): its decisions (redacted events), the heal (old vs new plan),
+   * and on failure or heal the last snapshot and a screenshot.
+   */
+  private async attachStepFiles(attach: StepAttach, events: AipwEvent[], failed: boolean): Promise<void> {
+    const decisions = events.filter((e) => e.type !== 'observation' && e.type !== 'step:start');
+    if (decisions.some((e) => e.type !== 'step:end'))
+      await attach('aipw-decisions.json', JSON.stringify(decisions, null, 2), 'application/json');
+    const heals = events.filter((e) => e.type === 'heal');
+    if (heals.length) await attach('aipw-heal.json', JSON.stringify(heals, null, 2), 'application/json');
+    if (!failed && !heals.length) return;
+    const snapshot = events.findLast((e) => e.type === 'observation');
+    if (snapshot?.type === 'observation') await attach('aipw-snapshot.yaml', snapshot.snapshot, 'text/yaml');
+    // Credential fields are masked while snapshots are taken, not for screenshots: mask them here too.
+    const shot = await this._page
+      .screenshot({ type: 'jpeg', quality: 70, mask: [this._page.locator('input[type=password]')], timeout: 5000 })
+      .catch(() => undefined);
+    if (shot) await attach('aipw-screenshot.jpg', shot, 'image/jpeg');
   }
 
   /** Effective cache mode for one step: per-step option, then AIPW_CACHE, then config. */
@@ -289,7 +357,7 @@ export class Ai {
     return env && (modes as string[]).includes(env) ? (env as CacheMode) : this.config.cache.mode;
   }
 
-  private stepKeyFor(kind: StepKind, instruction: string, options: StepOptions): string {
+  private stepKeyFor(kind: StepKind, instruction: string, options: StepOptions, peek = false): string {
     const testIdAttribute = this.deps.playwrightTestIdAttribute ?? 'data-testid';
     return stepKey({
       kind,
@@ -298,7 +366,9 @@ export class Ai {
       secretNames: options.secrets ?? [],
       // getByTestId('x') hides the attribute name, so it is part of the scope descriptor (spike 0.6).
       scopeDescriptor: options.scope ? `${options.scope.toString()}|${testIdAttribute}` : undefined,
-      ordinal: this.stepOrdinals.next(kind, instruction, options.key),
+      ordinal: peek
+        ? this.stepOrdinals.peek(kind, instruction, options.key)
+        : this.stepOrdinals.next(kind, instruction, options.key),
       pinned: options.key,
     });
   }
@@ -338,6 +408,20 @@ export class Ai {
 
   /** Performs whatever UI actions satisfy the instruction (docs/03 §2). */
   async act(instruction: string, options: StepOptions = {}): Promise<ActResult> {
+    const nudged = await this.nudgeBeforeStep('act', instruction, options);
+    const verify = this.deps.nudge?.verifyJobFor();
+    if (verify) return this.verifyCandidate(verify, options);
+    if (nudged.skip) {
+      return {
+        summary: 'Skipped in nudge mode',
+        evidence: [],
+        actions: [],
+        values: this.values,
+        source: 'nudged',
+        usage: emptyUsage(),
+      };
+    }
+    ({ instruction, options } = nudged);
     return this.step(
       'act',
       instruction,
@@ -451,9 +535,11 @@ export class Ai {
             provider: this.deps.provider,
             executor,
             events: this.events,
-            tools: actTools({ allowNavigation: options.allowNavigation ?? false }),
+            tools: actTools({ allowNavigation: options.allowNavigation ?? false, askHuman: !!this.deps.nudge }),
+            nudge: this.deps.nudge,
+            ...(this.deps.wrapAction && { wrapAction: this.deps.wrapAction }),
             codeTools: stepTools,
-            hints: [...healingHint, ...(options.hints ?? [])],
+            hints: [...loadHints(resolve(this.config.hints.dir), startUrl), ...healingHint, ...(options.hints ?? [])],
             secretPlaceholders: data.secretPlaceholders,
             isAllowedUrl,
             maxActions: options.maxActions ?? this.config.steps.maxActions,
@@ -494,6 +580,7 @@ export class Ai {
               await this.storeHealed(cache, key, healing.plan, plan, instruction, ctx);
             }
           }
+          if (this.deps.nudge && outcome.human?.length) await this.offerRemedies(instruction, outcome, startUrl);
           return {
             summary: outcome.summary,
             evidence: outcome.evidence,
@@ -684,6 +771,9 @@ export class Ai {
 
   /** Asserts a condition about the page, retrying until the timeout (docs/03 §3). */
   async assert(condition: string, options: AssertOptions = {}): Promise<Verdict> {
+    const nudged = await this.nudgeBeforeStep('assert', condition, options);
+    if (nudged.skip) return { pass: true, reason: 'Skipped in nudge mode', evidence: [], check: null };
+    ({ instruction: condition, options } = nudged);
     return this.step('assert', condition, async (ctx) => {
       const verdict = await this.assertStep(
         condition,
@@ -698,6 +788,153 @@ export class Ai {
         });
       }
       return verdict;
+    });
+  }
+
+  /**
+   * Nudge mode: pause before the step (docs/07 §2). The human can run it, skip it, add a hint or edit the
+   * instruction. Steps are only skippable for act and assert; extract and locate must produce a value.
+   */
+  private async nudgeBeforeStep<O extends StepOptions>(
+    kind: StepKind,
+    instruction: string,
+    options: O,
+  ): Promise<{ instruction: string; options: O; skip: boolean }> {
+    const nudge = this.deps.nudge;
+    if (!nudge) return { instruction, options, skip: false };
+    const cache = this.deps.cache;
+    const cached = !!cache?.store.get(cache.testTitle, this.stepKeyFor(kind, instruction, options, true));
+    const callsite = this.deps.captureCallsite?.();
+    const cmd = await nudge.beforeStep(
+      {
+        id: `${this.deps.idPrefix ?? 'ai'}:${this.ordinal + 1}`,
+        kind,
+        instruction,
+        cached,
+        ...(callsite && { callsite: `${callsite.file}:${callsite.line}` }),
+      },
+      {
+        history: [],
+        page: { url: this._page.url(), title: '', tabs: this._page.context().pages().length, dialogs: 0 },
+      },
+    );
+    switch (cmd.cmd) {
+      case 'skip':
+        return { instruction, options, skip: kind === 'act' || kind === 'assert' };
+      case 'hint':
+        return { instruction, options: { ...options, hints: [...(options.hints ?? []), cmd.text] }, skip: false };
+      case 'edit':
+        return { instruction: cmd.instruction, options, skip: false };
+      default:
+        return { instruction, options, skip: false };
+    }
+  }
+
+  /** After a human-corrected step: synthesize remedies and offer them to the driver (docs/07 §6). */
+  private async offerRemedies(instruction: string, outcome: StepOutcome, startUrl: string): Promise<void> {
+    const corrected = outcome.actions.filter((a) => a.result === 'ok');
+    const input: RemedyInput = {
+      instruction,
+      failed: outcome.actions.filter((a) => a.result !== 'ok'),
+      corrected,
+      humanInput: outcome.human ?? [],
+      targetFacts: targetFacts(
+        instruction,
+        outcome.actions.filter((a) => a.result !== 'ok'),
+        corrected,
+      ),
+    };
+    let remedies: NonNullable<PauseState['remedies']>;
+    try {
+      const { remedy, usage } = await synthesizeRemedy(this.deps.provider, input);
+      this.addUsage(usage);
+      remedies = {
+        diagnosis: remedy.diagnosis,
+        category: remedy.category,
+        pageUrl: startUrl,
+        options: remedyOptions(remedy, codeRemedy(corrected)),
+        basis: {
+          startUrl,
+          finalUrl: this._page.url(),
+          finalTargets: finalTargets(corrected),
+          input: input as unknown as Record<string, unknown>,
+        },
+      };
+    } catch (error) {
+      this.deps.nudge!.progress(`Could not build remedies: ${error instanceof Error ? error.message : String(error)}`);
+      return;
+    }
+    // Outside the try: the driver may answer with a rewind (to verify the candidates), which must propagate.
+    await this.deps.nudge!.offerRemedies(remedies);
+  }
+
+  /**
+   * A verification run (docs/07 §6.4): run this step with one remedy candidate, AI only and no human help,
+   * report whether it reached what the corrected run reached, and end the test. Round 2 re-synthesizes first.
+   */
+  private async verifyCandidate(job: VerifyJob, options: StepOptions): Promise<never> {
+    const nudge = this.deps.nudge!;
+    let option = job.option;
+    try {
+      if (job.feedback) {
+        const input = { ...(job.basis.input as unknown as RemedyInput), feedback: job.feedback };
+        const { remedy, usage } = await synthesizeRemedy(this.deps.provider, input);
+        this.addUsage(usage);
+        const next = remedyOptions(remedy, []).find((o) => o.kind === option.kind);
+        if (!next) {
+          nudge.reportVerification(false, `The second suggestion had no ${option.kind} candidate.`, option);
+          throw new VerifyDone();
+        }
+        option = next;
+      }
+      // A plain ai on the same page: no nudge (so no pauses and no ask_human) and no plan cache.
+      const plain = new Ai({
+        ...this.deps,
+        page: this._page,
+        events: this.events,
+        redactor: this.redactor,
+        values: this.values,
+        gen: this.gen,
+        codeTools: this.codeTools,
+        nudge: undefined,
+        cache: undefined,
+        idPrefix: 'verify',
+      });
+      const stepOptions: StepOptions = { ...options, cache: 'off' };
+      const actions: ActionRecord[] = [];
+      if (option.kind === 'instruction' && option.text)
+        actions.push(...(await plain.act(option.text, stepOptions)).actions);
+      else if (option.kind === 'hint' && option.hint)
+        actions.push(
+          ...(await plain.act(job.instruction, { ...stepOptions, hints: [...(options.hints ?? []), option.hint.text] }))
+            .actions,
+        );
+      else if (option.kind === 'split' && option.instructions)
+        for (const text of option.instructions) actions.push(...(await plain.act(text, stepOptions)).actions);
+      this.addUsage(plain.usage);
+      const verdict = matchesBasis(actions, plain.page.url(), job.basis);
+      nudge.reportVerification(verdict.ok, verdict.reason, option);
+    } catch (error) {
+      if (error instanceof VerifyDone) throw error;
+      nudge.reportVerification(
+        false,
+        `The AI did not finish the step: ${error instanceof Error ? error.message.split('\n')[0] : String(error)}`,
+        option,
+      );
+    }
+    throw new VerifyDone();
+  }
+
+  /** A code breakpoint: in nudge mode the test pauses here; otherwise it does nothing (docs/07 §1). */
+  async nudge(note = 'breakpoint'): Promise<void> {
+    await this.deps.nudge?.breakpoint(note, {
+      history: [],
+      page: {
+        url: this._page.url(),
+        title: await this._page.title().catch(() => ''),
+        tabs: this._page.context().pages().length,
+        dialogs: 0,
+      },
     });
   }
 
