@@ -3,11 +3,13 @@ import type { AipwConfig } from '../config.js';
 import type { LlmProvider, ProviderFactory } from './provider.js';
 
 /** Built-in entries; `providers` in the config overrides or adds to these. */
-export const DEFAULT_PROVIDERS: Record<string, { package: string; model?: string }> = {
+export const DEFAULT_PROVIDERS: Record<string, { package: string; model?: string; preset?: string }> = {
   'claude-code': { package: '@aipw/provider-claude-code', model: 'claude-sonnet-5-5' },
   anthropic: { package: '@aipw/provider-anthropic', model: 'claude-opus-5-5' },
-  openai: { package: '@aipw/provider-openai' },
-  foundry: { package: '@aipw/provider-openai' },
+  openai: { package: '@aipw/provider-openai', preset: 'openai' },
+  foundry: { package: '@aipw/provider-openai', preset: 'foundry' },
+  'github-models': { package: '@aipw/provider-openai', preset: 'github-models' },
+  ollama: { package: '@aipw/provider-openai', preset: 'ollama' },
   copilot: { package: '@aipw/provider-copilot' },
 };
 
