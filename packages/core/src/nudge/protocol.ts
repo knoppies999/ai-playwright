@@ -8,6 +8,33 @@ export const NUDGE_PROTOCOL_VERSION = 1;
 export const BreakLevelSchema = z.enum(['step', 'action', 'fail', 'none']);
 export type BreakLevel = z.infer<typeof BreakLevelSchema>;
 
+/** One way to keep a human correction (docs/07 §6.5). */
+export const RemedyOptionSchema = z.object({
+  kind: z.enum(['hint', 'instruction', 'split', 'code']),
+  label: z.string(),
+  text: z.string().optional(),
+  instructions: z.array(z.string()).optional(),
+  lines: z.array(z.string()).optional(),
+  hint: z
+    .object({ scope: z.enum(['site', 'path', 'step']), pathPattern: z.string().nullable(), text: z.string() })
+    .optional(),
+  /** Set by verification (docs/07 §6.4): true = the AI did the step alone with this remedy. */
+  verified: z.boolean().optional(),
+  verifyNote: z.string().optional(),
+});
+export type RemedyOption = z.infer<typeof RemedyOptionSchema>;
+
+/** What the corrected run did, for verifying candidates and re-synthesizing (docs/07 §6.4). */
+export const RemedyBasisSchema = z.object({
+  startUrl: z.string(),
+  finalUrl: z.string(),
+  /** Locator displays of the corrected run's last target. */
+  finalTargets: z.array(z.string()),
+  /** The synthesis input (RemedyInput): instruction, failed and corrected records, what the human said. */
+  input: z.record(z.string(), z.unknown()),
+});
+export type RemedyBasis = z.infer<typeof RemedyBasisSchema>;
+
 export const PauseStateSchema = z.object({
   v: z.literal(NUDGE_PROTOCOL_VERSION),
   /** Why we stopped. */
@@ -46,18 +73,8 @@ export const PauseStateSchema = z.object({
       diagnosis: z.string(),
       category: z.string(),
       pageUrl: z.string(),
-      options: z.array(
-        z.object({
-          kind: z.enum(['hint', 'instruction', 'split', 'code']),
-          label: z.string(),
-          text: z.string().optional(),
-          instructions: z.array(z.string()).optional(),
-          lines: z.array(z.string()).optional(),
-          hint: z
-            .object({ scope: z.enum(['site', 'path', 'step']), pathPattern: z.string().nullable(), text: z.string() })
-            .optional(),
-        }),
-      ),
+      options: z.array(RemedyOptionSchema),
+      basis: RemedyBasisSchema.optional(),
     })
     .optional(),
 });
@@ -95,6 +112,8 @@ export const WorkerMessageSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('pause'), id: z.number().int(), state: PauseStateSchema }),
   z.object({ type: z.literal('progress'), text: z.string() }),
   z.object({ type: z.literal('rewind'), toStep: z.number().int() }),
+  /** The result of an AIPW_NUDGE_VERIFY run; option is the candidate tried (re-synthesized in round 2). */
+  z.object({ type: z.literal('verified'), ok: z.boolean(), reason: z.string(), option: RemedyOptionSchema }),
 ]);
 export type WorkerMessage = z.infer<typeof WorkerMessageSchema>;
 
@@ -111,6 +130,26 @@ export class RewindSignal extends Error {
   constructor(readonly toStep: number) {
     super(`aipw nudge: rewinding to AI step ${toStep}`);
     this.name = 'RewindSignal';
+  }
+}
+
+/** A verification run (AIPW_NUDGE_VERIFY, docs/07 §6.4): try one candidate at one step, no human help. */
+export const VerifyJobSchema = z.object({
+  step: z.number().int().min(1),
+  /** The step's original instruction. */
+  instruction: z.string(),
+  option: RemedyOptionSchema,
+  basis: RemedyBasisSchema,
+  /** Round 2: why the last candidate failed; the worker re-synthesizes with it before verifying. */
+  feedback: z.string().optional(),
+});
+export type VerifyJob = z.infer<typeof VerifyJobSchema>;
+
+/** Thrown in the worker when a verification run has reported its result. */
+export class VerifyDone extends Error {
+  constructor() {
+    super('aipw nudge: verification run finished');
+    this.name = 'VerifyDone';
   }
 }
 

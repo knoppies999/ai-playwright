@@ -1,12 +1,19 @@
 // `aipw nudge <spec[:line]>` (docs/07): runs one test with the human in the loop. Starts the nudge server
 // and a persistent browser, runs Playwright Test against them, relaunches on rewind, writes a summary.
-import { NudgeServer, type BreakLevel, type NudgeCommand, type NudgeUi, type PauseState } from '@aipw/core';
+import {
+  NudgeServer,
+  type BreakLevel,
+  type NudgeCommand,
+  type NudgeUi,
+  type PauseState,
+  type VerifyJob,
+} from '@aipw/core';
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { createInterface } from 'node:readline/promises';
-import { applyRemedies, formatRemedies, parseChoices } from './apply.js';
+import { applyRemedies, formatRemedies, isVerifiable, parseChoices, stepShift, verifyRemedies } from './apply.js';
 import { contentHash } from './patch.js';
 
 export interface NudgeArgs {
@@ -14,12 +21,14 @@ export interface NudgeArgs {
   breakLevel: BreakLevel;
   at?: number;
   fresh: boolean;
+  /** Verify remedy candidates before offering them (docs/07 §6.4); --verify none turns it off. */
+  verify: boolean;
 }
 
 const LEVELS: BreakLevel[] = ['step', 'action', 'fail', 'none'];
 
 export function parseNudgeArgs(argv: string[]): NudgeArgs | { error: string } {
-  const args: NudgeArgs = { spec: '', breakLevel: 'step', fresh: false };
+  const args: NudgeArgs = { spec: '', breakLevel: 'step', fresh: false, verify: true };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]!;
     if (a === '--break') {
@@ -30,13 +39,19 @@ export function parseNudgeArgs(argv: string[]): NudgeArgs | { error: string } {
       const n = Number(argv[++i]);
       if (!Number.isInteger(n) || n < 1) return { error: '--at takes an AI step number (1, 2, …)' };
       args.at = n;
+    } else if (a === '--verify') {
+      const v = argv[++i];
+      if (v !== 'all' && v !== 'none') return { error: '--verify must be all or none' };
+      args.verify = v === 'all';
     } else if (a === '--fresh') args.fresh = true;
     else if (!a.startsWith('--') && !args.spec) args.spec = a;
     else return { error: `Unknown argument ${a}` };
   }
   return args.spec
     ? args
-    : { error: 'Usage: aipw nudge <spec[:line]> [--break step|action|fail|none] [--at N] [--fresh]' };
+    : {
+        error: 'Usage: aipw nudge <spec[:line]> [--break step|action|fail|none] [--at N] [--fresh] [--verify all|none]',
+      };
 }
 
 export const NUDGE_HELP = `[Enter] run   [s]kip   [h]int <text>   [e]dit <instruction>   [a]nswer <text>
@@ -168,15 +183,31 @@ export class TerminalUi implements NudgeUi {
   private readonly rl = createInterface({ input: process.stdin, output: process.stdout });
   /** What the human applied, for the session summary. */
   readonly applied: string[] = [];
+  /** A remedies pause waiting for verification runs; the driver runs them between relaunches. */
+  pendingVerify?: PauseState;
 
-  constructor(private readonly target?: RemedyTarget) {}
+  constructor(
+    private readonly target?: RemedyTarget,
+    private readonly verify = true,
+  ) {}
 
   onHello(test: { file: string; title: string }): void {
-    console.log(`\naipw nudge: ${test.file} › ${test.title}`);
+    if (!this.pendingVerify) console.log(`\naipw nudge: ${test.file} › ${test.title}`);
   }
 
   async onPause(state: PauseState): Promise<NudgeCommand> {
-    if (state.reason === 'remedies' && state.remedies) return this.onRemedies(state, state.remedies);
+    if (state.reason === 'remedies' && state.remedies) {
+      if (this.verify && state.remedies.basis && state.remedies.options.some(isVerifiable)) {
+        // End this run; the driver verifies each candidate, shows them, then resumes after this step.
+        this.pendingVerify = state;
+        console.log(
+          `\nStep ${state.step.index} was corrected. Verifying the suggested fixes (the test restarts for each)…`,
+        );
+        return { cmd: 'rewind', toStep: state.step.index };
+      }
+      await this.presentRemedies(state, state.remedies);
+      return { cmd: 'run' };
+    }
     console.log(`\n${formatPause(state)}`);
     for (;;) {
       const parsed = parseCommandLine(await this.rl.question('nudge> '), state);
@@ -185,25 +216,37 @@ export class TerminalUi implements NudgeUi {
     }
   }
 
-  private async onRemedies(state: PauseState, remedies: NonNullable<PauseState['remedies']>): Promise<NudgeCommand> {
+  /** Shows the remedies, applies the chosen ones and returns how many AI steps the spec patch added or removed. */
+  async presentRemedies(state: PauseState, remedies: NonNullable<PauseState['remedies']>): Promise<number> {
     console.log(`\n── step ${state.step.index} was corrected ──\n${formatRemedies(remedies)}`);
     const n = remedies.options.length;
     let choices: number[] | undefined;
-    while (!(choices = parseChoices(await this.rl.question(`Apply [1-${n}, e.g. 1,3; a = all; n = none]> `), n)))
+    while (
+      !(choices = parseChoices(
+        await this.rl.question(`Apply [1-${n}, e.g. 1,3; a = all verified; n = none]> `),
+        remedies.options,
+      ))
+    )
       console.log('Type option numbers separated by commas, a for all, or n for none.');
-    if (!choices.length || !this.target) return { cmd: 'run' };
-    const report = applyRemedies(remedies, choices, {
+    if (!choices.length || !this.target) return 0;
+    const { report, patched } = applyRemedies(remedies, choices, {
       ...this.target,
       instruction: state.step.instruction,
       line: callsiteLine(state.step.callsite),
     });
     for (const r of report) console.log(r);
     this.applied.push(...report.map((r) => `Step ${state.step.index}: ${r}`));
-    return { cmd: 'run' };
+    // Our own patch: later steps may be patched too, against the new content.
+    if (patched) this.target.specHash = contentHash(readFileSync(this.target.specPath, 'utf8'));
+    return stepShift(patched);
+  }
+
+  onProgress(text: string): void {
+    console.log(text);
   }
 
   onRewind(toStep: number): void {
-    console.log(`\nRewinding: the test restarts and fast-forwards to AI step ${toStep}…`);
+    if (!this.pendingVerify) console.log(`\nRewinding: the test restarts and fast-forwards to AI step ${toStep}…`);
   }
 
   close(): void {
@@ -244,7 +287,7 @@ export async function runNudge(argv: string[]): Promise<number> {
     console.error(`Can't read ${specPath}`);
     return 1;
   }
-  const ui = new TerminalUi({ specPath, specHash, hintsDir: resolve('hints') });
+  const ui = new TerminalUi({ specPath, specHash, hintsDir: resolve('hints') }, args.verify);
   const server = new NudgeServer(ui);
   const port = await server.listen();
   // One headed browser for the whole session; every relaunch gets a fresh context in it (docs/07 §5.3).
@@ -254,25 +297,46 @@ export async function runNudge(argv: string[]): Promise<number> {
   const rewinds: number[] = [];
   let resumeAt = args.at ?? 1;
   let code: number;
+  const dir = join(process.cwd(), '.aipw', 'nudge', new Date().toISOString().replace(/[:.]/g, '-'));
+  mkdirSync(dir, { recursive: true });
+  const env = (resumeAt: number, extra: NodeJS.ProcessEnv = {}): NodeJS.ProcessEnv => ({
+    ...process.env,
+    AIPW_NUDGE_PORT: String(port),
+    AIPW_NUDGE_BREAK: args.breakLevel,
+    AIPW_NUDGE_RESUME_AT: String(resumeAt),
+    AIPW_SEED: seed,
+    PW_TEST_CONNECT_WS_ENDPOINT: browser.wsEndpoint(),
+    ...(args.fresh && { AIPW_CACHE: 'ai-only' }),
+    ...extra,
+  });
+  let jobs = 0;
+  // One verification run: fast-forward to the step, try the candidate with AI only, report (docs/07 §6.4).
+  const runVerification = async (job: VerifyJob) => {
+    const file = join(dir, `verify-${++jobs}.json`);
+    writeFileSync(file, JSON.stringify(job));
+    server.verifications.length = 0;
+    await runPlaywright(args.spec, env(job.step, { AIPW_NUDGE_BREAK: 'none', AIPW_NUDGE_VERIFY: file }));
+    return server.verifications.shift();
+  };
   try {
     for (;;) {
       server.pendingRewind = undefined;
-      code = await runPlaywright(args.spec, {
-        ...process.env,
-        AIPW_NUDGE_PORT: String(port),
-        AIPW_NUDGE_BREAK: args.breakLevel,
-        AIPW_NUDGE_RESUME_AT: String(resumeAt),
-        AIPW_SEED: seed,
-        PW_TEST_CONNECT_WS_ENDPOINT: browser.wsEndpoint(),
-        ...(args.fresh && { AIPW_CACHE: 'ai-only' }),
-      });
+      code = await runPlaywright(args.spec, env(resumeAt));
+      const pending = ui.pendingVerify;
+      if (pending) {
+        const verified = await verifyRemedies(pending, runVerification, (line) => console.log(line));
+        ui.pendingVerify = undefined;
+        const shift = await ui.presentRemedies(pending, verified);
+        // Carry on after the corrected step; its plan was stored, so it replays.
+        resumeAt = pending.step.index + 1 + shift;
+        console.log(`\nResuming at AI step ${resumeAt}…`);
+        continue;
+      }
       if (server.pendingRewind === undefined) break;
       rewinds.push(server.pendingRewind);
       resumeAt = server.pendingRewind;
     }
   } finally {
-    const dir = join(process.cwd(), '.aipw', 'nudge', new Date().toISOString().replace(/[:.]/g, '-'));
-    mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, 'summary.md'), summarizeSession(args.spec, server.pauses, rewinds, ui.applied));
     console.log(`\nSession summary: ${join(dir, 'summary.md')}`);
     ui.close();
