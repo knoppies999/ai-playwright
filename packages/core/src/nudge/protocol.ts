@@ -11,7 +11,7 @@ export type BreakLevel = z.infer<typeof BreakLevelSchema>;
 export const PauseStateSchema = z.object({
   v: z.literal(NUDGE_PROTOCOL_VERSION),
   /** Why we stopped. */
-  reason: z.enum(['step', 'decision', 'fail', 'ask', 'breakpoint']),
+  reason: z.enum(['step', 'decision', 'fail', 'ask', 'breakpoint', 'remedies']),
   test: z.object({ file: z.string(), title: z.string() }),
   step: z.object({
     /** 1-based AI step number in this test run. */
@@ -40,6 +40,26 @@ export const PauseStateSchema = z.object({
   /** Free text for breakpoints: ai.nudge('check the form before saving'). */
   note: z.string().optional(),
   breakLevel: BreakLevelSchema,
+  /** reason 'remedies': better steps to keep after a human-corrected step (docs/07 §6). */
+  remedies: z
+    .object({
+      diagnosis: z.string(),
+      category: z.string(),
+      pageUrl: z.string(),
+      options: z.array(
+        z.object({
+          kind: z.enum(['hint', 'instruction', 'split', 'code']),
+          label: z.string(),
+          text: z.string().optional(),
+          instructions: z.array(z.string()).optional(),
+          lines: z.array(z.string()).optional(),
+          hint: z
+            .object({ scope: z.enum(['site', 'path', 'step']), pathPattern: z.string().nullable(), text: z.string() })
+            .optional(),
+        }),
+      ),
+    })
+    .optional(),
 });
 export type PauseState = z.infer<typeof PauseStateSchema>;
 

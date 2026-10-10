@@ -74,4 +74,6 @@ export interface StepOutcome {
   source: 'ai';
   /** Final observation's snapshot, for reports. */
   lastSnapshot?: string;
+  /** Corrections the human made during the step in nudge mode (hints, answers, edits, skips). */
+  human?: string[];
 }

@@ -3,9 +3,11 @@
 import { NudgeServer, type BreakLevel, type NudgeCommand, type NudgeUi, type PauseState } from '@aipw/core';
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { mkdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { createInterface } from 'node:readline/promises';
+import { applyRemedies, formatRemedies, parseChoices } from './apply.js';
+import { contentHash } from './patch.js';
 
 export interface NudgeArgs {
   spec: string;
@@ -117,6 +119,7 @@ export function summarizeSession(
   spec: string,
   pauses: { state: PauseState; command: NudgeCommand }[],
   rewinds: number[],
+  applied: string[] = [],
 ): string {
   const corrections = pauses.filter((p) => ['hint', 'edit', 'answer', 'skip'].includes(p.command.cmd));
   const lines = [
@@ -143,24 +146,60 @@ export function summarizeSession(
       `- Step ${state.step.index} \`ai.${state.step.kind}(${JSON.stringify(state.step.instruction)})\` at ${state.reason}: ${what}`,
     );
   }
+  if (applied.length) lines.push('', '## Applied remedies', '', ...applied.map((a) => `- ${a.replace(/\n/g, '\n  ')}`));
   return `${lines.join('\n')}\n`;
+}
+
+/** "examples/a.spec.ts:12" → the file; a Windows drive colon is kept. */
+export const specFile = (spec: string) => spec.replace(/:\d+$/, '');
+
+/** The line of a callsite "file:line", or 0. */
+export const callsiteLine = (callsite: string | undefined) => Number(/:(\d+)$/.exec(callsite ?? '')?.[1] ?? 0);
+
+export interface RemedyTarget {
+  specPath: string;
+  /** Hash of the spec when the session started: patches are refused if it changed (docs/07 §6.5). */
+  specHash: string;
+  hintsDir: string;
 }
 
 /** Interactive terminal UI. */
 export class TerminalUi implements NudgeUi {
   private readonly rl = createInterface({ input: process.stdin, output: process.stdout });
+  /** What the human applied, for the session summary. */
+  readonly applied: string[] = [];
+
+  constructor(private readonly target?: RemedyTarget) {}
 
   onHello(test: { file: string; title: string }): void {
     console.log(`\naipw nudge: ${test.file} › ${test.title}`);
   }
 
   async onPause(state: PauseState): Promise<NudgeCommand> {
+    if (state.reason === 'remedies' && state.remedies) return this.onRemedies(state, state.remedies);
     console.log(`\n${formatPause(state)}`);
     for (;;) {
       const parsed = parseCommandLine(await this.rl.question('nudge> '), state);
       if ('local' in parsed) console.log(parsed.local);
       else return parsed;
     }
+  }
+
+  private async onRemedies(state: PauseState, remedies: NonNullable<PauseState['remedies']>): Promise<NudgeCommand> {
+    console.log(`\n── step ${state.step.index} was corrected ──\n${formatRemedies(remedies)}`);
+    const n = remedies.options.length;
+    let choices: number[] | undefined;
+    while (!(choices = parseChoices(await this.rl.question(`Apply [1-${n}, e.g. 1,3; a = all; n = none]> `), n)))
+      console.log('Type option numbers separated by commas, a for all, or n for none.');
+    if (!choices.length || !this.target) return { cmd: 'run' };
+    const report = applyRemedies(remedies, choices, {
+      ...this.target,
+      instruction: state.step.instruction,
+      line: callsiteLine(state.step.callsite),
+    });
+    for (const r of report) console.log(r);
+    this.applied.push(...report.map((r) => `Step ${state.step.index}: ${r}`));
+    return { cmd: 'run' };
   }
 
   onRewind(toStep: number): void {
@@ -197,7 +236,15 @@ export async function runNudge(argv: string[]): Promise<number> {
     console.error('aipw nudge is interactive and refuses to run when CI is set (docs/07 §9).');
     return 1;
   }
-  const ui = new TerminalUi();
+  const specPath = resolve(specFile(args.spec));
+  let specHash: string;
+  try {
+    specHash = contentHash(readFileSync(specPath, 'utf8'));
+  } catch {
+    console.error(`Can't read ${specPath}`);
+    return 1;
+  }
+  const ui = new TerminalUi({ specPath, specHash, hintsDir: resolve('hints') });
   const server = new NudgeServer(ui);
   const port = await server.listen();
   // One headed browser for the whole session; every relaunch gets a fresh context in it (docs/07 §5.3).
@@ -226,7 +273,7 @@ export async function runNudge(argv: string[]): Promise<number> {
   } finally {
     const dir = join(process.cwd(), '.aipw', 'nudge', new Date().toISOString().replace(/[:.]/g, '-'));
     mkdirSync(dir, { recursive: true });
-    writeFileSync(join(dir, 'summary.md'), summarizeSession(args.spec, server.pauses, rewinds));
+    writeFileSync(join(dir, 'summary.md'), summarizeSession(args.spec, server.pauses, rewinds, ui.applied));
     console.log(`\nSession summary: ${join(dir, 'summary.md')}`);
     ui.close();
     await server.close();
