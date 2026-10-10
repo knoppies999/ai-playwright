@@ -8,6 +8,10 @@ export const NUDGE_PROTOCOL_VERSION = 1;
 export const BreakLevelSchema = z.enum(['step', 'action', 'fail', 'none']);
 export type BreakLevel = z.infer<typeof BreakLevelSchema>;
 
+/** What a picked or chosen element can be used for. */
+export const PickToolSchema = z.enum(['click', 'hover', 'fill']);
+export type PickTool = z.infer<typeof PickToolSchema>;
+
 /** One way to keep a human correction (docs/07 §6.5). */
 export const RemedyOptionSchema = z.object({
   kind: z.enum(['hint', 'instruction', 'split', 'code']),
@@ -38,7 +42,7 @@ export type RemedyBasis = z.infer<typeof RemedyBasisSchema>;
 export const PauseStateSchema = z.object({
   v: z.literal(NUDGE_PROTOCOL_VERSION),
   /** Why we stopped. */
-  reason: z.enum(['step', 'decision', 'fail', 'ask', 'breakpoint', 'remedies']),
+  reason: z.enum(['step', 'decision', 'fail', 'ask', 'breakpoint', 'remedies', 'options']),
   test: z.object({ file: z.string(), title: z.string() }),
   step: z.object({
     /** 1-based AI step number in this test run. */
@@ -64,6 +68,19 @@ export const PauseStateSchema = z.object({
   history: z.array(z.string()),
   failure: z.object({ kind: z.string(), reason: z.string() }).optional(),
   question: z.string().optional(),
+  /** reason 'options': the AI's top alternative targets for the current decision (docs/07 §4, o). */
+  alternatives: z
+    .array(
+      z.object({
+        tool: PickToolSchema,
+        ref: z.string(),
+        role: z.string().optional(),
+        name: z.string().optional(),
+        value: z.string().nullable(),
+        why: z.string(),
+      }),
+    )
+    .optional(),
   /** Free text for breakpoints: ai.nudge('check the form before saving'). */
   note: z.string().optional(),
   breakLevel: BreakLevelSchema,
@@ -99,6 +116,14 @@ export const NudgeCommandSchema = z.discriminatedUnion('cmd', [
   z.object({ cmd: z.literal('rewind'), toStep: z.number().int().min(1) }),
   /** Stop the test. */
   z.object({ cmd: z.literal('quit') }),
+  /** Click the right element in the browser; it is used with this tool (default: the AI's, or click). */
+  z.object({ cmd: z.literal('pick'), tool: PickToolSchema.optional(), value: z.string().optional() }),
+  /** Soft undo of the last action (docs/07 §5.1). */
+  z.object({ cmd: z.literal('undo') }),
+  /** Ask the AI for its top alternative targets for this decision. */
+  z.object({ cmd: z.literal('options') }),
+  /** At an 'options' pause: use alternative number index (0-based). */
+  z.object({ cmd: z.literal('choose'), index: z.number().int().min(0) }),
 ]);
 export type NudgeCommand = z.infer<typeof NudgeCommandSchema>;
 

@@ -54,13 +54,19 @@ export function parseNudgeArgs(argv: string[]): NudgeArgs | { error: string } {
       };
 }
 
-export const NUDGE_HELP = `[Enter] run   [s]kip   [h]int <text>   [e]dit <instruction>   [a]nswer <text>
-[c]ontinue   [b]reak <step|action|fail|none>   [v]iew snapshot   [r]ewind <step>   [q]uit   ?=help`;
+export const NUDGE_HELP = `[Enter] run   [s]kip   [h]int <text>   [p]ick [click|hover|fill <text>]   [e]dit <instruction>
+[o]ptions   [u]ndo   [a]nswer <text>   [c]ontinue   [b]reak <step|action|fail|none>   [v]iew   [r]ewind <step>   [q]uit   ?=help`;
 
 /** Turns a typed line into a command. Returns a string for local actions (help, view) or errors. */
 export function parseCommandLine(line: string, state: PauseState): NudgeCommand | { local: string } {
   const [key = '', ...rest] = line.trim().split(/\s+/);
   const text = rest.join(' ');
+  if (state.reason === 'options' && /^\d+$/.test(key)) {
+    const n = Number(key);
+    return n >= 1 && n <= (state.alternatives?.length ?? 0)
+      ? { cmd: 'choose', index: n - 1 }
+      : { local: `Choose 1-${state.alternatives?.length ?? 0}, or another command` };
+  }
   switch (key.toLowerCase()) {
     case '':
       return state.reason === 'ask' ? { local: 'Type a for an answer, e.g.  a OPS-07' } : { cmd: 'run' };
@@ -97,6 +103,21 @@ export function parseCommandLine(line: string, state: PauseState): NudgeCommand 
     case 'q':
     case 'quit':
       return { cmd: 'quit' };
+    case 'p':
+    case 'pick': {
+      const [tool, ...value] = rest;
+      if (!tool) return { cmd: 'pick' };
+      if (tool === 'click' || tool === 'hover') return { cmd: 'pick', tool };
+      if (tool === 'fill')
+        return value.length ? { cmd: 'pick', tool, value: value.join(' ') } : { local: 'Give the text: p fill <text>' };
+      return { local: 'p, p click, p hover or p fill <text>' };
+    }
+    case 'u':
+    case 'undo':
+      return { cmd: 'undo' };
+    case 'o':
+    case 'options':
+      return { cmd: 'options' };
     case '?':
     case 'help':
       return { local: NUDGE_HELP };
@@ -122,6 +143,14 @@ export function formatPause(state: PauseState): string {
   }
   if (state.failure) lines.push(`AI gave up (${state.failure.kind}): ${state.failure.reason}`);
   if (state.question) lines.push(`AI asks: ${state.question}`);
+  if (state.alternatives) {
+    lines.push(state.alternatives.length ? 'Alternatives (type a number):' : 'The AI found no alternatives.');
+    state.alternatives.forEach((a, i) =>
+      lines.push(
+        `  ${i + 1}  ${a.tool} ${a.role ?? 'element'}${a.name ? ` "${a.name}"` : ''} [${a.ref}]${a.value !== null ? ` = ${JSON.stringify(a.value)}` : ''}  — ${a.why}`,
+      ),
+    );
+  }
   if (state.page)
     lines.push(`  page   : ${state.page.url}  ·  ${state.page.tabs} tab(s)  ·  ${state.page.dialogs} dialog(s)`);
   if (state.history.length) lines.push('  so far :', ...state.history.map((h) => `    ${h}`));
@@ -136,7 +165,9 @@ export function summarizeSession(
   rewinds: number[],
   applied: string[] = [],
 ): string {
-  const corrections = pauses.filter((p) => ['hint', 'edit', 'answer', 'skip'].includes(p.command.cmd));
+  const corrections = pauses.filter((p) =>
+    ['hint', 'edit', 'answer', 'skip', 'pick', 'undo', 'choose'].includes(p.command.cmd),
+  );
   const lines = [
     `# Nudge session: ${spec}`,
     '',
@@ -156,7 +187,13 @@ export function summarizeSession(
           ? `instruction changed to "${command.instruction}"`
           : command.cmd === 'answer'
             ? `answered "${command.text}" to "${state.question}"`
-            : 'skipped';
+            : command.cmd === 'pick'
+              ? `picked an element in the browser${command.tool ? ` (${command.tool})` : ''}`
+              : command.cmd === 'undo'
+                ? 'undid the last action'
+                : command.cmd === 'choose'
+                  ? `chose alternative ${command.index + 1}${state.alternatives?.[command.index] ? `: ${state.alternatives[command.index]!.tool} "${state.alternatives[command.index]!.name ?? state.alternatives[command.index]!.ref}"` : ''}`
+                  : 'skipped';
     lines.push(
       `- Step ${state.step.index} \`ai.${state.step.kind}(${JSON.stringify(state.step.instruction)})\` at ${state.reason}: ${what}`,
     );

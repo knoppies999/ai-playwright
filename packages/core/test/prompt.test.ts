@@ -73,6 +73,7 @@ describe('prompt builder', () => {
 
   it('keeps the system prompts and tool list stable', () => {
     expectGolden('prompt-system-act.txt', SYSTEM_PROMPTS.act);
+    expectGolden('prompt-system-options.txt', SYSTEM_PROMPTS.options);
     expectGolden(
       'tools-act.json',
       JSON.stringify(
