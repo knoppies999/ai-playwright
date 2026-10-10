@@ -1,0 +1,42 @@
+{
+  "model": "e2e-agent",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You judge whether a condition holds on a web page."
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "CONDITION: The status says \"Profile saved\"\n\nPAGE\n- status: Profile saved"
+        }
+      ]
+    }
+  ],
+  "response_format": {
+    "type": "json_schema",
+    "json_schema": {
+      "name": "verdict",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "pass": {
+            "type": "boolean"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "pass",
+          "reason"
+        ],
+        "additionalProperties": false
+      },
+      "strict": true
+    }
+  },
+  "max_completion_tokens": 4096
+}

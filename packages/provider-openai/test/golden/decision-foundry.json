@@ -1,0 +1,201 @@
+{
+  "model": "e2e-agent",
+  "messages": [
+    {
+      "role": "system",
+      "content": "You operate a web browser to complete one test step. Call exactly one tool."
+    },
+    {
+      "role": "user",
+      "content": [
+        {
+          "type": "text",
+          "text": "TASK\nkind: act\ninstruction: Save the profile\nDATA: none\n\nHISTORY (actions already taken in this step)\n(none)"
+        },
+        {
+          "type": "image_url",
+          "image_url": {
+            "url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg=="
+          }
+        },
+        {
+          "type": "text",
+          "text": "URL: http://localhost:5173/app\nTITLE: Demo\n\n- region \"Profile\" [ref=e5]:\n  - button \"Save\" [ref=e7]"
+        }
+      ]
+    }
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "click",
+        "description": "Click an element.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "ref": {
+              "type": "string",
+              "description": "Element ref from the current snapshot, e.g. \"e12\" or \"f1e3\""
+            },
+            "button": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "enum": [
+                    "left",
+                    "right",
+                    "middle"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Default left"
+            },
+            "modifiers": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string",
+                    "enum": [
+                      "Alt",
+                      "Control",
+                      "Meta",
+                      "Shift"
+                    ]
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "Keys held during the click"
+            },
+            "clickCount": {
+              "anyOf": [
+                {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 3
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "2 for a double click"
+            },
+            "intent": {
+              "type": "string",
+              "description": "What this action is trying to do, in at most 15 words"
+            }
+          },
+          "required": [
+            "ref",
+            "button",
+            "modifiers",
+            "clickCount",
+            "intent"
+          ],
+          "additionalProperties": false
+        },
+        "strict": true
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "fill",
+        "description": "Replace the contents of a text field.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "ref": {
+              "type": "string",
+              "description": "Element ref from the current snapshot, e.g. \"e12\" or \"f1e3\""
+            },
+            "value": {
+              "type": "string",
+              "description": "Text to put in the field. May contain {{data.x}} or {{secret.x}} placeholders"
+            },
+            "intent": {
+              "type": "string",
+              "description": "What this action is trying to do, in at most 15 words"
+            }
+          },
+          "required": [
+            "ref",
+            "value",
+            "intent"
+          ],
+          "additionalProperties": false
+        },
+        "strict": true
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "done",
+        "description": "Finish the step: it is complete. Quote page text that shows success.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "summary": {
+              "type": "string",
+              "description": "What was done"
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Text quoted from the page that shows the step succeeded"
+            }
+          },
+          "required": [
+            "summary",
+            "evidence"
+          ],
+          "additionalProperties": false
+        },
+        "strict": true
+      }
+    },
+    {
+      "type": "function",
+      "function": {
+        "name": "fail",
+        "description": "Stop: the step cannot be completed. Use the most specific kind.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "type": "string",
+              "enum": [
+                "not_found",
+                "ambiguous",
+                "blocked",
+                "unexpected_state"
+              ]
+            },
+            "reason": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "reason"
+          ],
+          "additionalProperties": false
+        },
+        "strict": true
+      }
+    }
+  ],
+  "tool_choice": "required",
+  "parallel_tool_calls": false,
+  "max_completion_tokens": 4096
+}

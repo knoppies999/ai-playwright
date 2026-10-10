@@ -33,6 +33,8 @@ export { Redactor, REDACTED } from './data/redactor.js';
 export { addUsage, emptyUsage } from './llm/provider.js';
 export { BudgetGuard, costOf, resetRunBudget, withBudget, type BudgetLimits, type PricingTable } from './llm/budget.js';
 export { backoffMs, withRetry, type RetryOptions } from './llm/retry.js';
+export { kindForStatus, postJson, retryAfterMs, type FetchLike } from './llm/http.js';
+export { contractDecisionRequest, contractStructuredRequest } from './llm/contract.js';
 export type {
   DecisionRequest,
   DecisionResponse,
