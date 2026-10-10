@@ -97,3 +97,12 @@ export {
   type NudgeCommand,
   type PauseState,
 } from './nudge/protocol.js';
+export { hintFileName, loadHints, writeHint, type NewHint } from './hints/store.js';
+export {
+  codeRemedy,
+  RemedySchema,
+  remedyPrompt,
+  synthesizeRemedy,
+  type Remedy,
+  type RemedyInput,
+} from './nudge/remedy.js';
