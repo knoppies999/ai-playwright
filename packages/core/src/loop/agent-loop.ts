@@ -272,6 +272,8 @@ export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<S
         ? await deps.nudge.ask(call.args.question, pauseCtx())
         : '(nobody to ask outside nudge mode)';
       history.push(passiveRecord('ask_human', call.args, obs, 'ok', answer));
+      // The answer is a correction: the step needed a person, so remedies are offered afterwards (docs/07 §7).
+      if (deps.nudge) human.push(`answered "${call.args.question}": ${answer}`);
       continue;
     } else if (deps.nudge) {
       const args = call.args as { ref?: string | null; intent?: string; value?: string };

@@ -77,6 +77,38 @@ export function remedyOptions(remedy: Remedy, code: string[]): RemedyOption[] {
   return options;
 }
 
+const label = (r: ActionRecord) => `${r.target?.role ?? 'element'}${r.target?.name ? ` "${r.target.name}"` : ''}`;
+
+/**
+ * Engine-computed facts about the correct target (docs/07 §6.2), so the diagnosis is concrete instead of guessed:
+ * was it reached through a hover menu, does the instruction use its name, what did the agent pick instead.
+ */
+export function targetFacts(instruction: string, failed: ActionRecord[], corrected: ActionRecord[]): string[] {
+  const facts: string[] = [];
+  const targeted = corrected.filter((r) => r.target);
+  const final = targeted[targeted.length - 1];
+  if (!final) return facts;
+  const hovers = targeted.slice(0, -1).filter((r) => r.tool === 'hover');
+  if (hovers.length)
+    facts.push(
+      `${label(final)} was reached by hovering ${hovers.map(label).join(', then ')} first: it is in a menu that opens on hover.`,
+    );
+  const name = final.target!.name;
+  if (name) {
+    const words = (t: string) => t.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [];
+    const said = new Set(words(instruction));
+    const missing = words(name).filter((w) => !said.has(w));
+    facts.push(
+      missing.length
+        ? `The element is ${label(final)}; the instruction does not use the words ${missing.map((w) => `"${w}"`).join(', ')}.`
+        : `The instruction names the element correctly (${label(final)}).`,
+    );
+  }
+  const wrong = [...new Set(failed.filter((r) => r.target && r.target.name !== name).map(label))];
+  if (wrong.length) facts.push(`The agent chose ${wrong.join(', ')} instead.`);
+  return facts;
+}
+
 /** The locator displays of the last action that had a target. */
 export function finalTargets(records: ActionRecord[]): string[] {
   const last = [...records].reverse().find((r) => r.result === 'ok' && (r.target || r.targets?.length));

@@ -25,6 +25,7 @@ import {
   matchesBasis,
   remedyOptions,
   synthesizeRemedy,
+  targetFacts,
   type RemedyInput,
 } from '../nudge/remedy.js';
 import { DataResolver, secretSource } from '../data/resolver.js';
@@ -192,6 +193,12 @@ export class Ai {
   get page(): Page {
     return this._page;
   }
+
+  /** Nudge hooks (docs/07 §5.2); no-ops outside nudge mode. */
+  readonly nudgeHooks = {
+    /** Runs before a rewind restarts the test: reset server-side state here. */
+    onRewind: (hook: () => unknown) => this.deps.nudge?.onRewind(hook),
+  };
 
   /** An `ai` bound to another page, sharing events, values and secrets. */
   on(page: Page): Ai {
@@ -783,7 +790,11 @@ export class Ai {
       failed: outcome.actions.filter((a) => a.result !== 'ok'),
       corrected,
       humanInput: outcome.human ?? [],
-      targetFacts: [],
+      targetFacts: targetFacts(
+        instruction,
+        outcome.actions.filter((a) => a.result !== 'ok'),
+        corrected,
+      ),
     };
     let remedies: NonNullable<PauseState['remedies']>;
     try {

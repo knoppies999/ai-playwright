@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { FakeProvider } from '../src/llm/fake-provider.js';
-import { codeRemedy, remedyPrompt, synthesizeRemedy } from '../src/nudge/remedy.js';
+import { codeRemedy, remedyPrompt, synthesizeRemedy, targetFacts } from '../src/nudge/remedy.js';
 import type { ActionRecord } from '../src/types.js';
 
 const rec = (
@@ -41,6 +41,29 @@ describe('code remedy', () => {
       "await page.keyboard.press('Escape');",
       '// click img "chart": no durable locator, do this step by hand',
     ]);
+  });
+});
+
+describe('target facts', () => {
+  const on = (tool: string, role: string, name: string, result = 'ok') =>
+    rec(tool, { ref: 'e1' }, undefined, { result, target: { ref: 'e1', role, name, candidates: [] } });
+
+  it('notes hover menus, the wording gap and what the agent chose instead', () => {
+    expect(
+      targetFacts(
+        'Open Settings > Users',
+        [on('click', 'link', 'User groups', 'undone by the person running the test')],
+        [on('hover', 'button', 'Settings'), on('click', 'menuitem', 'Users')],
+      ),
+    ).toEqual([
+      'menuitem "Users" was reached by hovering button "Settings" first: it is in a menu that opens on hover.',
+      'The instruction names the element correctly (menuitem "Users").',
+      'The agent chose link "User groups" instead.',
+    ]);
+    expect(targetFacts('Open the people list', [], [on('click', 'link', 'Users')])).toEqual([
+      'The element is link "Users"; the instruction does not use the words "users".',
+    ]);
+    expect(targetFacts('x', [], [])).toEqual([]);
   });
 });
 
