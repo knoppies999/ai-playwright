@@ -46,6 +46,8 @@ export default class AipwReporter implements Reporter {
     const md = join(dir, 'summary.md');
     writeFileSync(md, formatSummaryMarkdown(this.summary));
     writeFileSync(join(dir, 'summary.json'), `${JSON.stringify(this.summary, null, 2)}\n`);
+    // Every step of every test, for `aipw conformance` and other tooling.
+    writeFileSync(join(dir, 'steps.json'), `${JSON.stringify([...this.tests.values()], null, 2)}\n`);
     if (!this.options.quiet) console.log(`\n${formatSummaryText(this.summary)}\n`);
     // Azure Pipelines: the Markdown becomes a tab on the build summary page.
     if (process.env.TF_BUILD?.toLowerCase() === 'true') console.log(`##vso[task.uploadsummary]${md}`);
