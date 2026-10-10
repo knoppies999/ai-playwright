@@ -40,6 +40,10 @@ const clickSave = (req: DecisionRequest) => ({
   args: { ref: refOf('button "Save"', req), button: null, modifiers: null, clickCount: null, intent: 'save' },
 });
 const done = { tool: 'done', args: { summary: 'ok', evidence: [] } };
+const click = (name: string) => (req: DecisionRequest) => ({
+  tool: 'click',
+  args: { ref: refOf(name, req), button: null, modifiers: null, clickCount: null, intent: `click ${name}` },
+});
 const SAVE = `locator('[data-test="save"]')`;
 const basis = {
   startUrl: 'http://app.test/',
@@ -192,6 +196,101 @@ describe('nudge mode', () => {
       option: { hint: { text: 'Save exports the report.' } },
       reason: expect.stringContaining('without touching the corrected target'),
     });
+  });
+
+  it('pick: the human clicks the right element in the browser and it is used instead', async () => {
+    const page = await openApp();
+    const { ui, controller } = await nudged(
+      [
+        () => {
+          // The human clicks Save once the picker is waiting; the click is swallowed by the picker.
+          void (async () => {
+            await page.waitForFunction(() => (window as { __aipwPicking?: boolean }).__aipwPicking === true);
+            await page.locator('[data-test="save"]').click();
+          })();
+          return { cmd: 'pick' };
+        },
+      ],
+      { breakLevel: 'action' },
+    );
+    const provider = new FakeProvider([click('button "Delete"'), done]);
+    const result = await new Ai({ page, provider, config, nudge: controller }).act('Export the report');
+    expect(ui.seen[0]!.decision).toMatchObject({ tool: 'click', target: { name: 'Delete' } });
+    expect(result.actions.map((a) => [a.tool, a.target?.name, a.result])).toEqual([['click', 'Save', 'ok']]);
+    expect(result.actions[0]!.target!.candidates[0]!.display).toBe(SAVE);
+    // Nothing was deleted: the AI's click never ran, and the picker swallowed the human's click.
+    expect(await page.locator('#deleted').isHidden()).toBe(true);
+  });
+
+  it('undo: reverses the last action, marks it rejected and lets the human fix the page', async () => {
+    const { ui, controller } = await nudged([() => ({ cmd: 'run' }), () => ({ cmd: 'undo' }), () => ({ cmd: 'run' })], {
+      breakLevel: 'action',
+    });
+    const provider = new FakeProvider([
+      click('button "Open Menu"'),
+      click('button "Save"'),
+      (req) => {
+        expect(req.context).toContain('undone by the person running the test');
+        return done;
+      },
+    ]);
+    const result = await new Ai({ page: await openApp(), provider, config, nudge: controller }).act('Save');
+    expect(ui.seen[2]).toMatchObject({ reason: 'breakpoint', note: expect.stringContaining('Undid click') });
+    expect(result.actions[0]!.result).toMatch(/^undone/);
+    expect(result.actions).toHaveLength(1);
+  });
+
+  it('options: the AI offers alternatives and the chosen one runs', async () => {
+    const { ui, controller } = await nudged([() => ({ cmd: 'options' }), () => ({ cmd: 'choose', index: 0 })], {
+      breakLevel: 'action',
+    });
+    const provider = new FakeProvider(
+      [click('button "Delete"'), done],
+      [
+        (req: { prompt: string }) => ({
+          options: [
+            { ref: /button "Save" \[ref=([^\]]+)\]/.exec(req.prompt)![1], tool: 'click', value: null, why: 'saves' },
+            { ref: 'e999', tool: 'click', value: null, why: 'not on the page' },
+          ],
+        }),
+      ],
+    );
+    const result = await new Ai({ page: await openApp(), provider, config, nudge: controller }).act('Save');
+    expect(provider.structuredRequests[0]!.prompt).toContain('REJECTED: click');
+    expect(ui.seen[1]).toMatchObject({
+      reason: 'options',
+      alternatives: [{ tool: 'click', name: 'Save', why: 'saves' }],
+    });
+    expect(result.actions.map((a) => a.target?.name)).toEqual(['Save']);
+  });
+
+  it('highlights the AI target while a decision is shown, and removes it after', async () => {
+    const page = await openApp();
+    const shown: boolean[] = [];
+    const { controller } = await nudged(
+      [
+        (async () => {
+          shown.push(
+            await page.evaluate(
+              () =>
+                !!document.querySelector('x-pw-glass') &&
+                getComputedStyle(document.querySelector('x-pw-glass')!).display !== 'none',
+            ),
+          );
+          return { cmd: 'run' };
+        }) as unknown as () => NudgeCommand,
+      ],
+      { breakLevel: 'action' },
+    );
+    await new Ai({ page, provider: new FakeProvider([clickSave, done]), config, nudge: controller }).act('Save');
+    expect(shown).toEqual([true]);
+    expect(
+      await page.evaluate(
+        () =>
+          !!document.querySelector('x-pw-glass') &&
+          getComputedStyle(document.querySelector('x-pw-glass')!).display !== 'none',
+      ),
+    ).toBe(false);
   });
 
   it('offers ask_human and passes the answer back', async () => {

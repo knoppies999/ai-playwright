@@ -15,7 +15,8 @@ import { AiProviderError } from '../errors.js';
 import type { EventBus } from '../events/bus.js';
 import { addUsage, emptyUsage, type DecisionRequest, type LlmProvider, type Usage } from '../llm/provider.js';
 import type { NudgeController } from '../nudge/controller.js';
-import type { NudgeCommand, PauseState } from '../nudge/protocol.js';
+import { alternatives, callFor, pickedRef, softUndo, waitForPick } from '../nudge/correct.js';
+import type { NudgeCommand, PauseState, PickTool } from '../nudge/protocol.js';
 import type { Observation } from '../observe/observer.js';
 import { findByRef, refsIn } from '../observe/snapshot.js';
 import type { StepSession } from '../step/session.js';
@@ -163,43 +164,124 @@ export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<S
       ms: Date.now() - started,
     });
 
-    const call = decision.call;
+    let call = decision.call;
+    let execObs = obs;
     const pauseCtx = (extra: Partial<PauseState> = {}) => nudgeContext(obs, history, extra);
+    /**
+     * pick / undo / options (docs/07 §4) at a decision or fail pause. Returns a call to execute instead of the AI's,
+     * 'replan' to go round the loop again, or undefined when the command is something else.
+     */
+    const correct = async (
+      cmd: NudgeCommand,
+      rejected: { tool: string; ref?: string; intent?: string; value?: string },
+    ): Promise<{ call: AnyToolCall; obs: Observation } | 'replan' | undefined> => {
+      const nudge = deps.nudge!;
+      const page = deps.session.page;
+      if (cmd.cmd === 'options') {
+        const found = await alternatives(deps.provider, step.instruction, history, rejected, obs).catch(
+          (error: unknown) => {
+            nudge.progress(`No alternatives: ${error instanceof Error ? error.message : String(error)}`);
+            return undefined;
+          },
+        );
+        if (found) usage = addUsage(usage, found.usage);
+        const alts = found?.alternatives ?? [];
+        const answer = await nudge.chooseAlternative(pauseCtx({ alternatives: alts }));
+        if (answer.cmd === 'choose' && alts[answer.index]) {
+          const a = alts[answer.index]!;
+          human.push(`chose instead: ${a.tool} ${a.role ?? 'element'}${a.name ? ` "${a.name}"` : ''}`);
+          return { call: callFor(a.tool, a.ref, a.value), obs };
+        }
+        const again = await correct(answer, rejected);
+        if (again) return again;
+        // Enter: go ahead with the AI's action (or retry after a fail); s: reject it and re-plan.
+        if (answer.cmd === 'run') return rejected.tool === 'fail' ? 'replan' : undefined;
+        if (answer.cmd === 'skip') {
+          human.push(`rejected: ${rejected.tool}${rejected.intent ? ` (${rejected.intent})` : ''}`);
+          history.push(
+            passiveRecord(rejected.tool, {}, obs, 'skipped by the person running the test: do not repeat it'),
+          );
+          return 'replan';
+        }
+        return applyNudge(answer, step, deps.hints, human) ? 'replan' : undefined;
+      }
+      if (cmd.cmd === 'pick') {
+        nudge.progress('Click the right element in the browser…');
+        await waitForPick(page);
+        const fresh = await deps.session.observer.observe(step.options.scope);
+        const ref = await pickedRef(page, fresh);
+        if (!ref) {
+          nudge.progress('That element is not in the accessibility snapshot; try its label or container.');
+          return 'replan';
+        }
+        const tool: PickTool =
+          cmd.tool ?? (['click', 'hover', 'fill'].includes(rejected.tool) ? (rejected.tool as PickTool) : 'click');
+        const node = findByRef(fresh.tree, ref)?.node;
+        human.push(`picked: ${tool} ${node?.role ?? 'element'}${node?.name ? ` "${node.name}"` : ''}`);
+        return { call: callFor(tool, ref, cmd.value ?? rejected.value ?? null), obs: fresh };
+      }
+      if (cmd.cmd === 'undo') {
+        const undone = await softUndo(page, history, isPassive);
+        if (undone) human.push(`undid: ${undone.tool}${undone.target?.name ? ` "${undone.target.name}"` : ''}`);
+        const after = await nudge.afterUndo(
+          undone
+            ? `Undid ${undone.tool}. Fix the page by hand if needed, then press Enter.`
+            : 'Nothing to undo in this step.',
+          pauseCtx(),
+        );
+        applyNudge(after, step, deps.hints, human);
+        return 'replan';
+      }
+      return undefined;
+    };
+
     if (!isCodeCall(call) && call.tool === 'done') {
       return finish('done', call.args.summary, { evidence: call.args.evidence });
     }
     if (!isCodeCall(call) && call.tool === 'fail') {
-      // Nudge: a failure pauses for help; a hint, answer or edit retries with it (docs/07 §7).
-      if (deps.nudge && applyNudge(await deps.nudge.onFail(pauseCtx({ failure: call.args })), step, deps.hints, human))
-        continue;
-      return finish('failed', call.args.reason, { failure: call.args });
-    }
-    if (!isCodeCall(call) && call.tool === 'ask_human') {
+      // Nudge: a failure pauses for help; a hint, answer, edit, pick or option retries with it (docs/07 §7).
+      if (deps.nudge) {
+        const failure = call.args;
+        const cmd = await deps.nudge.onFail(pauseCtx({ failure }));
+        const fix = await correct(cmd, { tool: 'fail', intent: failure.reason });
+        if (fix === 'replan' || (!fix && applyNudge(cmd, step, deps.hints, human))) continue;
+        if (fix) {
+          call = fix.call;
+          execObs = fix.obs;
+        } else return finish('failed', failure.reason, { failure });
+      } else return finish('failed', call.args.reason, { failure: call.args });
+    } else if (!isCodeCall(call) && call.tool === 'ask_human') {
       const answer = deps.nudge
         ? await deps.nudge.ask(call.args.question, pauseCtx())
         : '(nobody to ask outside nudge mode)';
       history.push(passiveRecord('ask_human', call.args, obs, 'ok', answer));
       continue;
-    }
-    if (deps.nudge) {
-      const ref = (call.args as { ref?: string | null }).ref ?? undefined;
+    } else if (deps.nudge) {
+      const args = call.args as { ref?: string | null; intent?: string; value?: string };
+      const ref = args.ref ?? undefined;
       const node = ref ? findByRef(obs.tree, ref)?.node : undefined;
+      // The AI's target is highlighted in the headed browser while the decision is shown (docs/07 §3).
+      const highlight = ref && deps.nudge.pausesBeforeActions;
+      if (highlight)
+        await deps.session.page
+          .locator(`aria-ref=${ref}`)
+          .highlight()
+          .catch(() => undefined);
       const cmd = await deps.nudge.beforeAction(
         pauseCtx({
           decision: {
             turn,
             tool: call.tool,
             args: call.args,
-            intent: (call.args as { intent?: string }).intent,
+            intent: args.intent,
             why: decision.text,
             ...(ref && { target: { ref, role: node?.role, name: node?.name } }),
           },
         }),
       );
+      if (highlight) await deps.session.page.hideHighlight().catch(() => undefined);
       if (cmd.cmd === 'skip') {
-        human.push(
-          `rejected: ${call.tool}${(call.args as { intent?: string }).intent ? ` (${(call.args as { intent?: string }).intent})` : ''}`,
-        );
+        human.push(`rejected: ${call.tool}${args.intent ? ` (${args.intent})` : ''}`);
         history.push(
           passiveRecord(
             call.tool,
@@ -210,10 +292,20 @@ export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<S
         );
         continue;
       }
-      if (cmd.cmd !== 'run' && applyNudge(cmd, step, deps.hints, human)) continue; // hint / edit: re-plan
+      const fix = await correct(cmd, {
+        tool: call.tool,
+        ...(ref && { ref }),
+        ...(args.intent && { intent: args.intent }),
+        ...(typeof args.value === 'string' && { value: args.value }),
+      });
+      if (fix === 'replan') continue;
+      if (fix) {
+        call = fix.call;
+        execObs = fix.obs;
+      } else if (cmd.cmd !== 'run' && applyNudge(cmd, step, deps.hints, human)) continue; // hint / edit: re-plan
     }
 
-    const record = await deps.executor.execute(decision.call, obs);
+    const record = await deps.executor.execute(call, execObs);
     history.push(record);
     deps.events.emit({ type: 'action', stepId: step.id, record });
 

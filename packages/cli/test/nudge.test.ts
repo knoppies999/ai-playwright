@@ -60,8 +60,27 @@ describe('nudge commands', () => {
     ['r 1', { cmd: 'rewind', toStep: 1 }],
     ['r', { cmd: 'rewind', toStep: 2 }],
     ['q', { cmd: 'quit' }],
+    ['p', { cmd: 'pick' }],
+    ['p hover', { cmd: 'pick', tool: 'hover' }],
+    ['p fill Thandi Nkosi', { cmd: 'pick', tool: 'fill', value: 'Thandi Nkosi' }],
+    ['u', { cmd: 'undo' }],
+    ['o', { cmd: 'options' }],
   ])('%j → %j', (line, expected) => {
     expect(parseCommandLine(line, state)).toEqual(expected);
+  });
+
+  it('chooses an alternative by number at an options pause', () => {
+    const options: PauseState = {
+      ...state,
+      reason: 'options',
+      alternatives: [
+        { tool: 'hover', ref: 'e7', role: 'button', name: 'Settings', value: null, why: 'opens the flyout' },
+      ],
+    };
+    expect(parseCommandLine('1', options)).toEqual({ cmd: 'choose', index: 0 });
+    expect(parseCommandLine('2', options)).toMatchObject({ local: expect.stringContaining('1-1') });
+    expect(parseCommandLine('p fill', state)).toMatchObject({ local: expect.stringContaining('p fill <text>') });
+    expect(formatPause(options)).toContain('  1  hover button "Settings" [e7]  — opens the flyout');
   });
 
   it('keeps local actions local', () => {

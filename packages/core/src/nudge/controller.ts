@@ -189,6 +189,21 @@ export class NudgeController {
     await this.pause('remedies', { ...ctx, remedies });
   }
 
+  /** Shows the AI's alternative targets (the o command); the human answers choose N, or any other command. */
+  async chooseAlternative(ctx: PauseContext): Promise<NudgeCommand> {
+    return this.pause('options', ctx);
+  }
+
+  /** After a soft undo: let the human fix the page by hand, then go on (docs/07 §5.1). */
+  async afterUndo(note: string, ctx: PauseContext): Promise<NudgeCommand> {
+    return this.pause('breakpoint', { ...ctx, note });
+  }
+
+  /** True when every decision pauses, so the target is worth highlighting. */
+  get pausesBeforeActions(): boolean {
+    return this.breakLevel === 'action' && !this.fastForwarding;
+  }
+
   /** The verification job, when the current step is the one to verify. */
   verifyJobFor(): VerifyJob | undefined {
     return this.verify && this.current?.index === this.verify.step ? this.verify : undefined;
