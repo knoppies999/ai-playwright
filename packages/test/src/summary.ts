@@ -1,6 +1,6 @@
 // Run summary (docs/09 §2.2). The `ai` fixture turns each test's (redacted) events into a TestSummary attachment;
 // the reporter, in the main process, adds them up and prints / writes the run summary. Pure functions, no I/O.
-import { addUsage, emptyUsage, type AipwEvent, type Usage } from '@aipw/core';
+import { addUsage, costOf, emptyUsage, type AipwEvent, type PricingTable, type Usage } from '@aipw/core';
 
 export const SUMMARY_ATTACHMENT = 'aipw-steps.json';
 
@@ -65,21 +65,7 @@ export function stepsFromEvents(events: AipwEvent[]): StepSummary[] {
   return [...steps.values()];
 }
 
-/** USD per 1M tokens, keyed "provider:model" (docs/09 §1 pricing). */
-export type PricingTable = Record<string, { input: number; output: number; cacheRead?: number }>;
-
-/** The provider's own estimate if it gave one, else the pricing table, else undefined (unknown). */
-export function costOf(usage: Usage, pricing: PricingTable, key: string): number | undefined {
-  if (usage.costUsd !== undefined) return usage.costUsd;
-  const p = pricing[key];
-  if (!p) return undefined;
-  return (
-    (usage.inputTokens * p.input +
-      usage.outputTokens * p.output +
-      (usage.cacheReadTokens ?? 0) * (p.cacheRead ?? p.input)) /
-    1_000_000
-  );
-}
+export { costOf };
 
 export interface RunSummary {
   providers: string[];

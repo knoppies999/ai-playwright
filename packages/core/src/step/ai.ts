@@ -41,6 +41,7 @@ import {
 import { EventBus } from '../events/bus.js';
 import { runAgentLoop, trajectory } from '../loop/agent-loop.js';
 import { buildObservation, SYSTEM_PROMPTS } from '../loop/prompt.js';
+import { BudgetGuard, withBudget } from '../llm/budget.js';
 import { addUsage, emptyUsage, type LlmProvider, type Usage } from '../llm/provider.js';
 import { buildLocator } from '../locators/expr.js';
 import { fingerprintOf } from '../locators/fingerprint.js';
@@ -180,7 +181,16 @@ export class Ai {
   /** Usage of every step run through this instance. */
   usage: Usage = emptyUsage();
 
+  private readonly budget: BudgetGuard;
+
   constructor(private readonly deps: AiDeps) {
+    // Every model call is counted against config.budget (docs/09 §1). on() shares the wrapped provider.
+    this.budget = new BudgetGuard(
+      deps.config.budget,
+      deps.config.pricing,
+      `${deps.provider.id}:${deps.provider.model}`,
+    );
+    this.deps = { ...deps, provider: withBudget(deps.provider, this.budget) };
     this._page = deps.page;
     this.redactor = deps.redactor ?? new Redactor();
     this.events = deps.events ?? new EventBus(this.redactor);
@@ -271,6 +281,7 @@ export class Ai {
     const run = async () => {
       const started = Date.now();
       this.events.emit({ type: 'step:start', stepId: ctx.id, kind, instruction, callsite });
+      if (kind !== 'run') this.budget.startStep();
       const before = this.usage;
       try {
         const result = await fn(ctx);
