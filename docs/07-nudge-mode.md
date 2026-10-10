@@ -281,3 +281,25 @@ flowchart LR
 - Verification runs count toward the run's token budget. The budget is shown in the header.
 - Secrets typed by the human during `manual` are recorded as `{{secret.?}}` placeholders only if the field is a password
   field. Otherwise nudge asks whether the value is a secret before saving any plan or code remedy that contains it.
+
+## 10. As built (2026-10-10)
+
+Differences from the design above:
+
+- **Transport**: newline-delimited JSON over TCP on 127.0.0.1, not a WebSocket (no extra dependency). The protocol is
+  the same Zod-validated `PauseState` / `NudgeCommand`, plus worker messages `hello`, `progress`, `rewind` and `verified`.
+- **Pick** (`p`): the tool is given with the command (`p`, `p hover`, `p fill <text>`), defaulting to the AI's tool
+  (or click), instead of being asked after the click. The picker swallows the click; the element is mapped to its
+  snapshot ref, or the closest ancestor that has one.
+- **Undo** (`u`): back if the URL changed, otherwise Escape. Restoring a field's previous value after `fill` is not
+  done: fix it by hand at the pause that follows.
+- **Manual** (`m`): Enter/Escape/Tab are the only keys recorded. Values typed into password fields never leave the page
+  and are recorded as `{{secret.?}}`; other values are kept as typed (the "is this a secret?" question is not built).
+- **Remedies**: offered after any step the human corrected (hint, answer, edit, skip, pick, manual, undo, option).
+  The corrected trajectory is stored as the step's plan as soon as the step finishes, so there is no separate
+  "save as plan" option and no session overlay. Text candidates are verified by relaunching the test once per candidate
+  (`AIPW_NUDGE_VERIFY` points at a job file); `--verify none|all` (no `instruction` level). After applying, the
+  session resumes after the step, shifted by the AI steps a split or code patch added or removed.
+- **Spec patcher**: the TypeScript compiler API, not ts-morph.
+- **Not built**: `nudge: { onFailure: true }`, the `x` command (use `--fresh`), screenshot / raw request in `v`, a
+  control-panel window or VS Code UI, and the budget display in the pause header.
