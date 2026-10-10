@@ -170,6 +170,14 @@ export class NudgeController {
     await this.pause('breakpoint', { ...ctx, note });
   }
 
+  /** Offers remedies after a corrected step; the driver shows them and applies the chosen ones. */
+  async offerRemedies(
+    remedies: NonNullable<PauseState['remedies']>,
+    ctx: PauseContext = { history: [] },
+  ): Promise<void> {
+    await this.pause('remedies', { ...ctx, remedies });
+  }
+
   progress(text: string): void {
     this.channel.send({ type: 'progress', text });
   }

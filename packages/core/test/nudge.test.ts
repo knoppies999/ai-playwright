@@ -90,6 +90,36 @@ describe('nudge mode', () => {
     expect(result.actions.map((a) => a.tool)).toEqual(['click']);
   });
 
+  it('after a corrected step, offers remedies with a hint, a revised instruction and code', async () => {
+    const { ui, controller } = await nudged([
+      () => ({ cmd: 'run' }),
+      () => ({ cmd: 'hint', text: 'It is the button labelled Save' }),
+      () => ({ cmd: 'run' }),
+    ]);
+    const provider = new FakeProvider(
+      [{ tool: 'fail', args: { kind: 'not_found', reason: 'no export button' } }, clickSave, done],
+      [
+        {
+          diagnosis: 'The export is done with the Save button.',
+          category: 'naming-mismatch',
+          revisedInstruction: 'Click "Save"',
+          splitInto: null,
+          hint: { scope: 'site', pathPattern: null, text: 'Exporting a report is done with Save.' },
+        },
+      ],
+    );
+    await new Ai({ page: await openApp(), provider, config, nudge: controller }).act('Export the report');
+    expect(provider.structuredRequests[0]!.prompt).toContain('- hint: It is the button labelled Save');
+    const offer = ui.seen[2]!;
+    expect(offer).toMatchObject({
+      reason: 'remedies',
+      step: { index: 1, instruction: 'Export the report' },
+      remedies: { category: 'naming-mismatch', pageUrl: 'http://app.test/' },
+    });
+    expect(offer.remedies!.options.map((o) => o.kind)).toEqual(['hint', 'instruction', 'code']);
+    expect(offer.remedies!.options[2]!.lines).toEqual(['await page.locator(\'[data-test="save"]\').click();']);
+  });
+
   it('offers ask_human and passes the answer back', async () => {
     const { ui, controller } = await nudged([
       () => ({ cmd: 'run' }),

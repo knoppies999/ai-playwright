@@ -18,6 +18,8 @@ import { Redactor } from '../data/redactor.js';
 import { createGenerators, type Generators } from '../data/generators.js';
 import { loadHints } from '../hints/store.js';
 import type { NudgeController } from '../nudge/controller.js';
+import type { PauseState } from '../nudge/protocol.js';
+import { codeRemedy, synthesizeRemedy } from '../nudge/remedy.js';
 import { DataResolver, secretSource } from '../data/resolver.js';
 import {
   AiAssertionError,
@@ -37,7 +39,7 @@ import { fingerprintOf } from '../locators/fingerprint.js';
 import { synthesizeLocators, type LocatorCandidate, type Rung } from '../locators/synth.js';
 import type { Observation } from '../observe/observer.js';
 import { findByRef } from '../observe/snapshot.js';
-import type { ActionRecord, StepContext, StepKind, StepOptions } from '../types.js';
+import type { ActionRecord, StepContext, StepKind, StepOptions, StepOutcome } from '../types.js';
 import { StepSession } from './session.js';
 import { StructuredValidationError, structuredWithRepair } from './structured.js';
 
@@ -514,6 +516,7 @@ export class Ai {
               await this.storeHealed(cache, key, healing.plan, plan, instruction, ctx);
             }
           }
+          if (this.deps.nudge && outcome.human?.length) await this.offerRemedies(instruction, outcome, startUrl);
           return {
             summary: outcome.summary,
             evidence: outcome.evidence,
@@ -760,6 +763,38 @@ export class Ai {
         return { instruction: cmd.instruction, options, skip: false };
       default:
         return { instruction, options, skip: false };
+    }
+  }
+
+  /** After a human-corrected step: synthesize remedies and offer them to the driver (docs/07 §6). */
+  private async offerRemedies(instruction: string, outcome: StepOutcome, pageUrl: string): Promise<void> {
+    const corrected = outcome.actions.filter((a) => a.result === 'ok');
+    const failed = outcome.actions.filter((a) => a.result !== 'ok');
+    try {
+      const { remedy, usage } = await synthesizeRemedy(this.deps.provider, {
+        instruction,
+        failed,
+        corrected,
+        humanInput: outcome.human ?? [],
+        targetFacts: [],
+      });
+      this.addUsage(usage);
+      const code = codeRemedy(corrected);
+      const options: NonNullable<PauseState['remedies']>['options'] = [];
+      if (remedy.hint && remedy.hint.scope !== 'step')
+        options.push({ kind: 'hint', label: `Site hint (${remedy.hint.scope})`, hint: remedy.hint });
+      options.push({ kind: 'instruction', label: 'Revised instruction', text: remedy.revisedInstruction });
+      if (remedy.splitInto?.length)
+        options.push({ kind: 'split', label: 'Split into steps', instructions: remedy.splitInto });
+      if (code.length) options.push({ kind: 'code', label: 'Code (from the corrected actions)', lines: code });
+      await this.deps.nudge!.offerRemedies({
+        diagnosis: remedy.diagnosis,
+        category: remedy.category,
+        pageUrl,
+        options,
+      });
+    } catch (error) {
+      this.deps.nudge!.progress(`Could not build remedies: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 

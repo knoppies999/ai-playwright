@@ -101,6 +101,7 @@ function noProgress(history: ActionRecord[], currentHash: string): string | unde
 
 export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<StepOutcome> {
   const history: ActionRecord[] = [];
+  const human: string[] = [];
   const code = [...(deps.codeTools?.values() ?? [])];
   const specs = [...toolSpecs(deps.tools), ...codeToolSpecs(code)];
   const offered = [...deps.tools, ...code.map((t) => t.name)] as readonly string[];
@@ -117,6 +118,7 @@ export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<S
     usage,
     source: 'ai',
     lastSnapshot,
+    ...(human.length && { human }),
     ...extra,
   });
   const failLimit = (reason: string) => finish('failed', reason, { failure: { kind: 'limit', reason } });
@@ -168,7 +170,7 @@ export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<S
     }
     if (!isCodeCall(call) && call.tool === 'fail') {
       // Nudge: a failure pauses for help; a hint, answer or edit retries with it (docs/07 §7).
-      if (deps.nudge && applyNudge(await deps.nudge.onFail(pauseCtx({ failure: call.args })), step, deps.hints))
+      if (deps.nudge && applyNudge(await deps.nudge.onFail(pauseCtx({ failure: call.args })), step, deps.hints, human))
         continue;
       return finish('failed', call.args.reason, { failure: call.args });
     }
@@ -195,6 +197,9 @@ export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<S
         }),
       );
       if (cmd.cmd === 'skip') {
+        human.push(
+          `rejected: ${call.tool}${(call.args as { intent?: string }).intent ? ` (${(call.args as { intent?: string }).intent})` : ''}`,
+        );
         history.push(
           passiveRecord(
             call.tool,
@@ -205,7 +210,7 @@ export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<S
         );
         continue;
       }
-      if (cmd.cmd !== 'run' && applyNudge(cmd, step, deps.hints)) continue; // hint / edit: re-plan
+      if (cmd.cmd !== 'run' && applyNudge(cmd, step, deps.hints, human)) continue; // hint / edit: re-plan
     }
 
     const record = await deps.executor.execute(decision.call, obs);
@@ -226,7 +231,10 @@ export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<S
 }
 
 /** Applies a human correction. Returns true when the step should go on (re-plan or retry). */
-function applyNudge(cmd: NudgeCommand, step: StepContext, hints: string[]): boolean {
+function applyNudge(cmd: NudgeCommand, step: StepContext, hints: string[], human: string[]): boolean {
+  if (cmd.cmd === 'hint') human.push(`hint: ${cmd.text}`);
+  if (cmd.cmd === 'answer') human.push(`answer: ${cmd.text}`);
+  if (cmd.cmd === 'edit') human.push(`changed the instruction to: ${cmd.instruction}`);
   switch (cmd.cmd) {
     case 'hint':
       hints.push(`From the person running the test: ${cmd.text}`);
