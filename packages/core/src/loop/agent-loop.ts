@@ -16,6 +16,7 @@ import type { EventBus } from '../events/bus.js';
 import { addUsage, emptyUsage, type DecisionRequest, type LlmProvider, type Usage } from '../llm/provider.js';
 import type { NudgeController } from '../nudge/controller.js';
 import { alternatives, callFor, pickedRef, softUndo, waitForPick } from '../nudge/correct.js';
+import { startRecording } from '../nudge/recorder.js';
 import type { NudgeCommand, PauseState, PickTool } from '../nudge/protocol.js';
 import type { Observation } from '../observe/observer.js';
 import { findByRef, refsIn } from '../observe/snapshot.js';
@@ -219,6 +220,22 @@ export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<S
         const node = findByRef(fresh.tree, ref)?.node;
         human.push(`picked: ${tool} ${node?.role ?? 'element'}${node?.name ? ` "${node.name}"` : ''}`);
         return { call: callFor(tool, ref, cmd.value ?? rejected.value ?? null), obs: fresh };
+      }
+      if (cmd.cmd === 'manual') {
+        const recording = await startRecording(page, (loc) => deps.executor.describeElement(loc));
+        const after = await nudge.manual(pauseCtx());
+        const records = await recording.stop();
+        for (const record of records) {
+          history.push(record);
+          deps.events.emit({ type: 'action', stepId: step.id, record });
+        }
+        human.push(
+          records.length
+            ? `did by hand: ${records.map((r, i) => historyLine(history.length - records.length + i, r)).join('; ')}`
+            : 'did nothing by hand',
+        );
+        applyNudge(after, step, deps.hints, human);
+        return 'replan';
       }
       if (cmd.cmd === 'undo') {
         const undone = await softUndo(page, history, isPassive);

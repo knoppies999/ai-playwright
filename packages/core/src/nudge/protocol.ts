@@ -118,6 +118,8 @@ export const NudgeCommandSchema = z.discriminatedUnion('cmd', [
   z.object({ cmd: z.literal('quit') }),
   /** Click the right element in the browser; it is used with this tool (default: the AI's, or click). */
   z.object({ cmd: z.literal('pick'), tool: PickToolSchema.optional(), value: z.string().optional() }),
+  /** Do it by hand in the browser; the actions are recorded until the next command (docs/07 §6.2). */
+  z.object({ cmd: z.literal('manual') }),
   /** Soft undo of the last action (docs/07 §5.1). */
   z.object({ cmd: z.literal('undo') }),
   /** Ask the AI for its top alternative targets for this decision. */

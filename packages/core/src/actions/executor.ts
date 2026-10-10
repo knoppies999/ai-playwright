@@ -81,6 +81,17 @@ export class ActionExecutor {
     return { ref, role, name, candidates, ...(fingerprint && { fingerprint }) };
   }
 
+  /** Describes an element the human acted on (nudge manual mode): role and name from its ARIA line, verified locators. */
+  async describeElement(loc: Locator): Promise<TargetDescriptor> {
+    const line = (await loc.ariaSnapshot({ timeout: 1000 }).catch(() => '')).split('\n')[0] ?? '';
+    const m = /^- ([a-z]+)(?: "((?:[^"\\]|\\.)*)")?/.exec(line);
+    const role = m?.[1];
+    const name = m?.[2]?.replace(/\\(.)/g, '$1');
+    const candidates = await synthesizeLocators(this.page, loc, { ...this.opts.synth, role, name }).catch(() => []);
+    const fingerprint = await fingerprintOf(loc, role, name).catch(() => undefined);
+    return { ref: 'manual', role, name, candidates, ...(fingerprint && { fingerprint }) };
+  }
+
   private resolveValue(text: string): { value: string; usesSecret: boolean } {
     try {
       return this.opts.data.resolve(text);

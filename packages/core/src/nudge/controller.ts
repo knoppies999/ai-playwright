@@ -199,6 +199,14 @@ export class NudgeController {
     return this.pause('breakpoint', { ...ctx, note });
   }
 
+  /** Manual mode: the human acts in the browser while this pause is open. */
+  async manual(ctx: PauseContext): Promise<NudgeCommand> {
+    return this.pause('breakpoint', {
+      ...ctx,
+      note: 'Do the action(s) yourself in the browser, then press Enter. They are recorded.',
+    });
+  }
+
   /** True when every decision pauses, so the target is worth highlighting. */
   get pausesBeforeActions(): boolean {
     return this.breakLevel === 'action' && !this.fastForwarding;
