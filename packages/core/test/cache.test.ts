@@ -208,7 +208,11 @@ describe('fingerprint healing (L8)', () => {
 
     const page = await openSections('remove-draft');
     const provider = new FakeProvider(); // any AI call would throw
-    const { ai, events } = makeAi(page, provider, store, { cache: { mode: 'replay-only' } });
+    // Pinned: heal.policy defaults to 'report' when CI is set, which writes the healed plan aside instead.
+    const { ai, events } = makeAi(page, provider, store, {
+      cache: { mode: 'replay-only' },
+      heal: { policy: 'accept' },
+    });
     const result = await ai.act('Delete the draft');
     expect(result.source).toBe('healed');
     expect(provider.decisionRequests).toHaveLength(0);
