@@ -2,20 +2,26 @@
   "name": "@aipw/test",
   "version": "0.0.0",
   "private": true,
-  "description": "Playwright Test fixtures for aipw (ai, gen), reporter and config loader.",
+  "description": "Playwright Test fixtures for aipw (ai, gen), the run summary reporter and config loader.",
   "type": "module",
   "exports": {
     ".": {
       "source": "./src/index.ts",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
+    },
+    "./reporter": {
+      "source": "./src/reporter.ts",
+      "types": "./dist/reporter.d.ts",
+      "import": "./dist/reporter.js",
+      "default": "./dist/reporter.js"
     }
   },
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format esm --dts --clean --sourcemap --target node22",
+    "build": "tsup src/index.ts src/reporter.ts --format esm --dts --clean --sourcemap --target node22",
     "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "dependencies": {

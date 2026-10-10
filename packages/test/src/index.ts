@@ -18,6 +18,7 @@ import { randomUUID } from 'node:crypto';
 import { existsSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { costOf, stepsFromEvents, SUMMARY_ATTACHMENT, type TestSummary } from './summary.js';
 
 export { expect } from '@playwright/test';
 export type { Locator, Page } from '@playwright/test';
@@ -45,13 +46,22 @@ export async function loadAipwConfig(from = process.cwd()): Promise<AipwConfigIn
   }
 }
 
+const safeDecode = (s: string) => {
+  try {
+    return decodeURIComponent(s);
+  } catch {
+    return s;
+  }
+};
+
 /** The first stack frame outside aipw itself: the spec line that called ai.*. */
 function captureCallsite(): Callsite | undefined {
   const frames = (new Error().stack ?? '').split('\n').slice(1);
   for (const frame of frames) {
     const m = /\(?((?:[A-Za-z]:)?[^():]+):(\d+):(\d+)\)?\s*$/.exec(frame.trim());
     if (!m) continue;
-    const file = m[1]!.replace(/^file:\/\/\/?/, '');
+    // ESM frames are file:// URLs: a path with spaces arrives as "Dev%20stuff".
+    const file = safeDecode(m[1]!.replace(/^file:\/\/\/?/, ''));
     if (/[\\/](packages[\\/](core|test)[\\/]|node_modules[\\/])|^node:/.test(file)) continue;
     return { file: relative(process.cwd(), file).replace(/\\/g, '/'), line: Number(m[2]), column: Number(m[3]) };
   }
@@ -146,6 +156,23 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         body: JSON.stringify(decisions, null, 2),
         contentType: 'application/json',
       });
+    }
+    // Per-test step summary for the run summary reporter (docs/09 §2.2).
+    const steps = stepsFromEvents(events);
+    if (steps.length) {
+      const key = `${aipwProvider.id}:${aipwProvider.model}`;
+      for (const step of steps) {
+        const cost = step.usage.requests ? costOf(step.usage, config.pricing, key) : undefined;
+        if (cost !== undefined) step.usage.costUsd = cost;
+      }
+      const summary: TestSummary = {
+        test: testInfo.titlePath.slice(1).join(' > '),
+        provider: aipwProvider.id,
+        model: aipwProvider.model,
+        cacheMode: process.env.AIPW_CACHE ?? config.cache.mode,
+        steps,
+      };
+      await testInfo.attach(SUMMARY_ATTACHMENT, { body: JSON.stringify(summary), contentType: 'application/json' });
     }
     const failed = testInfo.status !== testInfo.expectedStatus;
     const lastSnapshot = events.findLast((e) => e.type === 'observation');
