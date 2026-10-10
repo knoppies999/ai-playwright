@@ -63,6 +63,7 @@ describe('nudge commands', () => {
     ['p', { cmd: 'pick' }],
     ['p hover', { cmd: 'pick', tool: 'hover' }],
     ['p fill Thandi Nkosi', { cmd: 'pick', tool: 'fill', value: 'Thandi Nkosi' }],
+    ['m', { cmd: 'manual' }],
     ['u', { cmd: 'undo' }],
     ['o', { cmd: 'options' }],
   ])('%j → %j', (line, expected) => {

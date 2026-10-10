@@ -222,6 +222,40 @@ describe('nudge mode', () => {
     expect(await page.locator('#deleted').isHidden()).toBe(true);
   });
 
+  it('manual: what the human does in the browser is recorded with verified locators, passwords masked', async () => {
+    const page = await openApp();
+    const { ui, controller } = await nudged(
+      [
+        () => ({ cmd: 'manual' }),
+        (async () => {
+          await page.locator('[data-test="username"]').click();
+          await page.locator('[data-test="username"]').pressSequentially('thandi');
+          await page.locator('[data-test="password"]').fill('nope-not-it');
+          await page.locator('[data-test="login-button"]').click();
+          return { cmd: 'run' };
+        }) as unknown as () => NudgeCommand,
+      ],
+      { breakLevel: 'action' },
+    );
+    const provider = new FakeProvider([
+      click('button "Delete"'),
+      (req) => {
+        expect(req.context).toContain('#1 fill textbox "Username" [manual] value="thandi" (done by hand');
+        return done;
+      },
+    ]);
+    const result = await new Ai({ page, provider, config, nudge: controller }).act('Log in');
+    expect(ui.seen[1]).toMatchObject({ reason: 'breakpoint', note: expect.stringContaining('yourself') });
+    expect(result.actions.map((a) => [a.tool, a.target?.name, (a.args as { value?: string }).value])).toEqual([
+      ['fill', 'Username', 'thandi'],
+      ['fill', 'Password', '{{secret.?}}'],
+      ['click', 'Login', undefined],
+    ]);
+    expect(result.actions[2]!.target!.candidates[0]!.display).toBe(`locator('[data-test="login-button"]')`);
+    expect(JSON.stringify(result.actions)).not.toContain('nope-not-it');
+    expect(await page.locator('[data-aipw-rec]').count()).toBe(0);
+  });
+
   it('undo: reverses the last action, marks it rejected and lets the human fix the page', async () => {
     const { ui, controller } = await nudged([() => ({ cmd: 'run' }), () => ({ cmd: 'undo' }), () => ({ cmd: 'run' })], {
       breakLevel: 'action',

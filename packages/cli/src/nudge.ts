@@ -54,7 +54,7 @@ export function parseNudgeArgs(argv: string[]): NudgeArgs | { error: string } {
       };
 }
 
-export const NUDGE_HELP = `[Enter] run   [s]kip   [h]int <text>   [p]ick [click|hover|fill <text>]   [e]dit <instruction>
+export const NUDGE_HELP = `[Enter] run   [s]kip   [h]int <text>   [p]ick [click|hover|fill <text>]   [m]anual   [e]dit <instruction>
 [o]ptions   [u]ndo   [a]nswer <text>   [c]ontinue   [b]reak <step|action|fail|none>   [v]iew   [r]ewind <step>   [q]uit   ?=help`;
 
 /** Turns a typed line into a command. Returns a string for local actions (help, view) or errors. */
@@ -112,6 +112,9 @@ export function parseCommandLine(line: string, state: PauseState): NudgeCommand 
         return value.length ? { cmd: 'pick', tool, value: value.join(' ') } : { local: 'Give the text: p fill <text>' };
       return { local: 'p, p click, p hover or p fill <text>' };
     }
+    case 'm':
+    case 'manual':
+      return { cmd: 'manual' };
     case 'u':
     case 'undo':
       return { cmd: 'undo' };
@@ -166,7 +169,7 @@ export function summarizeSession(
   applied: string[] = [],
 ): string {
   const corrections = pauses.filter((p) =>
-    ['hint', 'edit', 'answer', 'skip', 'pick', 'undo', 'choose'].includes(p.command.cmd),
+    ['hint', 'edit', 'answer', 'skip', 'pick', 'manual', 'undo', 'choose'].includes(p.command.cmd),
   );
   const lines = [
     `# Nudge session: ${spec}`,
@@ -189,11 +192,13 @@ export function summarizeSession(
             ? `answered "${command.text}" to "${state.question}"`
             : command.cmd === 'pick'
               ? `picked an element in the browser${command.tool ? ` (${command.tool})` : ''}`
-              : command.cmd === 'undo'
-                ? 'undid the last action'
-                : command.cmd === 'choose'
-                  ? `chose alternative ${command.index + 1}${state.alternatives?.[command.index] ? `: ${state.alternatives[command.index]!.tool} "${state.alternatives[command.index]!.name ?? state.alternatives[command.index]!.ref}"` : ''}`
-                  : 'skipped';
+              : command.cmd === 'manual'
+                ? 'did it by hand in the browser'
+                : command.cmd === 'undo'
+                  ? 'undid the last action'
+                  : command.cmd === 'choose'
+                    ? `chose alternative ${command.index + 1}${state.alternatives?.[command.index] ? `: ${state.alternatives[command.index]!.tool} "${state.alternatives[command.index]!.name ?? state.alternatives[command.index]!.ref}"` : ''}`
+                    : 'skipped';
     lines.push(
       `- Step ${state.step.index} \`ai.${state.step.kind}(${JSON.stringify(state.step.instruction)})\` at ${state.reason}: ${what}`,
     );
