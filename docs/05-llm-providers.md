@@ -432,3 +432,21 @@ writes `conformance-<provider>-<model>.json`:
 | p50 / p95 decision latency | Speed |
 
 Run it when adopting a new model, and compare against the previous run before switching CI to it.
+
+## 9. As built (2026-10-10)
+
+- **No vendor SDKs for the API-key adapters.** `provider-openai` and `provider-anthropic` call the HTTP APIs with
+  `fetch`. The request body is built by pure functions (`decisionBody`, `structuredBody`), so the contract tests
+  snapshot exactly what goes on the wire, and the packages have no dependencies. Errors map through core's
+  `postJson` (status → `AiProviderError` kind, `Retry-After` honoured); retries are core's `withRetry`.
+  `@azure/identity` stays an optional peer, imported only for keyless Foundry.
+- **Anthropic**: the server-side fallback beta is **opt-in** (`fallbacks: true`) until it has been tried with a key.
+  Structured output uses `output_config.format` with the JSON Schema. Neither has been run live (spike 0.5).
+- **Copilot**: written from the SDK's types behind a small `CopilotSdk` interface (one place to change if spike 0.3
+  finds differences). `defineTool(…, { isTerminal: true })` for the capture, `availableTools` = our tool names,
+  permission requests rejected, images as blob attachments, `structured()` through a `submit_result` tool. Usage
+  counts premium requests (tokens only when the runtime reports them).
+- **Contract fixture**: core's `contractDecisionRequest()` / `contractStructuredRequest()`; goldens live in each
+  provider package's `test/golden/`.
+- **Conformance** (§8) runs the SauceDemo usability suite (the Phase 3 exit's "usability scenarios"), not a separate
+  `examples/tests/conformance/` folder. The metrics come from the run summary reporter's `.aipw/steps.json`.

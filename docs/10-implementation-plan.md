@@ -114,16 +114,23 @@ Tasks
 ## Phase 3 — Foundry (OpenAI-compatible), Copilot and Anthropic API providers (M)
 
 Tasks
-- [ ] `provider-anthropic` (API key): `decide` + `structured`, usage mapping, refusal handling, typed-error backoff (moved from Phase 2 by D12)
-- [ ] `provider-openai`: Chat Completions adapter, presets (**`foundry`** first, then `openai`, `azure-openai`, `github-models`, `ollama`, `lmstudio`), compat flags, JSON-mode fallback for `structured`
-- [ ] Foundry auth: API key or keyless (`@azure/identity` `DefaultAzureCredential`, scope `https://ai.azure.com/.default`); content-filter errors mapped to `AiProviderError(kind: 'content_filter')`
-- [ ] `provider-copilot`: capture-pattern adapter per [05](05-llm-providers.md) §5, adjusted by the spike 0.3 results
-- [ ] Provider loader (dynamic `import()` by package name from config) and `aipw doctor`
-- [ ] Conformance suite + `aipw conformance` writing the metrics JSON
-- [ ] Contract tests: the same recorded fixture request → each adapter's wire payload (snapshot tests, no network)
+- [x] `provider-anthropic` (API key): `decide` + `structured`, usage mapping, refusal handling; backoff is core's `withRetry` (Phase 7). Not run live (no key)
+- [x] `provider-openai`: Chat Completions adapter, presets (**`foundry`** first, then `openai`, `azure-openai`, `github-models`, `ollama`, `lmstudio`), compat flags, JSON-mode fallback for `structured`. Not run live
+- [x] Foundry auth: API key or keyless (`@azure/identity` `DefaultAzureCredential`, scope `https://ai.azure.com/.default`); content-filter errors mapped to `AiProviderError(kind: 'content_filter')`
+- [x] `provider-copilot`: capture-pattern adapter per [05](05-llm-providers.md) §5, from the SDK's types. **Spike 0.3 still has to confirm it** on the Copilot machine
+- [x] Provider loader (dynamic `import()` by package name from config) and `aipw doctor` (`--probe` for one live check)
+- [x] Conformance suite + `aipw conformance` writing the metrics JSON (the usability suite with `ai-only`)
+- [x] Contract tests: the same recorded fixture request → each adapter's wire payload (snapshot tests, no network)
 
 **Exit:** the conformance suite (the usability scenarios with `cache: ai-only`) passes ≥ 85% with the Foundry deployment and the chosen Copilot model.
 The metrics JSON for all three providers is committed under `docs/conformance/`.
+
+**Status (2026-10-10): tasks done, exit blocked.** The exit needs a Foundry deployment and the Copilot machine (spikes 0.3
+and 0.4); the Anthropic API needs a key (spike 0.5). None of these is available here, so nothing in this phase has
+made a live call. What exists: the three adapters with contract tests (the wire payload for one shared fixture
+request, snapshot-tested; response parsing; auth headers; HTTP error mapping), `aipw doctor`, and
+`aipw conformance`. To finish: run `npx aipw doctor --provider foundry --probe`, then
+`npx aipw conformance --provider foundry` (and `copilot`) and commit the JSON under `docs/conformance/`.
 
 ---
 
