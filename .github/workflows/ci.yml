@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+env:
+  # Not a real secret: the demo spec types it, and the leak check proves it appears nowhere (docs/08 §4).
+  DEMO_INITIAL_PASSWORD: ci-leak-check-Pw-4417
+
 jobs:
   check:
     runs-on: ubuntu-latest
@@ -26,3 +30,4 @@ jobs:
       - run: npm run build
       - run: npm test
       - run: npx playwright test --project fixtures --project demo
+      - run: node scripts/leak-check.mjs DEMO_INITIAL_PASSWORD

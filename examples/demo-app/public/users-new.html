@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Demo · New user</title>
+    <script src="/shared.js"></script>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 1rem;
+      }
+      form {
+        display: grid;
+        gap: 0.5rem;
+        max-width: 26rem;
+      }
+      .field-error {
+        color: #b00020;
+        font-size: 0.9em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>New user</h1>
+    <!-- Server-side validation (docs/02 §6): SA ID number (Luhn + date of birth), IBAN (mod 97), email, ZA phone. -->
+    <form id="new-user" aria-label="New user" novalidate>
+      <label>First name <input name="firstName" data-testid="first-name" /></label>
+      <label>Last name <input name="lastName" data-testid="last-name" /></label>
+      <label>Email <input name="email" type="email" data-testid="email" /></label>
+      <label>SA ID number <input name="idNumber" data-testid="id-number" /></label>
+      <label>Phone <input name="phone" type="tel" placeholder="+27…" data-testid="phone" /></label>
+      <label>IBAN <input name="iban" data-testid="iban" /></label>
+      <label
+        >Initial password
+        <input name="password" type="password" autocomplete="new-password" data-testid="initial-password"
+      /></label>
+      <button type="submit" data-testid="save-user">Save user</button>
+    </form>
+    <ul id="errors" role="alert"></ul>
+    <p id="result" role="status"></p>
+    <script>
+      document.getElementById('new-user').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const body = Object.fromEntries(new FormData(event.target));
+        const res = await fetch('/api/users', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const json = await res.json();
+        const errors = document.getElementById('errors');
+        errors.innerHTML = '';
+        if (!res.ok) {
+          for (const [field, message] of Object.entries(json.errors)) {
+            const li = document.createElement('li');
+            li.className = 'field-error';
+            li.textContent = `${field}: ${message}`;
+            errors.append(li);
+          }
+          document.getElementById('result').textContent = '';
+        } else {
+          document.getElementById('result').textContent = `User created: ${json.firstName} ${json.lastName}`;
+        }
+      });
+    </script>
+  </body>
+</html>

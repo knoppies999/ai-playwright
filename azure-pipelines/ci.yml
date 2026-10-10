@@ -7,6 +7,10 @@ pr:
 
 pool: { vmImage: ubuntu-latest }
 
+variables:
+  # Not a real secret: the demo spec types it, and the leak check proves it appears nowhere (docs/08 §4).
+  DEMO_INITIAL_PASSWORD: ci-leak-check-Pw-4417
+
 steps:
   - task: UseNode@1
     inputs: { version: '22.x' }
@@ -31,6 +35,9 @@ steps:
 
   - script: npx playwright test --project fixtures --project demo
     displayName: Engine and healing e2e with FakeProvider (no AI, localhost only)
+
+  - script: node scripts/leak-check.mjs DEMO_INITIAL_PASSWORD
+    displayName: Secret leak check (results, reports, plans, unzipped traces)
 
   - task: PublishTestResults@2
     condition: succeededOrFailed()

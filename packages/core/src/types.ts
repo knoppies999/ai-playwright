@@ -24,6 +24,8 @@ export interface StepOptions {
   cache?: 'auto' | 'off' | 'refresh';
   /** Pins the cache key so instruction edits don't orphan the plan (docs/06 §3). */
   key?: string;
+  /** Which code tools this step may use (default: all registered). */
+  tools?: string[];
 }
 
 export interface StepContext {

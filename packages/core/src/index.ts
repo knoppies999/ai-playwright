@@ -47,7 +47,16 @@ export type {
 export { FakeProvider, type ScriptedDecision, type ScriptedStructured } from './llm/fake-provider.js';
 export { DEFAULT_PROVIDERS, loadProvider } from './llm/loader.js';
 
-export { TOOL_SCHEMAS, toJsonSchema, toolSpecs, type ToolCall, type ToolName } from './actions/schemas.js';
+export {
+  TOOL_SCHEMAS,
+  toJsonSchema,
+  toolSpecs,
+  type AnyToolCall,
+  type CodeTool,
+  type CodeToolCall,
+  type ToolCall,
+  type ToolName,
+} from './actions/schemas.js';
 export {
   buildLocator,
   describeLocator,
@@ -62,3 +71,17 @@ export { FilePlanStore, MemoryPlanStore, planFilePath, readPlanFile, type PlanSt
 export { stepKey } from './cache/keys.js';
 export { PlanFileSchema, stableStringify, type PlanFile, type StepPlan } from './cache/plan.js';
 export type { CacheMode } from './config.js';
+export {
+  createGenerators,
+  GENERATOR_KINDS,
+  isValidIban,
+  isValidLuhn,
+  isValidSaId,
+  isValidVat,
+  saIdBirthDate,
+  TEST_CARDS,
+  totp,
+  base32Decode,
+  type Generators,
+  type Person,
+} from './data/generators.js';

@@ -69,6 +69,21 @@ export const TOOL_SCHEMAS = {
   switch_tab: z.strictObject({ index: z.number().int().min(0), intent }),
   go_back: z.strictObject({ intent }),
   navigate: z.strictObject({ url: z.string().describe('Absolute URL on an allowed origin'), intent }),
+  generate_value: z.strictObject({
+    kind: z
+      .string()
+      .describe(
+        'email, phone, saId, luhn, testCard, iban, vatNumber, date, uuid, slug, words, firstName, lastName, or a custom generator',
+      ),
+    params: z
+      .string()
+      .nullable()
+      .describe(
+        'JSON object of options, e.g. {"born":"1990-04-12","gender":"F"} for saId, {"country":"ZA"} for phone or iban',
+      ),
+    as: z.string().nullable().describe('Name to keep the value under, usable later as {{values.<name>}}'),
+    intent,
+  }),
   done: z.strictObject({
     summary: z.string().describe('What was done'),
     evidence: z.array(z.string()).describe('Text quoted from the page that shows the step succeeded'),
@@ -99,6 +114,8 @@ export const TOOL_DESCRIPTIONS: Record<ToolName, string> = {
   switch_tab: 'Make another open tab active.',
   go_back: 'Go back in browser history.',
   navigate: 'Open a URL. Only allowed origins.',
+  generate_value:
+    'Get a valid test value (SA ID number, IBAN, card number, email, phone…) from a generator instead of inventing one. The value appears in the history.',
   done: 'Finish the step: it is complete. Quote page text that shows success.',
   fail: 'Stop: the step cannot be completed. Use the most specific kind.',
 };
@@ -127,7 +144,34 @@ export function actTools(options: { allowNavigation: boolean }): ToolName[] {
   return all.filter((t) => t !== 'navigate' || options.allowNavigation);
 }
 
-export type ValidatedCall = { ok: true; call: ToolCall } | { ok: false; error: string };
+/** A user-registered function the model may call (docs/03 §7). */
+export interface CodeTool {
+  name: string;
+  description: string;
+  input: z.ZodObject;
+  run: (args: Record<string, unknown>) => unknown;
+}
+
+/** A validated call to a code tool. Built-in calls never carry `code`. */
+export interface CodeToolCall {
+  tool: string;
+  args: Record<string, unknown>;
+  code: true;
+}
+
+export type AnyToolCall = ToolCall | CodeToolCall;
+export const isCodeCall = (call: AnyToolCall): call is CodeToolCall => 'code' in call;
+
+export function codeToolSpecs(tools: Iterable<CodeTool>): ToolSpec[] {
+  return [...tools].map((t) => ({
+    name: t.name,
+    description: t.description,
+    schema: t.input,
+    jsonSchema: toJsonSchema(t.input),
+  }));
+}
+
+export type ValidatedCall = { ok: true; call: AnyToolCall } | { ok: false; error: string };
 
 /** Validates a raw provider call against the offered tools. */
 /**
@@ -143,7 +187,18 @@ function normaliseArgs(tool: string, args: unknown): unknown {
   return args;
 }
 
-export function validateCall(call: { tool: string; args: unknown }, offered: readonly string[]): ValidatedCall {
+export function validateCall(
+  call: { tool: string; args: unknown },
+  offered: readonly string[],
+  codeTools?: ReadonlyMap<string, CodeTool>,
+): ValidatedCall {
+  const code = codeTools?.get(call.tool);
+  if (code && offered.includes(call.tool)) {
+    const parsed = code.input.safeParse(call.args);
+    if (!parsed.success)
+      return { ok: false, error: `Invalid arguments for ${call.tool}: ${z.prettifyError(parsed.error)}` };
+    return { ok: true, call: { tool: call.tool, args: parsed.data as Record<string, unknown>, code: true } };
+  }
   if (!offered.includes(call.tool) || !(call.tool in TOOL_SCHEMAS)) {
     return { ok: false, error: `Unknown tool "${call.tool}". Use one of: ${offered.join(', ')}.` };
   }

@@ -95,6 +95,14 @@ Rules:
    c. disable traces for that test.
 
    The Phase 5 secret-leak check greps unzipped traces too, not only `.aipw/`, reports and plans.
+
+   **As built (Phase 5):** the leak check found that aipw's *own* observation calls leaked: every `ariaSnapshot` result is
+   recorded in the trace before aipw can mask it, and AI-mode snapshots include input values. The Observer now masks
+   credential inputs (`type=password`, `autocomplete` password/one-time-code) **in the page** for the duration of each
+   snapshot: the real value is swapped for `••••` and restored straight after, without events. Playwright's snapshot code
+   runs in an isolated world that sees only the DOM, so an instance-level getter would not work. Two more rules from the
+   check: never write a secret in a spec (traces include source files), and the recommended setup is
+   `fillMode: 'evaluate'` plus `trace: { mode: ..., snapshots: false }`, which `@aipw/test` now warns about.
 4. Secrets only resolve for fields that look like credential fields (`type=password`, or `autocomplete` containing
    `password`/`one-time-code`), unless `secrets.allowAnyField: true`. This stops a prompt-injected page from
    getting a secret typed into a visible text field.

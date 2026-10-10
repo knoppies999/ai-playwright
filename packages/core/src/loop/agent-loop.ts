@@ -1,7 +1,16 @@
 // The agent loop (docs/04 §3): observe → decide → validate → execute → settle, until done, fail or a
 // limit. One tool call per decision, fresh prompt per decision (AGENTS.md rule 2).
 import type { ActionExecutor } from '../actions/executor.js';
-import { toolSpecs, validateCall, type ToolCall, type ToolName } from '../actions/schemas.js';
+import {
+  codeToolSpecs,
+  isCodeCall,
+  toolSpecs,
+  validateCall,
+  type AnyToolCall,
+  type CodeTool,
+  type ToolName,
+} from '../actions/schemas.js';
+import { TOOL_SCHEMAS } from '../actions/schemas.js';
 import { AiProviderError } from '../errors.js';
 import type { EventBus } from '../events/bus.js';
 import { addUsage, emptyUsage, type DecisionRequest, type LlmProvider, type Usage } from '../llm/provider.js';
@@ -16,6 +25,8 @@ export interface LoopDeps {
   executor: ActionExecutor;
   events: EventBus;
   tools: ToolName[];
+  /** Code tools this step may call (docs/03 §7). */
+  codeTools?: ReadonlyMap<string, CodeTool>;
   hints: string[];
   secretPlaceholders: string[];
   isAllowedUrl: (url: string) => boolean;
@@ -26,7 +37,7 @@ export interface LoopDeps {
 }
 
 interface Decision {
-  call: ToolCall;
+  call: AnyToolCall;
   text?: string;
   usage: Usage;
   repaired: boolean;
@@ -38,6 +49,7 @@ export async function decideWithRepair(
   req: DecisionRequest,
   offered: readonly string[],
   signal?: AbortSignal,
+  codeTools?: ReadonlyMap<string, CodeTool>,
 ): Promise<Decision> {
   let usage = emptyUsage();
   let problem = '';
@@ -54,7 +66,7 @@ export async function decideWithRepair(
       problem = 'You replied with text only. Respond by calling exactly one tool.';
       continue;
     }
-    const validated = validateCall(res.call, offered);
+    const validated = validateCall(res.call, offered, codeTools);
     if (validated.ok) return { call: validated.call, text: res.text, usage, repaired: attempt > 0 };
     problem = `${validated.error}\nCall exactly one of the offered tools with valid arguments.`;
   }
@@ -66,11 +78,13 @@ export async function decideWithRepair(
 }
 
 const targetKey = (r: ActionRecord) => `${r.tool}:${r.target?.ref ?? JSON.stringify(r.args)}`;
-const PASSIVE = new Set(['expand', 'wait_for']);
+/** Actions that don't act on the page (and code tools, which work off-page) never count as 'no progress'. */
+const PASSIVE = new Set(['expand', 'wait_for', 'generate_value']);
+const isPassive = (r: ActionRecord) => PASSIVE.has(r.tool) || !(r.tool in TOOL_SCHEMAS);
 
 /** docs/04 §3.2: the same tool + target three times in a row, or three actions that changed nothing. */
 function noProgress(history: ActionRecord[], currentHash: string): string | undefined {
-  const active = history.filter((r) => !PASSIVE.has(r.tool));
+  const active = history.filter((r) => !isPassive(r));
   const last3 = active.slice(-3);
   if (last3.length < 3) return undefined;
   if (last3.every((r) => targetKey(r) === targetKey(last3[0]!))) return `repeated ${targetKey(last3[0]!)} three times`;
@@ -82,8 +96,9 @@ function noProgress(history: ActionRecord[], currentHash: string): string | unde
 
 export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<StepOutcome> {
   const history: ActionRecord[] = [];
-  const specs = toolSpecs(deps.tools);
-  const offered = deps.tools as readonly string[];
+  const code = [...(deps.codeTools?.values() ?? [])];
+  const specs = [...toolSpecs(deps.tools), ...codeToolSpecs(code)];
+  const offered = [...deps.tools, ...code.map((t) => t.name)] as readonly string[];
   const expandedRefs = new Set<string>();
   let expanded: string | undefined;
   let usage = emptyUsage();
@@ -127,7 +142,7 @@ export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<S
       observation: buildObservation(obs, { lastResult: last?.result, expanded }),
     };
     const started = Date.now();
-    const decision = await decideWithRepair(deps.provider, req, offered, deps.signal);
+    const decision = await decideWithRepair(deps.provider, req, offered, deps.signal, deps.codeTools);
     usage = addUsage(usage, decision.usage);
     deps.events.emit({
       type: 'decision',
@@ -141,11 +156,12 @@ export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<S
       ms: Date.now() - started,
     });
 
-    if (decision.call.tool === 'done') {
-      return finish('done', decision.call.args.summary, { evidence: decision.call.args.evidence });
+    const call = decision.call;
+    if (!isCodeCall(call) && call.tool === 'done') {
+      return finish('done', call.args.summary, { evidence: call.args.evidence });
     }
-    if (decision.call.tool === 'fail') {
-      return finish('failed', decision.call.args.reason, { failure: decision.call.args });
+    if (!isCodeCall(call) && call.tool === 'fail') {
+      return finish('failed', call.args.reason, { failure: call.args });
     }
 
     const record = await deps.executor.execute(decision.call, obs);

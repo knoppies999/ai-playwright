@@ -162,14 +162,19 @@ Tasks
 ## Phase 5 — Test data, secrets and code tools (M)
 
 Tasks
-- [ ] DataResolver: placeholders, `values` accumulation, plan placeholder back-conversion
-- [ ] Generators + validators (SA ID, Luhn, test cards, IBAN, VAT where defined, phone, email, person, address, date, TOTP), with unit tests against published examples
-- [ ] `generate_value` tool
-- [ ] Secrets provider (env + custom function), Redactor applied to all events/logs/attachments, credential-field restriction, `fillMode`
-- [ ] `ai.tools.register` (code tools) with Zod validation, recorded in plans
-- [ ] Demo: `/users/new` with server-side validation passes using generated values. A grep for secret values across `.aipw/`, the reports and the plans finds nothing
+- [x] DataResolver: placeholders (incl. `{{gen.kind({...})}}`), `values` accumulation, plan placeholder back-conversion (data values and generated values)
+- [x] Generators + validators (SA ID, Luhn, test cards, IBAN, VAT where defined, phone, email, person, address, date, TOTP), with unit tests against published examples (RFC 6238 vectors, ISO 13616 IBANs, card test PANs). No faker: a seeded PRNG and short word lists
+- [x] `generate_value` tool
+- [x] Secrets provider (env + custom function), Redactor applied to all events/logs/attachments, credential-field restriction, `fillMode`
+- [x] `ai.tools.register` (code tools) with Zod validation, recorded in plans
+- [x] Demo: `/users/new` with server-side validation passes using generated values. A grep for secret values across `.aipw/`, the reports and the plans finds nothing
 
 **Exit:** the validation-heavy demo form passes with uncached and cached runs. The secret-leak check is automated in CI.
+
+**Status (2026-10-09):** both met. `examples/tests/demo/users-new.spec.ts` passes uncached (6 decisions) and cached (0, with
+fresh generated values the server accepts). `scripts/leak-check.mjs` runs in CI over results, reports, plans and the files
+inside trace zips. Writing it found a real leak: the Observer's own snapshot results were recorded in traces with password
+values. Credential inputs are now masked in the page during every snapshot ([08](08-test-data-and-secrets.md) §4).
 
 ---
 

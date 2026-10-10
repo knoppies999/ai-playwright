@@ -9,15 +9,19 @@ import { fingerprintOf } from '../locators/fingerprint.js';
 import { synthesizeLocators, type SynthOptions } from '../locators/synth.js';
 import type { StepSession } from '../step/session.js';
 import type { ActionRecord, TargetDescriptor } from '../types.js';
-import type { ToolCall } from './schemas.js';
+import { isCodeCall, type AnyToolCall, type CodeTool, type ToolCall } from './schemas.js';
 
 export interface ExecutorOptions {
+  /** User-registered code tools (docs/03 §7). */
+  codeTools?: ReadonlyMap<string, CodeTool>;
   data: DataResolver;
   synth: Omit<SynthOptions, 'role' | 'name'>;
   actionTimeoutMs: number;
   settle: { maxMs: number; networkQuietMs: number };
   expandMaxTokens: number;
   allowSecretsAnywhere: boolean;
+  /** docs/08 §4 rule 3b: 'evaluate' sets secret values by script instead of typing them. */
+  secretFillMode?: 'fill' | 'evaluate';
   isAllowedUrl: (url: string) => boolean;
 }
 
@@ -86,6 +90,26 @@ export class ActionExecutor {
     }
   }
 
+  /**
+   * Fills a field. A secret with secretFillMode 'evaluate' is set by script (through the native value setter,
+   * so React-style controlled inputs see it) and announced with input/change events: the trace then shows
+   * the call but not the value (spike 0.7).
+   */
+  private async fillValue(loc: Locator, value: string, secret: boolean, timeout: number): Promise<void> {
+    if (!secret || this.opts.secretFillMode !== 'evaluate') {
+      await loc.fill(value, { timeout });
+      return;
+    }
+    await loc.evaluate((el, v) => {
+      const input = el as HTMLInputElement;
+      const setter = Object.getOwnPropertyDescriptor(Object.getPrototypeOf(input), 'value')?.set;
+      if (setter) setter.call(input, v);
+      else input.value = v;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+      input.dispatchEvent(new Event('change', { bubbles: true }));
+    }, value);
+  }
+
   /** docs/08 §4 rule 4: secrets only go into credential fields, so an injected page can't harvest them. */
   private async guardSecret(loc: Locator, usesSecret: boolean): Promise<void> {
     if (!usesSecret || this.opts.allowSecretsAnywhere) return;
@@ -97,7 +121,7 @@ export class ActionExecutor {
   }
 
   /** Runs one tool call. With `resolver`, refs are resolved from a stored plan (replay) instead of the snapshot. */
-  async execute(call: ToolCall, obs: Observation, resolver?: TargetResolver): Promise<ActionRecord> {
+  async execute(call: AnyToolCall, obs: Observation, resolver?: TargetResolver): Promise<ActionRecord> {
     this.resolver = resolver;
     try {
       return await this.executeCall(call, obs);
@@ -106,13 +130,38 @@ export class ActionExecutor {
     }
   }
 
-  private async executeCall(call: ToolCall, obs: Observation): Promise<ActionRecord> {
+  /** Runs a code tool. Its output (text, or JSON) goes back to the model; errors become the result. */
+  private async runCodeTool(
+    call: { tool: string; args: Record<string, unknown> },
+    record: ActionRecord,
+  ): Promise<void> {
+    const tool = this.opts.codeTools?.get(call.tool);
+    if (!tool) throw new ActionError(`Unknown code tool ${call.tool}.`);
+    try {
+      // Placeholders ({{data.x}}, {{values.x}}, {{secret.x}}, {{gen...}}) resolve here, for AI calls and replays alike.
+      // Secrets are allowed: code tools are trusted test code, not page fields.
+      const resolve = (v: unknown): unknown =>
+        typeof v === 'string'
+          ? this.resolveValue(v).value
+          : Array.isArray(v)
+            ? v.map(resolve)
+            : v && typeof v === 'object'
+              ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, resolve(x)]))
+              : v;
+      const out = await tool.run(resolve(call.args) as Record<string, unknown>);
+      record.output = (typeof out === 'string' ? out : (JSON.stringify(out) ?? 'done')).slice(0, 2000);
+    } catch (error) {
+      throw new ActionError(`${call.tool} failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  private async executeCall(call: AnyToolCall, obs: Observation): Promise<ActionRecord> {
     const started = Date.now();
     const before = { url: this.page.url(), snapshotHash: obs.snapshotHash };
     const record: ActionRecord = {
       tool: call.tool,
       args: call.args as Record<string, unknown>,
-      intent: 'intent' in call.args ? call.args.intent : undefined,
+      intent: !isCodeCall(call) && 'intent' in call.args ? call.args.intent : undefined,
       result: 'ok',
       before,
       after: { url: before.url },
@@ -127,7 +176,7 @@ export class ActionExecutor {
         onDialog = () => resolve('dialog');
         page.once('dialog', onDialog);
       });
-      const action = this.perform(call, obs, record);
+      const action = isCodeCall(call) ? this.runCodeTool(call, record) : this.perform(call, obs, record);
       action.catch(() => undefined);
       const winner = await Promise.race([action.then(() => 'done' as const), dialogOpened]).finally(() => {
         page.off('dialog', onDialog!);
@@ -167,7 +216,7 @@ export class ActionExecutor {
         record.target = await this.describe(call.args.ref, loc, obs);
         const { value, usesSecret } = this.resolveValue(call.args.value);
         await this.guardSecret(loc, usesSecret);
-        await loc.fill(value, { timeout });
+        await this.fillValue(loc, value, usesSecret, timeout);
         break;
       }
       case 'type': {
@@ -175,7 +224,8 @@ export class ActionExecutor {
         record.target = await this.describe(call.args.ref, loc, obs);
         const { value, usesSecret } = this.resolveValue(call.args.text);
         await this.guardSecret(loc, usesSecret);
-        await loc.pressSequentially(value, { timeout, delay: 20 });
+        if (usesSecret && this.opts.secretFillMode === 'evaluate') await this.fillValue(loc, value, true, timeout);
+        else await loc.pressSequentially(value, { timeout, delay: 20 });
         if (call.args.submit) await loc.press('Enter', { timeout });
         break;
       }
@@ -188,9 +238,9 @@ export class ActionExecutor {
           record.targets.push(await this.describe(f.ref, loc, obs));
           const resolved = this.resolveValue(f.value);
           await this.guardSecret(loc, resolved.usesSecret);
-          fields.push({ loc, value: resolved.value });
+          fields.push({ loc, value: resolved.value, secret: resolved.usesSecret });
         }
-        for (const f of fields) await f.loc.fill(f.value, { timeout });
+        for (const f of fields) await this.fillValue(f.loc, f.value, f.secret, timeout);
         break;
       }
       case 'select_option': {
@@ -282,6 +332,20 @@ export class ActionExecutor {
       case 'go_back': {
         await this.page.goBack({ timeout, waitUntil: 'domcontentloaded' });
         break;
+      }
+      case 'generate_value': {
+        let params: Record<string, unknown>;
+        try {
+          params = call.args.params ? (JSON.parse(call.args.params) as Record<string, unknown>) : {};
+        } catch {
+          throw new ActionError('params must be a JSON object, e.g. {"born":"1990-04-12"}.');
+        }
+        try {
+          record.output = this.opts.data.generateValue(call.args.kind, params, call.args.as);
+        } catch (error) {
+          throw new ActionError(error instanceof Error ? error.message : String(error));
+        }
+        return;
       }
       case 'navigate': {
         if (!this.opts.isAllowedUrl(call.args.url))

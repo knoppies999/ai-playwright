@@ -496,6 +496,44 @@
     }
   },
   {
+    "name": "generate_value",
+    "description": "Get a valid test value (SA ID number, IBAN, card number, email, phone…) from a generator instead of inventing one. The value appears in the history.",
+    "jsonSchema": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "description": "email, phone, saId, luhn, testCard, iban, vatNumber, date, uuid, slug, words, firstName, lastName, or a custom generator"
+        },
+        "params": {
+          "description": "JSON object of options, e.g. {\"born\":\"1990-04-12\",\"gender\":\"F\"} for saId, {\"country\":\"ZA\"} for phone or iban",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "as": {
+          "description": "Name to keep the value under, usable later as {{values.<name>}}",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "intent": {
+          "type": "string",
+          "description": "What this action is trying to do, in at most 15 words"
+        }
+      },
+      "required": [
+        "kind",
+        "params",
+        "as",
+        "intent"
+      ],
+      "additionalProperties": false
+    }
+  },
+  {
     "name": "done",
     "description": "Finish the step: it is complete. Quote page text that shows success.",
     "jsonSchema": {
