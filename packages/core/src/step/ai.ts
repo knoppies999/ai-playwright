@@ -1,3 +1,4 @@
+import { resolve } from 'node:path';
 // The public API behind the `ai` fixture (docs/03): act, assert, check, extract, locate, run.
 // Every call is one step: it opens a StepSession, runs the loop or a structured judgement, emits
 // events and closes the session. Plan caching (Phase 4) will sit in front of the loop here.
@@ -15,6 +16,7 @@ import type { PlanStore } from '../cache/store.js';
 import type { AipwConfig, CacheMode } from '../config.js';
 import { Redactor } from '../data/redactor.js';
 import { createGenerators, type Generators } from '../data/generators.js';
+import { loadHints } from '../hints/store.js';
 import type { NudgeController } from '../nudge/controller.js';
 import { DataResolver, secretSource } from '../data/resolver.js';
 import {
@@ -471,7 +473,7 @@ export class Ai {
             tools: actTools({ allowNavigation: options.allowNavigation ?? false, askHuman: !!this.deps.nudge }),
             nudge: this.deps.nudge,
             codeTools: stepTools,
-            hints: [...healingHint, ...(options.hints ?? [])],
+            hints: [...loadHints(resolve(this.config.hints.dir), startUrl), ...healingHint, ...(options.hints ?? [])],
             secretPlaceholders: data.secretPlaceholders,
             isAllowedUrl,
             maxActions: options.maxActions ?? this.config.steps.maxActions,

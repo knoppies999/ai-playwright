@@ -68,6 +68,12 @@ export const AipwConfigSchema = z.object({
       allowAnyField: z.boolean().default(false),
     })
     .prefault({}),
+  hints: z
+    .object({
+      /** Folder with hints/<host-port>.md files, relative to the working directory (docs/09 §1). */
+      dir: z.string().default('hints'),
+    })
+    .prefault({}),
   cache: z
     .object({
       /** docs/06 §1. AIPW_CACHE overrides it. */
