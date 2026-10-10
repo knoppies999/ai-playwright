@@ -18,8 +18,15 @@ import { Redactor } from '../data/redactor.js';
 import { createGenerators, type Generators } from '../data/generators.js';
 import { loadHints } from '../hints/store.js';
 import type { NudgeController } from '../nudge/controller.js';
-import type { PauseState } from '../nudge/protocol.js';
-import { codeRemedy, synthesizeRemedy } from '../nudge/remedy.js';
+import { VerifyDone, type PauseState, type VerifyJob } from '../nudge/protocol.js';
+import {
+  codeRemedy,
+  finalTargets,
+  matchesBasis,
+  remedyOptions,
+  synthesizeRemedy,
+  type RemedyInput,
+} from '../nudge/remedy.js';
 import { DataResolver, secretSource } from '../data/resolver.js';
 import {
   AiAssertionError,
@@ -348,6 +355,8 @@ export class Ai {
   /** Performs whatever UI actions satisfy the instruction (docs/03 §2). */
   async act(instruction: string, options: StepOptions = {}): Promise<ActResult> {
     const nudged = await this.nudgeBeforeStep('act', instruction, options);
+    const verify = this.deps.nudge?.verifyJobFor();
+    if (verify) return this.verifyCandidate(verify, options);
     if (nudged.skip) {
       return {
         summary: 'Skipped in nudge mode',
@@ -767,35 +776,94 @@ export class Ai {
   }
 
   /** After a human-corrected step: synthesize remedies and offer them to the driver (docs/07 §6). */
-  private async offerRemedies(instruction: string, outcome: StepOutcome, pageUrl: string): Promise<void> {
+  private async offerRemedies(instruction: string, outcome: StepOutcome, startUrl: string): Promise<void> {
     const corrected = outcome.actions.filter((a) => a.result === 'ok');
-    const failed = outcome.actions.filter((a) => a.result !== 'ok');
+    const input: RemedyInput = {
+      instruction,
+      failed: outcome.actions.filter((a) => a.result !== 'ok'),
+      corrected,
+      humanInput: outcome.human ?? [],
+      targetFacts: [],
+    };
+    let remedies: NonNullable<PauseState['remedies']>;
     try {
-      const { remedy, usage } = await synthesizeRemedy(this.deps.provider, {
-        instruction,
-        failed,
-        corrected,
-        humanInput: outcome.human ?? [],
-        targetFacts: [],
-      });
+      const { remedy, usage } = await synthesizeRemedy(this.deps.provider, input);
       this.addUsage(usage);
-      const code = codeRemedy(corrected);
-      const options: NonNullable<PauseState['remedies']>['options'] = [];
-      if (remedy.hint && remedy.hint.scope !== 'step')
-        options.push({ kind: 'hint', label: `Site hint (${remedy.hint.scope})`, hint: remedy.hint });
-      options.push({ kind: 'instruction', label: 'Revised instruction', text: remedy.revisedInstruction });
-      if (remedy.splitInto?.length)
-        options.push({ kind: 'split', label: 'Split into steps', instructions: remedy.splitInto });
-      if (code.length) options.push({ kind: 'code', label: 'Code (from the corrected actions)', lines: code });
-      await this.deps.nudge!.offerRemedies({
+      remedies = {
         diagnosis: remedy.diagnosis,
         category: remedy.category,
-        pageUrl,
-        options,
-      });
+        pageUrl: startUrl,
+        options: remedyOptions(remedy, codeRemedy(corrected)),
+        basis: {
+          startUrl,
+          finalUrl: this._page.url(),
+          finalTargets: finalTargets(corrected),
+          input: input as unknown as Record<string, unknown>,
+        },
+      };
     } catch (error) {
       this.deps.nudge!.progress(`Could not build remedies: ${error instanceof Error ? error.message : String(error)}`);
+      return;
     }
+    // Outside the try: the driver may answer with a rewind (to verify the candidates), which must propagate.
+    await this.deps.nudge!.offerRemedies(remedies);
+  }
+
+  /**
+   * A verification run (docs/07 §6.4): run this step with one remedy candidate, AI only and no human help,
+   * report whether it reached what the corrected run reached, and end the test. Round 2 re-synthesizes first.
+   */
+  private async verifyCandidate(job: VerifyJob, options: StepOptions): Promise<never> {
+    const nudge = this.deps.nudge!;
+    let option = job.option;
+    try {
+      if (job.feedback) {
+        const input = { ...(job.basis.input as unknown as RemedyInput), feedback: job.feedback };
+        const { remedy, usage } = await synthesizeRemedy(this.deps.provider, input);
+        this.addUsage(usage);
+        const next = remedyOptions(remedy, []).find((o) => o.kind === option.kind);
+        if (!next) {
+          nudge.reportVerification(false, `The second suggestion had no ${option.kind} candidate.`, option);
+          throw new VerifyDone();
+        }
+        option = next;
+      }
+      // A plain ai on the same page: no nudge (so no pauses and no ask_human) and no plan cache.
+      const plain = new Ai({
+        ...this.deps,
+        page: this._page,
+        events: this.events,
+        redactor: this.redactor,
+        values: this.values,
+        gen: this.gen,
+        codeTools: this.codeTools,
+        nudge: undefined,
+        cache: undefined,
+        idPrefix: 'verify',
+      });
+      const stepOptions: StepOptions = { ...options, cache: 'off' };
+      const actions: ActionRecord[] = [];
+      if (option.kind === 'instruction' && option.text)
+        actions.push(...(await plain.act(option.text, stepOptions)).actions);
+      else if (option.kind === 'hint' && option.hint)
+        actions.push(
+          ...(await plain.act(job.instruction, { ...stepOptions, hints: [...(options.hints ?? []), option.hint.text] }))
+            .actions,
+        );
+      else if (option.kind === 'split' && option.instructions)
+        for (const text of option.instructions) actions.push(...(await plain.act(text, stepOptions)).actions);
+      this.addUsage(plain.usage);
+      const verdict = matchesBasis(actions, plain.page.url(), job.basis);
+      nudge.reportVerification(verdict.ok, verdict.reason, option);
+    } catch (error) {
+      if (error instanceof VerifyDone) throw error;
+      nudge.reportVerification(
+        false,
+        `The AI did not finish the step: ${error instanceof Error ? error.message.split('\n')[0] : String(error)}`,
+        option,
+      );
+    }
+    throw new VerifyDone();
   }
 
   /** A code breakpoint: in nudge mode the test pauses here; otherwise it does nothing (docs/07 §1). */

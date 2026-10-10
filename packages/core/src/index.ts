@@ -86,20 +86,28 @@ export {
   type Person,
 } from './data/generators.js';
 export { NudgeController, type NudgeOptions } from './nudge/controller.js';
-export { NudgeServer, ScriptedUi, type NudgeUi } from './nudge/server.js';
+export { NudgeServer, ScriptedUi, type NudgeUi, type Verification } from './nudge/server.js';
 export {
   NUDGE_PROTOCOL_VERSION,
   NudgeCommandSchema,
   NudgeQuit,
   PauseStateSchema,
   RewindSignal,
+  VerifyDone,
+  VerifyJobSchema,
   type BreakLevel,
   type NudgeCommand,
   type PauseState,
+  type RemedyBasis,
+  type RemedyOption,
+  type VerifyJob,
 } from './nudge/protocol.js';
 export { hintFileName, loadHints, writeHint, type NewHint } from './hints/store.js';
 export {
   codeRemedy,
+  finalTargets,
+  matchesBasis,
+  remedyOptions,
   RemedySchema,
   remedyPrompt,
   synthesizeRemedy,

@@ -3,8 +3,8 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { resolveConfig } from '../src/config.js';
 import { FakeProvider } from '../src/llm/fake-provider.js';
 import type { DecisionRequest } from '../src/llm/provider.js';
-import { NudgeController } from '../src/nudge/controller.js';
-import { RewindSignal, type NudgeCommand, type PauseState } from '../src/nudge/protocol.js';
+import { NudgeController, type NudgeOptions } from '../src/nudge/controller.js';
+import { RewindSignal, VerifyDone, type NudgeCommand, type PauseState } from '../src/nudge/protocol.js';
 import { NudgeServer, ScriptedUi } from '../src/nudge/server.js';
 import { Ai } from '../src/step/ai.js';
 import { html, useBrowser } from './browser.js';
@@ -23,10 +23,7 @@ async function openApp(): Promise<Page> {
 }
 
 /** A real TCP server + controller pair, with the human's answers scripted. */
-async function nudged(
-  answers: ((s: PauseState) => NudgeCommand)[],
-  options: { breakLevel?: 'step' | 'action' | 'fail' | 'none'; resumeAt?: number } = {},
-) {
+async function nudged(answers: ((s: PauseState) => NudgeCommand)[], options: NudgeOptions = {}) {
   const ui = new ScriptedUi(answers);
   const server = new NudgeServer(ui);
   servers.push(server);
@@ -43,6 +40,13 @@ const clickSave = (req: DecisionRequest) => ({
   args: { ref: refOf('button "Save"', req), button: null, modifiers: null, clickCount: null, intent: 'save' },
 });
 const done = { tool: 'done', args: { summary: 'ok', evidence: [] } };
+const SAVE = `locator('[data-test="save"]')`;
+const basis = {
+  startUrl: 'http://app.test/',
+  finalUrl: 'http://app.test/',
+  finalTargets: [SAVE],
+  input: { instruction: 'Export the report', failed: [], corrected: [], humanInput: ['hint: x'], targetFacts: [] },
+};
 
 describe('nudge mode', () => {
   it('pauses before a step, and a hint reaches the model', async () => {
@@ -117,7 +121,77 @@ describe('nudge mode', () => {
       remedies: { category: 'naming-mismatch', pageUrl: 'http://app.test/' },
     });
     expect(offer.remedies!.options.map((o) => o.kind)).toEqual(['hint', 'instruction', 'code']);
-    expect(offer.remedies!.options[2]!.lines).toEqual(['await page.locator(\'[data-test="save"]\').click();']);
+    expect(offer.remedies!.options[2]!.lines).toEqual([`await page.${SAVE}.click();`]);
+    expect(offer.remedies!.basis).toMatchObject({
+      finalTargets: expect.arrayContaining([SAVE]),
+      startUrl: 'http://app.test/',
+    });
+  });
+
+  it('a verification run tries the candidate with no human help, reports, and ends the test', async () => {
+    const { server, controller } = await nudged([], {
+      breakLevel: 'none',
+      verify: {
+        step: 1,
+        instruction: 'Export the report',
+        option: { kind: 'instruction', label: 'Revised instruction', text: 'Click "Save"' },
+        basis,
+      },
+    });
+    const provider = new FakeProvider([
+      (req) => {
+        expect(req.context).toContain('Click "Save"');
+        expect(req.tools.map((t) => t.name)).not.toContain('ask_human');
+        return clickSave(req);
+      },
+      done,
+    ]);
+    const error = await new Ai({ page: await openApp(), provider, config, nudge: controller })
+      .act('Export the report')
+      .catch((e: unknown) => e);
+    expect(error).toBeInstanceOf(VerifyDone);
+    await expect.poll(() => server.verifications.length).toBe(1);
+    expect(server.verifications[0]).toMatchObject({ ok: true, reason: 'reached the same final target' });
+  });
+
+  it('round 2 re-synthesizes with the failure as feedback; a run that misses the target fails', async () => {
+    const { server, controller } = await nudged([], {
+      breakLevel: 'none',
+      verify: {
+        step: 1,
+        instruction: 'Export the report',
+        option: { kind: 'hint', label: 'Site hint (site)', hint: { scope: 'site', pathPattern: null, text: 'old' } },
+        basis,
+        feedback: 'The AI clicked Cancel.',
+      },
+    });
+    const provider = new FakeProvider(
+      [
+        (req) => {
+          expect(req.context).toContain('Save exports the report.');
+          return done;
+        },
+      ],
+      [
+        {
+          diagnosis: 'd',
+          category: 'naming-mismatch',
+          revisedInstruction: 'Click "Save"',
+          splitInto: null,
+          hint: { scope: 'site', pathPattern: null, text: 'Save exports the report.' },
+        },
+      ],
+    );
+    await new Ai({ page: await openApp(), provider, config, nudge: controller })
+      .act('Export the report')
+      .catch(() => undefined);
+    expect(provider.structuredRequests[0]!.prompt).toContain('YOUR PREVIOUS SUGGESTION FAILED\nThe AI clicked Cancel.');
+    await expect.poll(() => server.verifications.length).toBe(1);
+    expect(server.verifications[0]).toMatchObject({
+      ok: false,
+      option: { hint: { text: 'Save exports the report.' } },
+      reason: expect.stringContaining('without touching the corrected target'),
+    });
   });
 
   it('offers ask_human and passes the answer back', async () => {

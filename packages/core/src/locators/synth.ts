@@ -162,7 +162,9 @@ export async function synthesizeLocators(page: Page, target: Locator, opts: Synt
       try {
         const loc = buildLocator(page, [...prefix, ...expr]);
         if ((await loc.count()) !== 1) return false;
-        return (await loc.getAttribute(MARKER, { timeout: 1000 })) === token;
+        // The element exists (count is 1), so this only waits under load; a short timeout here once dropped the
+        // L1 test id on a busy machine and let L2 win.
+        return (await loc.getAttribute(MARKER, { timeout: 5000 })) === token;
       } catch {
         return false;
       }

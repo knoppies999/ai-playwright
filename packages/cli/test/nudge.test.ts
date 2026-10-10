@@ -28,8 +28,15 @@ describe('aipw nudge arguments', () => {
       breakLevel: 'action',
       at: 3,
       fresh: true,
+      verify: true,
     });
-    expect(parseNudgeArgs(['tests/a.spec.ts'])).toEqual({ spec: 'tests/a.spec.ts', breakLevel: 'step', fresh: false });
+    expect(parseNudgeArgs(['tests/a.spec.ts'])).toEqual({
+      spec: 'tests/a.spec.ts',
+      breakLevel: 'step',
+      fresh: false,
+      verify: true,
+    });
+    expect(parseNudgeArgs(['tests/a.spec.ts', '--verify', 'none'])).toMatchObject({ verify: false });
   });
 
   it('rejects bad input with a usable message', () => {

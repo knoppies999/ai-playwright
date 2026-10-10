@@ -8,6 +8,7 @@ import type { LlmProvider, Usage } from '../llm/provider.js';
 import { historyLine } from '../loop/prompt.js';
 import { structuredWithRepair } from '../step/structured.js';
 import type { ActionRecord } from '../types.js';
+import type { RemedyBasis, RemedyOption } from './protocol.js';
 import SYSTEM_REMEDY from '../loop/prompts/system-remedy.md';
 
 export const RemedySchema = z.strictObject({
@@ -45,6 +46,8 @@ export interface RemedyInput {
   humanInput: string[];
   /** Engine-computed facts about the correct target (in snapshot? in a closed menu? name vs. wording…). */
   targetFacts: string[];
+  /** Round 2 of verification: what went wrong with the previous suggestion (docs/07 §6.4). */
+  feedback?: string;
 }
 
 export function remedyPrompt(input: RemedyInput): string {
@@ -56,7 +59,58 @@ export function remedyPrompt(input: RemedyInput): string {
     `CORRECT ACTIONS\n${lines(input.corrected)}`,
     `WHAT THE PERSON SAID\n${input.humanInput.length ? input.humanInput.map((h) => `- ${h}`).join('\n') : '(nothing)'}`,
     `FACTS ABOUT THE CORRECT TARGET\n${input.targetFacts.length ? input.targetFacts.map((f) => `- ${f}`).join('\n') : '(none)'}`,
+    ...(input.feedback
+      ? [`YOUR PREVIOUS SUGGESTION FAILED\n${input.feedback}\nSuggest something that avoids this.`]
+      : []),
   ].join('\n\n');
+}
+
+/** The options offered to the human: hint (unless step-only), revised instruction, split, code. */
+export function remedyOptions(remedy: Remedy, code: string[]): RemedyOption[] {
+  const options: RemedyOption[] = [];
+  if (remedy.hint && remedy.hint.scope !== 'step')
+    options.push({ kind: 'hint', label: `Site hint (${remedy.hint.scope})`, hint: remedy.hint });
+  options.push({ kind: 'instruction', label: 'Revised instruction', text: remedy.revisedInstruction });
+  if (remedy.splitInto?.length)
+    options.push({ kind: 'split', label: 'Split into steps', instructions: remedy.splitInto });
+  if (code.length) options.push({ kind: 'code', label: 'Code (from the corrected actions)', lines: code });
+  return options;
+}
+
+/** The locator displays of the last action that had a target. */
+export function finalTargets(records: ActionRecord[]): string[] {
+  const last = [...records].reverse().find((r) => r.result === 'ok' && (r.target || r.targets?.length));
+  if (!last) return [];
+  return (last.target ? [last.target] : (last.targets ?? [])).flatMap((t) => t.candidates.map((c) => c.display));
+}
+
+const pageOf = (url: string) => {
+  try {
+    const u = new URL(url);
+    return `${u.origin}${u.pathname}`;
+  } catch {
+    return url;
+  }
+};
+
+/**
+ * Verification pass criteria (docs/07 §6.4): the candidate run touched the same final target as the corrected
+ * run, or, when the corrected run navigated, ended on the same page.
+ */
+export function matchesBasis(
+  records: ActionRecord[],
+  finalUrl: string,
+  basis: RemedyBasis,
+): { ok: boolean; reason: string } {
+  const targets = finalTargets(records);
+  if (targets.some((t) => basis.finalTargets.includes(t))) return { ok: true, reason: 'reached the same final target' };
+  if (pageOf(basis.finalUrl) !== pageOf(basis.startUrl) && pageOf(finalUrl) === pageOf(basis.finalUrl))
+    return { ok: true, reason: `reached the same page (${pageOf(finalUrl)})` };
+  const did = records.length ? records.map((r, i) => historyLine(i, r)).join('\n') : '(no actions)';
+  return {
+    ok: false,
+    reason: `The AI ended on ${pageOf(finalUrl)} without touching the corrected target (${basis.finalTargets[0] ?? 'none'}). It did:\n${did}`,
+  };
 }
 
 export async function synthesizeRemedy(

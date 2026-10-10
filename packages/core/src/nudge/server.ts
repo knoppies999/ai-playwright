@@ -1,7 +1,19 @@
 // The driver side of nudge (docs/07 §8): accepts the worker's connection, hands each PauseState to a UI and
 // sends back the UI's command. UIs are pluggable: the terminal UI in @aipw/cli, a scripted one in tests.
 import { createServer, type Server, type Socket } from 'node:net';
-import { NudgeCommandSchema, WorkerMessageSchema, type NudgeCommand, type PauseState } from './protocol.js';
+import {
+  NudgeCommandSchema,
+  WorkerMessageSchema,
+  type NudgeCommand,
+  type PauseState,
+  type RemedyOption,
+} from './protocol.js';
+
+export interface Verification {
+  ok: boolean;
+  reason: string;
+  option: RemedyOption;
+}
 
 export interface NudgeUi {
   onHello?(test: { file: string; title: string }): void;
@@ -17,6 +29,8 @@ export class NudgeServer {
   pendingRewind?: number;
   /** Every pause seen, for the session summary. */
   readonly pauses: { state: PauseState; command: NudgeCommand }[] = [];
+  /** Results of verification runs, in order (the driver takes them). */
+  readonly verifications: Verification[] = [];
 
   constructor(private readonly ui: NudgeUi) {}
 
@@ -43,6 +57,8 @@ export class NudgeServer {
         const msg = parsed.data;
         if (msg.type === 'hello') this.ui.onHello?.(msg.test);
         else if (msg.type === 'progress') this.ui.onProgress?.(msg.text);
+        else if (msg.type === 'verified')
+          this.verifications.push({ ok: msg.ok, reason: msg.reason, option: msg.option });
         else if (msg.type === 'rewind') {
           this.pendingRewind = msg.toStep;
           this.ui.onRewind?.(msg.toStep);

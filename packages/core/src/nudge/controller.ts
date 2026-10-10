@@ -1,14 +1,18 @@
 // NudgeController (docs/07 §8): runs in the Playwright worker, decides when to pause, sends PauseState to
 // the `aipw nudge` driver and waits for the human's command.
+import { readFileSync } from 'node:fs';
 import { createConnection, type Socket } from 'node:net';
 import {
   DriverMessageSchema,
   NUDGE_PROTOCOL_VERSION,
   NudgeQuit,
   RewindSignal,
+  VerifyJobSchema,
   type BreakLevel,
   type NudgeCommand,
   type PauseState,
+  type RemedyOption,
+  type VerifyJob,
   type WorkerMessage,
 } from './protocol.js';
 
@@ -58,6 +62,8 @@ export interface NudgeOptions {
   breakLevel?: BreakLevel;
   /** Suppress breakpoints before this AI step (1-based): set after a rewind (AIPW_NUDGE_RESUME_AT). */
   resumeAt?: number;
+  /** A verification run (AIPW_NUDGE_VERIFY): try one remedy candidate at one step (docs/07 §6.4). */
+  verify?: VerifyJob;
 }
 
 export type StepInfo = Omit<PauseState['step'], 'index'>;
@@ -68,6 +74,7 @@ export class NudgeController {
   private stepIndex = 0;
   private nextId = 1;
   private readonly resumeAt: number;
+  private readonly verify?: VerifyJob;
   private current?: PauseState['step'];
 
   constructor(
@@ -81,6 +88,7 @@ export class NudgeController {
   ) {
     this.breakLevel = options.breakLevel ?? 'step';
     this.resumeAt = options.resumeAt ?? 1;
+    this.verify = options.verify;
   }
 
   /** Connects to the driver on localhost. */
@@ -101,6 +109,9 @@ export class NudgeController {
     return NudgeController.connect(Number(env.AIPW_NUDGE_PORT), test, {
       breakLevel: (env.AIPW_NUDGE_BREAK as BreakLevel | undefined) ?? 'step',
       resumeAt: env.AIPW_NUDGE_RESUME_AT ? Number(env.AIPW_NUDGE_RESUME_AT) : 1,
+      ...(env.AIPW_NUDGE_VERIFY && {
+        verify: VerifyJobSchema.parse(JSON.parse(readFileSync(env.AIPW_NUDGE_VERIFY, 'utf8'))),
+      }),
     });
   }
 
@@ -176,6 +187,15 @@ export class NudgeController {
     ctx: PauseContext = { history: [] },
   ): Promise<void> {
     await this.pause('remedies', { ...ctx, remedies });
+  }
+
+  /** The verification job, when the current step is the one to verify. */
+  verifyJobFor(): VerifyJob | undefined {
+    return this.verify && this.current?.index === this.verify.step ? this.verify : undefined;
+  }
+
+  reportVerification(ok: boolean, reason: string, option: RemedyOption): void {
+    this.channel.send({ type: 'verified', ok, reason, option });
   }
 
   progress(text: string): void {
