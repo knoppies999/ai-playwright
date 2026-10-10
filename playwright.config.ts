@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 import { withAipw } from '@aipw/test';
 import { saucedemo } from './examples/targets/saucedemo/target.js';
+import { toolshop } from './examples/targets/toolshop/target.js';
 
 try {
   process.loadEnvFile('.env');
@@ -58,6 +59,18 @@ export default defineConfig(
         testDir: 'examples/tests/saucedemo',
         grep: /@llm/,
         use: saucedemoUse,
+      },
+      {
+        // Toolshop (practicesoftwaretesting.com): a bigger public practice shop, all real AI calls.
+        // npm run e2e:toolshop, or add --headed / --ui to watch. Public site: keep it to one worker.
+        name: 'toolshop',
+        testDir: 'examples/tests/toolshop',
+        fullyParallel: false,
+        use: {
+          ...devices['Desktop Chrome'],
+          baseURL: toolshop.baseURL,
+          testIdAttribute: toolshop.testIdAttributes[0],
+        },
       },
     ],
   }),
