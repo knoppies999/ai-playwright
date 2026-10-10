@@ -90,6 +90,20 @@ export const AipwConfigSchema = z.object({
       fingerprintInReplayOnly: z.boolean().default(true),
     })
     .prefault({}),
+  /** Hard stops (docs/09 §1). A step or run that goes over fails with AiBudgetExceeded. */
+  budget: z
+    .object({
+      perStepUsd: z.number().positive().optional(),
+      /** Per Playwright worker process: workers don't share a counter. */
+      perRunUsd: z.number().positive().optional(),
+      /** For providers without token pricing (Copilot); also per worker. */
+      perRunRequests: z.number().int().positive().optional(),
+    })
+    .prefault({}),
+  /** USD per 1M tokens, keyed "provider:model", for cost estimates when the provider gives none. */
+  pricing: z
+    .record(z.string(), z.object({ input: z.number(), output: z.number(), cacheRead: z.number().optional() }))
+    .default({}),
 });
 
 export type CacheMode = AipwConfig['cache']['mode'];

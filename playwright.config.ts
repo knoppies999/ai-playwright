@@ -21,8 +21,8 @@ export default defineConfig(
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 1 : 0,
     reporter: process.env.CI
-      ? [['list'], ['junit', { outputFile: 'test-results/junit.xml' }]]
-      : [['list'], ['html', { open: 'never' }]],
+      ? [['list'], ['junit', { outputFile: 'test-results/junit.xml' }], ['@aipw/test/reporter']]
+      : [['list'], ['html', { open: 'never' }], ['@aipw/test/reporter']],
     use: {
       trace: 'retain-on-failure',
     },
