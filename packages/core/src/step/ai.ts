@@ -38,7 +38,7 @@ import {
   type Callsite,
   type StepFailureKind,
 } from '../errors.js';
-import { EventBus } from '../events/bus.js';
+import { EventBus, type AipwEvent } from '../events/bus.js';
 import { runAgentLoop, trajectory } from '../loop/agent-loop.js';
 import { buildObservation, SYSTEM_PROMPTS } from '../loop/prompt.js';
 import { BudgetGuard, withBudget } from '../llm/budget.js';
@@ -61,8 +61,10 @@ export interface AiDeps {
   baseURL?: string;
   /** Playwright's testIdAttribute (`use.testIdAttribute`), so matching ids become getByTestId(). */
   playwrightTestIdAttribute?: string;
-  /** Wraps each AI step, e.g. in Playwright's test.step. */
-  wrapStep?: <T>(title: string, fn: () => Promise<T>) => Promise<T>;
+  /** Wraps each AI step, e.g. in Playwright's test.step; `attach` adds files to that step (docs/09 §2.1). */
+  wrapStep?: <T>(title: string, fn: (attach?: StepAttach) => Promise<T>) => Promise<T>;
+  /** Wraps each action an AI step performs, e.g. in a nested test.step. */
+  wrapAction?: <T>(title: string, fn: () => Promise<T>) => Promise<T>;
   /** Where the ai.* call was made, for errors and reports. */
   captureCallsite?: () => Callsite | undefined;
   /** Prefix for step ids, e.g. the test id. */
@@ -153,6 +155,9 @@ const LocateSchema = z.strictObject({
 const ASSERT_VERBS = /^(verify|check|assert|expect|ensure)\b[:\s]*/i;
 const EXTRACT_LINE = /^(?:extract|read|get)\s+(.+?)\s+as\s+([A-Za-z_]\w*)\s*$/i;
 const BULLET = /^(?:[-*•]|\d+[.)])\s+/;
+
+/** Adds a file to the current AI step in the report. */
+export type StepAttach = (name: string, body: string | Buffer, contentType: string) => Promise<void>;
 
 export class Ai {
   readonly events: EventBus;
@@ -280,8 +285,13 @@ export class Ai {
       callsite,
     };
     const title = this.redactor.redact(`ai.${kind}: ${instruction}`).slice(0, 200);
-    const run = async () => {
+    const run = async (attach?: StepAttach) => {
       const started = Date.now();
+      const stepEvents: AipwEvent[] = [];
+      const unsubscribe =
+        attach && kind !== 'run'
+          ? this.events.on((e) => 'stepId' in e && e.stepId === ctx.id && stepEvents.push(e))
+          : undefined;
       this.events.emit({ type: 'step:start', stepId: ctx.id, kind, instruction, callsite });
       if (kind !== 'run') this.budget.startStep();
       const before = this.usage;
@@ -296,6 +306,7 @@ export class Ai {
           ms: Date.now() - started,
           usage: diff(this.usage, before),
         });
+        if (attach && unsubscribe) await this.attachStepFiles(attach, stepEvents, false);
         return result;
       } catch (error) {
         this.events.emit({
@@ -308,10 +319,33 @@ export class Ai {
           usage: diff(this.usage, before),
           error: error instanceof Error ? error.message : String(error),
         });
+        if (attach && unsubscribe) await this.attachStepFiles(attach, stepEvents, true);
         throw error;
+      } finally {
+        unsubscribe?.();
       }
     };
     return this.deps.wrapStep ? this.deps.wrapStep(title, run) : run();
+  }
+
+  /**
+   * Files on the AI step in the report (docs/09 §2.1): its decisions (redacted events), the heal (old vs new plan),
+   * and on failure or heal the last snapshot and a screenshot.
+   */
+  private async attachStepFiles(attach: StepAttach, events: AipwEvent[], failed: boolean): Promise<void> {
+    const decisions = events.filter((e) => e.type !== 'observation' && e.type !== 'step:start');
+    if (decisions.some((e) => e.type !== 'step:end'))
+      await attach('aipw-decisions.json', JSON.stringify(decisions, null, 2), 'application/json');
+    const heals = events.filter((e) => e.type === 'heal');
+    if (heals.length) await attach('aipw-heal.json', JSON.stringify(heals, null, 2), 'application/json');
+    if (!failed && !heals.length) return;
+    const snapshot = events.findLast((e) => e.type === 'observation');
+    if (snapshot?.type === 'observation') await attach('aipw-snapshot.yaml', snapshot.snapshot, 'text/yaml');
+    // Credential fields are masked while snapshots are taken, not for screenshots: mask them here too.
+    const shot = await this._page
+      .screenshot({ type: 'jpeg', quality: 70, mask: [this._page.locator('input[type=password]')], timeout: 5000 })
+      .catch(() => undefined);
+    if (shot) await attach('aipw-screenshot.jpg', shot, 'image/jpeg');
   }
 
   /** Effective cache mode for one step: per-step option, then AIPW_CACHE, then config. */
@@ -503,6 +537,7 @@ export class Ai {
             events: this.events,
             tools: actTools({ allowNavigation: options.allowNavigation ?? false, askHuman: !!this.deps.nudge }),
             nudge: this.deps.nudge,
+            ...(this.deps.wrapAction && { wrapAction: this.deps.wrapAction }),
             codeTools: stepTools,
             hints: [...loadHints(resolve(this.config.hints.dir), startUrl), ...healingHint, ...(options.hints ?? [])],
             secretPlaceholders: data.secretPlaceholders,

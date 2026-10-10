@@ -41,6 +41,8 @@ export interface LoopDeps {
   signal?: AbortSignal;
   /** Nudge mode (docs/07): pauses before actions, on fail, and for ask_human. */
   nudge?: NudgeController;
+  /** Wraps each action, e.g. in a nested test.step titled 'click button "Save"'. */
+  wrapAction?: <T>(title: string, fn: () => Promise<T>) => Promise<T>;
 }
 
 interface Decision {
@@ -324,7 +326,8 @@ export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<S
       } else if (cmd.cmd !== 'run' && applyNudge(cmd, step, deps.hints, human)) continue; // hint / edit: re-plan
     }
 
-    const record = await deps.executor.execute(call, execObs);
+    const execute = () => deps.executor.execute(call, execObs);
+    const record = deps.wrapAction ? await deps.wrapAction(actionTitle(call, execObs), execute) : await execute();
     history.push(record);
     deps.events.emit({ type: 'action', stepId: step.id, record });
 
@@ -339,6 +342,16 @@ export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<S
     }
   }
   return failLimit(`maxActions (${deps.maxActions}) reached`);
+}
+
+/** 'click button "Save"', 'press Enter', 'fill_form (3 fields)'. */
+function actionTitle(call: AnyToolCall, obs: Observation): string {
+  const args = call.args as { ref?: string | null; key?: string; fields?: unknown[] };
+  const node = args.ref ? findByRef(obs.tree, args.ref)?.node : undefined;
+  if (node) return `${call.tool} ${node.role}${node.name ? ` "${node.name.slice(0, 60)}"` : ''}`;
+  if (args.key) return `${call.tool} ${args.key}`;
+  if (args.fields) return `${call.tool} (${args.fields.length} fields)`;
+  return call.tool;
 }
 
 /** Applies a human correction. Returns true when the step should go on (re-plan or retry). */
