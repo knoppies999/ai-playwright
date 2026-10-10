@@ -17,6 +17,7 @@ export type { ActionRecord, StepContext, StepKind, StepOptions, StepOutcome, Tar
 export {
   AiAssertionError,
   AiCacheReplayOnlyMiss,
+  AiBudgetExceeded,
   AiError,
   AiExtractError,
   AiHealedError,
@@ -30,6 +31,7 @@ export { EventBus, type AipwEvent, type Listener } from './events/bus.js';
 export { Redactor, REDACTED } from './data/redactor.js';
 
 export { addUsage, emptyUsage } from './llm/provider.js';
+export { BudgetGuard, costOf, resetRunBudget, withBudget, type BudgetLimits, type PricingTable } from './llm/budget.js';
 export type {
   DecisionRequest,
   DecisionResponse,
