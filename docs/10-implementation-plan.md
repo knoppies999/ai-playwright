@@ -215,14 +215,20 @@ Not yet tried by a person in a live interactive session with a real model. As-bu
 ## Phase 7 — Reporting and CI hardening (M)
 
 Tasks
-- [ ] Attachments per AI step, nested action steps, heal attachments
-- [ ] `@aipw/test/reporter`: console summary, `.aipw/summary.{md,json}`, Azure `##vso[task.uploadsummary]`
-- [ ] Pricing table + budget guards (per step / per run / requests)
-- [ ] Example Azure pipelines (PR gate `replay-only`, nightly `auto`), as in [09](09-configuration-reporting-ci.md) §3
-- [ ] Retry/backoff tuning for 429s under `workers > 1`
-- [ ] Docs: "Getting started" in 10 minutes, a troubleshooting guide, "writing good instructions"
+- [x] Attachments per AI step, nested action steps, heal attachments
+- [x] `@aipw/test/reporter`: console summary, `.aipw/summary.{md,json}`, Azure `##vso[task.uploadsummary]`
+- [x] Pricing table + budget guards (per step / per run / requests). "Per run" is per worker process
+- [x] Example Azure pipelines (PR gate `replay-only`, nightly `auto`), as in [09](09-configuration-reporting-ci.md) §3, plus `aipw summary --max-llm-calls 0` to enforce the PR gate's zero model calls, and `aipw hints lint`
+- [x] Retry/backoff for 429s under `workers > 1` (full jitter; Retry-After honoured; a plan usage limit fails at once)
+- [x] Docs: [Getting started](guides/getting-started.md), [troubleshooting](guides/troubleshooting.md), [writing good instructions](guides/writing-instructions.md)
 
 **Exit:** the nightly pipeline runs green on the demo suite with the Foundry deployment, authenticated keylessly through the service connection. The PR gate runs with 0 LLM calls. The summary tab shows in Azure DevOps.
+
+**Status (2026-10-10): tasks done, exit blocked.** All three criteria need an Azure DevOps project, and the nightly one
+also a Foundry deployment and `provider-openai` (Phase 3), none of which this machine has. What was checked here:
+the reporter on the FakeProvider e2e projects (console summary, `.aipw/summary.md`/`.json`, and the
+`##vso[task.uploadsummary]` line under `TF_BUILD=True` in a unit test); `aipw summary --max-llm-calls 0` failing
+a run that called the (fake) model; the secret leak check over the new step screenshots and attachments.
 
 ---
 
