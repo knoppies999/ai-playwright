@@ -108,6 +108,7 @@ export {
   finalTargets,
   matchesBasis,
   remedyOptions,
+  targetFacts,
   RemedySchema,
   remedyPrompt,
   synthesizeRemedy,

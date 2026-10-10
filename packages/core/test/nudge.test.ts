@@ -362,6 +362,20 @@ describe('nudge mode', () => {
     expect(server.pendingRewind).toBe(1);
   });
 
+  it('runs onRewind hooks before the run ends; a failing hook does not block the rewind', async () => {
+    const { controller } = await nudged([() => ({ cmd: 'rewind', toStep: 1 })]);
+    const ai = new Ai({ page: await openApp(), provider: new FakeProvider(), config, nudge: controller });
+    const calls: string[] = [];
+    ai.nudgeHooks.onRewind(() => {
+      throw new Error('reset endpoint down');
+    });
+    ai.nudgeHooks.onRewind(async () => {
+      calls.push('reset');
+    });
+    expect(await ai.act('Save').catch((e) => e)).toBeInstanceOf(RewindSignal);
+    expect(calls).toEqual(['reset']);
+  });
+
   it('fast-forwards past steps before the rewind target, then pauses', async () => {
     const { ui, controller } = await nudged([() => ({ cmd: 'continue', level: 'none' })], { resumeAt: 2 });
     const ai = new Ai({ page: await openApp(), provider: new FakeProvider([done, done]), config, nudge: controller });

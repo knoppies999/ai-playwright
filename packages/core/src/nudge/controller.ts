@@ -75,6 +75,7 @@ export class NudgeController {
   private nextId = 1;
   private readonly resumeAt: number;
   private readonly verify?: VerifyJob;
+  private readonly rewindHooks: (() => unknown)[] = [];
   private current?: PauseState['step'];
 
   constructor(
@@ -143,6 +144,14 @@ export class NudgeController {
       }
       if (cmd.cmd === 'quit') throw new NudgeQuit();
       if (cmd.cmd === 'rewind') {
+        // Reset hooks run while this run's fixtures (request, db clients) are still alive (docs/07 §5.2).
+        for (const hook of this.rewindHooks) {
+          try {
+            await hook();
+          } catch (error) {
+            this.progress(`onRewind hook failed: ${error instanceof Error ? error.message : String(error)}`);
+          }
+        }
         this.channel.send({ type: 'rewind', toStep: cmd.toStep });
         throw new RewindSignal(cmd.toStep);
       }
@@ -197,6 +206,11 @@ export class NudgeController {
   /** After a soft undo: let the human fix the page by hand, then go on (docs/07 §5.1). */
   async afterUndo(note: string, ctx: PauseContext): Promise<NudgeCommand> {
     return this.pause('breakpoint', { ...ctx, note });
+  }
+
+  /** Registers a hook that runs before the test restarts for a rewind, e.g. to reset server state. */
+  onRewind(hook: () => unknown): void {
+    this.rewindHooks.push(hook);
   }
 
   /** Manual mode: the human acts in the browser while this pause is open. */
