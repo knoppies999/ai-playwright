@@ -1,0 +1,165 @@
+{
+  "tests": {
+    "Toolshop browsing > search for a product": {
+      "db463728f56e9aae": {
+        "actions": [
+          {
+            "args": {
+              "submit": true,
+              "text": "pliers"
+            },
+            "intent": "Search for pliers",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": "search-query",
+                  "name": null,
+                  "type": "text"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.12152099609375,
+                  "x": 0.06328125,
+                  "y": 1.2059461805555556
+                },
+                "label": "Search",
+                "name": "Search",
+                "placeholder": "Search",
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {
+                  "data-test": "search-query"
+                },
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('search-query')",
+                  "expr": [
+                    {
+                      "id": "search-query",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('textbox', { name: 'Search', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Search",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Search', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Search"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Search",
+              "role": "textbox"
+            },
+            "tool": "type"
+          }
+        ],
+        "instruction": "Search for \"pliers\"",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-10-10T18:24:08.613Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "ec311f75db83d61f": {
+        "compiled": [
+          {
+            "args": [
+              "1"
+            ],
+            "expect": "toHaveCount",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.17578125,
+                  "x": 0.5234375,
+                  "y": 0.5034505208333333
+                },
+                "label": null,
+                "name": "Pliers",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Pliers"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Pliers', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Pliers",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Pliers",
+              "role": "heading"
+            }
+          }
+        ],
+        "instruction": "Every product listed has \"Pliers\" in its name",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-10-10T18:24:13.932Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    }
+  },
+  "version": 1
+}
