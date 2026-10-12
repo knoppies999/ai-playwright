@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 import { withAipw } from '@aipw/test';
 import { saucedemo } from './examples/targets/saucedemo/target.js';
+import { theInternet } from './examples/targets/the-internet/target.js';
 import { toolshop } from './examples/targets/toolshop/target.js';
 
 try {
@@ -71,6 +72,14 @@ export default defineConfig(
           baseURL: toolshop.baseURL,
           testIdAttribute: toolshop.testIdAttributes[0],
         },
+      },
+      {
+        // The Internet (the-internet.herokuapp.com): one awkward UI pattern per page, all real AI calls.
+        // npm run e2e:the-internet, or add --headed / --ui to watch. Public site: keep it to one worker.
+        name: 'the-internet',
+        testDir: 'examples/tests/the-internet',
+        fullyParallel: false,
+        use: { ...devices['Desktop Chrome'], baseURL: theInternet.baseURL },
       },
     ],
   }),
