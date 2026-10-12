@@ -2,6 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 import { withAipw } from '@aipw/test';
 import { saucedemo } from './examples/targets/saucedemo/target.js';
 import { theInternet } from './examples/targets/the-internet/target.js';
+import { todomvc } from './examples/targets/todomvc/target.js';
 import { toolshop } from './examples/targets/toolshop/target.js';
 
 try {
@@ -80,6 +81,15 @@ export default defineConfig(
         testDir: 'examples/tests/the-internet',
         fullyParallel: false,
         use: { ...devices['Desktop Chrome'], baseURL: theInternet.baseURL },
+      },
+      {
+        // TodoMVC on Playwright's CDN: loads in ~0.1 s, never sleeps. All real AI calls.
+        // npm run e2e:todomvc, or add --headed / --ui to watch.
+        name: 'todomvc',
+        testDir: 'examples/tests/todomvc',
+        // One file, run in order: one browser at a time, easy to watch with --headed.
+        fullyParallel: false,
+        use: { ...devices['Desktop Chrome'], baseURL: todomvc.baseURL },
       },
     ],
   }),

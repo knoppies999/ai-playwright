@@ -86,17 +86,27 @@ export async function decideWithRepair(
   );
 }
 
-const targetKey = (r: ActionRecord) => `${r.tool}:${r.target?.ref ?? JSON.stringify(r.args)}`;
+/** The tool, its target and its arguments (not the intent): typing different text into one box is different work. */
+const actionKey = (r: ActionRecord) => {
+  const { intent: _intent, ...args } = r.args;
+  return `${r.tool}:${r.target?.ref ?? ''}:${JSON.stringify(args)}`;
+};
 /** Actions that don't act on the page (and code tools, which work off-page) never count as 'no progress'. */
 const PASSIVE = new Set(['expand', 'wait_for', 'generate_value', 'ask_human']);
 const isPassive = (r: ActionRecord) => PASSIVE.has(r.tool) || !(r.tool in TOOL_SCHEMAS);
 
-/** docs/04 §3.2: the same tool + target three times in a row, or three actions that changed nothing. */
+/**
+ * docs/04 §3.2: the same action three times in a row while the page keeps coming back to a state it was already in
+ * (a loop, e.g. toggling a menu), or three actions that changed nothing. Repeating an action that changes the page
+ * each time ("click Add three times", adding todos one by one) is progress.
+ */
 function noProgress(history: ActionRecord[], currentHash: string): string | undefined {
   const active = history.filter((r) => !isPassive(r));
   const last3 = active.slice(-3);
   if (last3.length < 3) return undefined;
-  if (last3.every((r) => targetKey(r) === targetKey(last3[0]!))) return `repeated ${targetKey(last3[0]!)} three times`;
+  const states = [...last3.map((r) => r.before.snapshotHash), currentHash];
+  if (last3.every((r) => actionKey(r) === actionKey(last3[0]!)) && new Set(states).size < states.length)
+    return `repeated ${last3[0]!.tool} on ${last3[0]!.target?.ref ?? 'the page'} three times without getting anywhere`;
   if (last3.every((r) => r.before.snapshotHash === currentHash && r.before.url === last3[0]!.before.url)) {
     return 'the last three actions did not change the page';
   }

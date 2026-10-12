@@ -1,0 +1,2387 @@
+{
+  "tests": {
+    "TodoMVC: journeys > cancel an edit with Escape": {
+      "2e5b9951589e21ae": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 2,
+              "modifiers": null
+            },
+            "intent": "Double-click to start editing Buy milk",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.08166232638888889,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.3349826388888889
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 0,
+                "tag": "label",
+                "testIds": {
+                  "data-testid": "todo-title"
+                },
+                "text": "Buy milk"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('todo-title')",
+                  "expr": [
+                    {
+                      "id": "todo-title",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByText('Buy milk', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Buy milk"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "generic"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "value": "Buy cheese"
+            },
+            "intent": "Type new text in edit box",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.08276909722222223,
+                  "w": 0.3953125,
+                  "x": 0.31875,
+                  "y": 0.3349826388888889
+                },
+                "label": "Edit",
+                "name": "Edit",
+                "placeholder": null,
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('textbox', { name: 'Edit', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Edit",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Edit', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Edit"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Edit",
+              "role": "textbox"
+            },
+            "tool": "fill"
+          },
+          {
+            "args": {
+              "key": "Escape"
+            },
+            "intent": "Cancel edit",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.08276909722222223,
+                  "w": 0.3953125,
+                  "x": 0.31875,
+                  "y": 0.3349826388888889
+                },
+                "label": "Edit",
+                "name": "Edit",
+                "placeholder": null,
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('textbox', { name: 'Edit', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Edit",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Edit', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Edit"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Edit",
+              "role": "textbox"
+            },
+            "tool": "press"
+          }
+        ],
+        "instruction": "Start editing \"Buy milk\", type \"Buy cheese\" instead, then press Escape to cancel",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "pre": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "recordedWith": {
+          "at": "2026-10-12T15:34:11.959Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "c9687e2964d52349": {
+        "compiled": [
+          {
+            "args": [
+              "Buy milk"
+            ],
+            "expect": "toHaveText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.08166232638888889,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.3349826388888889
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 0,
+                "tag": "label",
+                "testIds": {
+                  "data-testid": "todo-title"
+                },
+                "text": "Buy milk"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('todo-title')",
+                  "expr": [
+                    {
+                      "id": "todo-title",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByText('Buy milk', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Buy milk"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "generic"
+            }
+          }
+        ],
+        "instruction": "The todo still says \"Buy milk\"",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-10-12T15:34:16.504Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "TodoMVC: journeys > complete everything at once, then undo it": {
+      "53f8e37e79ae8cd6": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Click mark all as complete",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "region"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": "toggle-all",
+                  "name": null,
+                  "type": "checkbox"
+                },
+                "box": {
+                  "h": 0.001388888888888889,
+                  "w": 0.00078125,
+                  "x": 0.28203125,
+                  "y": 0.3294270833333333
+                },
+                "label": "Mark all as complete",
+                "name": "❯Mark all as complete",
+                "placeholder": null,
+                "role": "checkbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('checkbox', { name: '❯Mark all as complete', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "❯Mark all as complete",
+                      "role": "checkbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Mark all as complete', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Mark all as complete"
+                    }
+                  ],
+                  "rung": "L3"
+                },
+                {
+                  "display": "locator('[id=\"toggle-all\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"toggle-all\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "❯Mark all as complete",
+              "role": "checkbox"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Mark all todos as complete with one click",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "pre": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "recordedWith": {
+          "at": "2026-10-12T15:34:03.638Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "6facce36e690b698": {
+        "actions": [
+          {
+            "args": {
+              "checked": false
+            },
+            "intent": "Uncheck mark all as complete",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "region"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": "toggle-all",
+                  "name": null,
+                  "type": "checkbox"
+                },
+                "box": {
+                  "h": 0.001388888888888889,
+                  "w": 0.00078125,
+                  "x": 0.28203125,
+                  "y": 0.3294270833333333
+                },
+                "label": "Mark all as complete",
+                "name": "❯Mark all as complete",
+                "placeholder": null,
+                "role": "checkbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('checkbox', { name: '❯Mark all as complete', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "❯Mark all as complete",
+                      "role": "checkbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Mark all as complete', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Mark all as complete"
+                    }
+                  ],
+                  "rung": "L3"
+                },
+                {
+                  "display": "locator('[id=\"toggle-all\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"toggle-all\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "❯Mark all as complete",
+              "role": "checkbox"
+            },
+            "tool": "set_checked"
+          }
+        ],
+        "instruction": "Undo that: mark them all as not complete again",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "pre": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "recordedWith": {
+          "at": "2026-10-12T15:34:11.081Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "TodoMVC: journeys > plan a week, finish some, tidy up, and it survives a reload": {
+      "16a88c77e514b4b4": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Clear completed todos",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "contentinfo"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.027777777777777776,
+                  "w": 0.079638671875,
+                  "x": 0.623486328125,
+                  "y": 0.7641276041666667
+                },
+                "label": null,
+                "name": "Clear completed",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Clear completed"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Clear completed', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Clear completed",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Clear completed', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Clear completed"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Clear completed",
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Clear the completed todos",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "pre": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "recordedWith": {
+          "at": "2026-10-12T15:39:22.940Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "1ae713d358a107b8": {
+        "compiled": null,
+        "instruction": "3 items are left",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-10-12T15:39:14.199Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "301db891dcd2fd7f": {
+        "actions": [
+          {
+            "args": {
+              "checked": true
+            },
+            "intent": "Check gym",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "checkbox"
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.03125,
+                  "x": 0.28515625,
+                  "y": 0.4310763888888889
+                },
+                "label": "Toggle Todo",
+                "name": "Toggle Todo",
+                "placeholder": null,
+                "role": "checkbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-testid=\"todo-item\"]').filter({ hasText: 'gym' }).getByRole('checkbox', { name: 'Toggle Todo', exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-item\"]"
+                    },
+                    {
+                      "hasText": "gym",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Toggle Todo",
+                      "role": "checkbox"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "locator('[data-testid=\"todo-item\"]').filter({ hasText: 'gym' }).getByLabel('Toggle Todo', { exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-item\"]"
+                    },
+                    {
+                      "hasText": "gym",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Toggle Todo"
+                    }
+                  ],
+                  "rung": "L5"
+                }
+              ],
+              "name": "Toggle Todo",
+              "role": "checkbox"
+            },
+            "tool": "set_checked"
+          },
+          {
+            "args": {
+              "checked": true
+            },
+            "intent": "Check dentist",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "checkbox"
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.03125,
+                  "x": 0.28515625,
+                  "y": 0.5141276041666667
+                },
+                "label": "Toggle Todo",
+                "name": "Toggle Todo",
+                "placeholder": null,
+                "role": "checkbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-testid=\"todo-item\"]').filter({ hasText: 'dentist' }).getByRole('checkbox', { name: 'Toggle Todo', exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-item\"]"
+                    },
+                    {
+                      "hasText": "dentist",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Toggle Todo",
+                      "role": "checkbox"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "locator('[data-testid=\"todo-item\"]').filter({ hasText: 'dentist' }).getByLabel('Toggle Todo', { exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-item\"]"
+                    },
+                    {
+                      "hasText": "dentist",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Toggle Todo"
+                    }
+                  ],
+                  "rung": "L5"
+                }
+              ],
+              "name": "Toggle Todo",
+              "role": "checkbox"
+            },
+            "tool": "set_checked"
+          }
+        ],
+        "instruction": "Mark \"gym\" and \"dentist\" as done",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "pre": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "recordedWith": {
+          "at": "2026-10-12T15:39:07.238Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "b21250683790dd71": {
+        "actions": [
+          {
+            "args": {
+              "submit": true,
+              "text": "groceries"
+            },
+            "intent": "Add todo",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "banner"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.09110243055555556,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.24249131944444444
+                },
+                "label": null,
+                "name": "What needs to be done?",
+                "placeholder": "What needs to be done?",
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('textbox', { name: 'What needs to be done?', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "What needs to be done?",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByPlaceholder('What needs to be done?', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByPlaceholder",
+                      "text": "What needs to be done?"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "What needs to be done?",
+              "role": "textbox"
+            },
+            "tool": "type"
+          },
+          {
+            "args": {
+              "submit": true,
+              "text": "gym"
+            },
+            "intent": "Add gym todo",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "banner"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.09110243055555556,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.24249131944444444
+                },
+                "label": null,
+                "name": "What needs to be done?",
+                "placeholder": "What needs to be done?",
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('textbox', { name: 'What needs to be done?', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "What needs to be done?",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByPlaceholder('What needs to be done?', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByPlaceholder",
+                      "text": "What needs to be done?"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "What needs to be done?",
+              "role": "textbox"
+            },
+            "tool": "type"
+          },
+          {
+            "args": {
+              "submit": true,
+              "text": "dentist"
+            },
+            "intent": "Add dentist todo",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "banner"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.09110243055555556,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.24249131944444444
+                },
+                "label": null,
+                "name": "What needs to be done?",
+                "placeholder": "What needs to be done?",
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('textbox', { name: 'What needs to be done?', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "What needs to be done?",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByPlaceholder('What needs to be done?', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByPlaceholder",
+                      "text": "What needs to be done?"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "What needs to be done?",
+              "role": "textbox"
+            },
+            "tool": "type"
+          },
+          {
+            "args": {
+              "submit": true,
+              "text": "call the bank"
+            },
+            "intent": "Add call the bank todo",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "banner"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.09110243055555556,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.24249131944444444
+                },
+                "label": null,
+                "name": "What needs to be done?",
+                "placeholder": "What needs to be done?",
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('textbox', { name: 'What needs to be done?', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "What needs to be done?",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByPlaceholder('What needs to be done?', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByPlaceholder",
+                      "text": "What needs to be done?"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "What needs to be done?",
+              "role": "textbox"
+            },
+            "tool": "type"
+          },
+          {
+            "args": {
+              "submit": true,
+              "text": "fix the bike"
+            },
+            "intent": "Add fix the bike todo",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "banner"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.09110243055555556,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.24249131944444444
+                },
+                "label": null,
+                "name": "What needs to be done?",
+                "placeholder": "What needs to be done?",
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('textbox', { name: 'What needs to be done?', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "What needs to be done?",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByPlaceholder('What needs to be done?', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByPlaceholder",
+                      "text": "What needs to be done?"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "What needs to be done?",
+              "role": "textbox"
+            },
+            "tool": "type"
+          }
+        ],
+        "instruction": "Add five todos for the week: groceries, gym, dentist, call the bank, fix the bike",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "pre": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "recordedWith": {
+          "at": "2026-10-12T15:38:54.234Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "cd3b6e63319839ba": {
+        "compiled": null,
+        "instruction": "After the reload the same three todos are still there",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-10-12T15:39:28.150Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "TodoMVC: journeys > read the list back": {
+      "74d8b117e0ccab98": {
+        "instruction": "every todo with whether it is completed, in order, and the number of items left",
+        "kind": "extract",
+        "recordedWith": {
+          "at": "2026-10-12T15:34:00.659Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "sources": [],
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "TodoMVC: short tasks > add a todo": {
+      "464205b84efbb7df": {
+        "compiled": null,
+        "instruction": "\"Buy milk\" is in the list and 1 item is left",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-10-12T15:34:07.848Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "d5a5cdb89a4f7e3f": {
+        "actions": [
+          {
+            "args": {
+              "submit": true,
+              "text": "Buy milk"
+            },
+            "intent": "Add todo Buy milk",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "banner"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.09110243055555556,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.24249131944444444
+                },
+                "label": null,
+                "name": "What needs to be done?",
+                "placeholder": "What needs to be done?",
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('textbox', { name: 'What needs to be done?', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "What needs to be done?",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByPlaceholder('What needs to be done?', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByPlaceholder",
+                      "text": "What needs to be done?"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "What needs to be done?",
+              "role": "textbox"
+            },
+            "tool": "type"
+          }
+        ],
+        "instruction": "Add a todo \"Buy milk\"",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "pre": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "recordedWith": {
+          "at": "2026-10-12T15:34:03.741Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "TodoMVC: short tasks > add several todos in one step": {
+      "1bce7709f9b81dd4": {
+        "actions": [
+          {
+            "args": {
+              "submit": true,
+              "text": "{{data.first}}"
+            },
+            "intent": "Add first todo",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "banner"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.09110243055555556,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.24249131944444444
+                },
+                "label": null,
+                "name": "What needs to be done?",
+                "placeholder": "What needs to be done?",
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('textbox', { name: 'What needs to be done?', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "What needs to be done?",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByPlaceholder('What needs to be done?', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByPlaceholder",
+                      "text": "What needs to be done?"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "What needs to be done?",
+              "role": "textbox"
+            },
+            "tool": "type"
+          },
+          {
+            "args": {
+              "submit": true,
+              "text": "{{data.second}}"
+            },
+            "intent": "Add second todo",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "banner"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.09110243055555556,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.24249131944444444
+                },
+                "label": null,
+                "name": "What needs to be done?",
+                "placeholder": "What needs to be done?",
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('textbox', { name: 'What needs to be done?', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "What needs to be done?",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByPlaceholder('What needs to be done?', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByPlaceholder",
+                      "text": "What needs to be done?"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "What needs to be done?",
+              "role": "textbox"
+            },
+            "tool": "type"
+          },
+          {
+            "args": {
+              "submit": true,
+              "text": "{{data.third}}"
+            },
+            "intent": "Add third todo",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "banner"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.09110243055555556,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.24249131944444444
+                },
+                "label": null,
+                "name": "What needs to be done?",
+                "placeholder": "What needs to be done?",
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('textbox', { name: 'What needs to be done?', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "What needs to be done?",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByPlaceholder('What needs to be done?', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByPlaceholder",
+                      "text": "What needs to be done?"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "What needs to be done?",
+              "role": "textbox"
+            },
+            "tool": "type"
+          }
+        ],
+        "instruction": "Add the first, second and third todos from the data, in that order",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "pre": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "recordedWith": {
+          "at": "2026-10-12T15:38:24.908Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "TodoMVC: short tasks > an empty todo is not added": {
+      "d761b10c432d9954": {
+        "actions": [
+          {
+            "args": {
+              "key": "Enter"
+            },
+            "intent": "Press Enter in empty input",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "banner"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.09110243055555556,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.24249131944444444
+                },
+                "label": null,
+                "name": "What needs to be done?",
+                "placeholder": "What needs to be done?",
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('textbox', { name: 'What needs to be done?', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "What needs to be done?",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByPlaceholder('What needs to be done?', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByPlaceholder",
+                      "text": "What needs to be done?"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "What needs to be done?",
+              "role": "textbox"
+            },
+            "tool": "press"
+          }
+        ],
+        "instruction": "Try to add a todo with no text: press Enter in the empty input",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "pre": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "recordedWith": {
+          "at": "2026-10-12T15:34:05.846Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "TodoMVC: short tasks > complete a todo": {
+      "53e8408f5c051156": {
+        "actions": [
+          {
+            "args": {
+              "checked": true
+            },
+            "intent": "Mark Walk the dog done",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "checkbox"
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.03125,
+                  "x": 0.28515625,
+                  "y": 0.4310763888888889
+                },
+                "label": "Toggle Todo",
+                "name": "Toggle Todo",
+                "placeholder": null,
+                "role": "checkbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-testid=\"todo-item\"]').filter({ hasText: 'Walk the dog' }).getByRole('checkbox', { name: 'Toggle Todo', exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-item\"]"
+                    },
+                    {
+                      "hasText": "Walk the dog",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Toggle Todo",
+                      "role": "checkbox"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "locator('[data-testid=\"todo-item\"]').filter({ hasText: 'Walk the dog' }).getByLabel('Toggle Todo', { exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-item\"]"
+                    },
+                    {
+                      "hasText": "Walk the dog",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Toggle Todo"
+                    }
+                  ],
+                  "rung": "L5"
+                }
+              ],
+              "name": "Toggle Todo",
+              "role": "checkbox"
+            },
+            "tool": "set_checked"
+          }
+        ],
+        "instruction": "Mark \"Walk the dog\" as done",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "pre": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "recordedWith": {
+          "at": "2026-10-12T15:34:04.196Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "de48156d577eec58": {
+        "compiled": [
+          {
+            "args": [],
+            "expect": "toBeVisible",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "checkbox"
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.03125,
+                  "x": 0.28515625,
+                  "y": 0.4310763888888889
+                },
+                "label": "Toggle Todo",
+                "name": "Toggle Todo",
+                "placeholder": null,
+                "role": "checkbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-testid=\"todo-item\"]').filter({ hasText: 'Walk the dog' }).getByRole('checkbox', { name: 'Toggle Todo', exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-item\"]"
+                    },
+                    {
+                      "hasText": "Walk the dog",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Toggle Todo",
+                      "role": "checkbox"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "locator('[data-testid=\"todo-item\"]').filter({ hasText: 'Walk the dog' }).getByLabel('Toggle Todo', { exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-item\"]"
+                    },
+                    {
+                      "hasText": "Walk the dog",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Toggle Todo"
+                    }
+                  ],
+                  "rung": "L5"
+                }
+              ],
+              "name": "Toggle Todo",
+              "role": "checkbox"
+            }
+          }
+        ],
+        "instruction": "\"Walk the dog\" is shown as completed and \"Buy milk\" is not",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-10-12T15:34:10.496Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "TodoMVC: short tasks > delete a todo (the × only shows on hover)": {
+      "9d6678316caed11c": {
+        "actions": [
+          {
+            "args": {},
+            "intent": "Reveal delete button",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.08305121527777778,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.41803385416666666
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "listitem",
+                "siblingIndex": 1,
+                "tag": "li",
+                "testIds": {
+                  "data-testid": "todo-item"
+                },
+                "text": "Walk the dog"
+              },
+              "locators": [],
+              "role": "listitem"
+            },
+            "tool": "hover"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Click Delete for Walk the dog",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.03125,
+                  "x": 0.67578125,
+                  "y": 0.42886284722222223
+                },
+                "label": "Delete",
+                "name": "Delete",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Delete', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Delete",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Delete",
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Delete \"Walk the dog\"",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "pre": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "recordedWith": {
+          "at": "2026-10-12T15:34:08.044Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "TodoMVC: short tasks > edit a todo (double-click)": {
+      "156d0f6c2d90923f": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 2,
+              "modifiers": null
+            },
+            "intent": "Enter edit mode on todo",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.08166232638888889,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.3349826388888889
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 0,
+                "tag": "label",
+                "testIds": {
+                  "data-testid": "todo-title"
+                },
+                "text": "Buy milk"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('todo-title')",
+                  "expr": [
+                    {
+                      "id": "todo-title",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByText('Buy milk', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Buy milk"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "generic"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "value": "Buy oat milk"
+            },
+            "intent": "Edit todo text",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.08276909722222223,
+                  "w": 0.3953125,
+                  "x": 0.31875,
+                  "y": 0.3349826388888889
+                },
+                "label": "Edit",
+                "name": "Edit",
+                "placeholder": null,
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('textbox', { name: 'Edit', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Edit",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Edit', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Edit"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Edit",
+              "role": "textbox"
+            },
+            "tool": "fill"
+          },
+          {
+            "args": {
+              "key": "Enter"
+            },
+            "intent": "Commit edit",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.08276909722222223,
+                  "w": 0.3953125,
+                  "x": 0.31875,
+                  "y": 0.3349826388888889
+                },
+                "label": "Edit",
+                "name": "Edit",
+                "placeholder": null,
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('textbox', { name: 'Edit', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Edit",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Edit', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Edit"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Edit",
+              "role": "textbox"
+            },
+            "tool": "press"
+          }
+        ],
+        "instruction": "Change \"Buy milk\" to \"Buy oat milk\"",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "pre": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "recordedWith": {
+          "at": "2026-10-12T15:34:11.920Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "TodoMVC: short tasks > filter active and completed": {
+      "ea1f4899db31850e": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Click Active filter",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "contentinfo"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.04228515625,
+                  "x": 0.45848388671875,
+                  "y": 0.4277560763888889
+                },
+                "label": null,
+                "name": "Active",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Active"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('link', { name: 'Active', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Active",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Active', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Active"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Active",
+              "role": "link"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Now show only the active ones",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "pre": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "recordedWith": {
+          "at": "2026-10-12T15:34:16.197Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "fa585b0765db7113": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open Completed filter",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "contentinfo"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.06539306640625,
+                  "x": 0.50849609375,
+                  "y": 0.5938585069444444
+                },
+                "label": null,
+                "name": "Completed",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Completed"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('link', { name: 'Completed', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Completed",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Completed', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Completed"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Completed",
+              "role": "link"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Show only the completed todos",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "pre": {
+          "urlPattern": "https://demo.playwright.dev/todomvc/"
+        },
+        "recordedWith": {
+          "at": "2026-10-12T15:34:04.049Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    }
+  },
+  "version": 1
+}

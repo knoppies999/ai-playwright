@@ -168,6 +168,20 @@ describe('ai.act', () => {
     expect(error.reason).toMatch(/no progress/);
   });
 
+  it('keeps going when a repeated action changes the page each time (Add five times, add todos one by one)', async () => {
+    const page = await open(
+      `<input aria-label="New todo" onkeydown="if (event.key === 'Enter' && this.value) { const li = document.createElement('li'); li.textContent = this.value; document.getElementById('list').append(li); this.value = ''; }">
+       <button onclick="const li = document.createElement('li'); li.textContent = 'item ' + document.querySelectorAll('li').length; document.getElementById('list').append(li)">Add</button>
+       <ul id="list"></ul>`,
+    );
+    const add = pick('button "Add"', 'click', { button: null, modifiers: null, clickCount: null });
+    const type = (text: string) => pick('textbox "New todo"', 'type', { text, submit: true });
+    const provider = new FakeProvider([add, add, add, add, type('groceries'), type('gym'), type('dentist'), done()]);
+    const result = await makeAi(page, provider).ai.act('Add four items, then three todos');
+    expect(result.actions).toHaveLength(7);
+    expect(await page.locator('li').count()).toBe(7);
+  });
+
   it('stops at maxActions', async () => {
     const page = await openApp();
     const provider = new FakeProvider([
