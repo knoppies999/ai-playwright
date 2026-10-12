@@ -1,0 +1,171 @@
+{
+  "tests": {
+    "The Internet: short tasks > checkboxes": {
+      "32cdc9a2b8ca4b4a": {
+        "actions": [
+          {
+            "args": {
+              "checked": true
+            },
+            "intent": "Tick checkbox 1",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "checkbox"
+                },
+                "box": {
+                  "h": 0.018055555555555554,
+                  "w": 0.01015625,
+                  "x": 0.009375,
+                  "y": 0.08671875
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "checkbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [],
+              "role": "checkbox"
+            },
+            "tool": "set_checked"
+          },
+          {
+            "args": {
+              "checked": false
+            },
+            "intent": "Untick checkbox 2",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "checkbox"
+                },
+                "box": {
+                  "h": 0.018055555555555554,
+                  "w": 0.01015625,
+                  "x": 0.009375,
+                  "y": 0.11449652777777777
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "checkbox",
+                "siblingIndex": 1,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [],
+              "role": "checkbox"
+            },
+            "tool": "set_checked"
+          }
+        ],
+        "instruction": "Tick checkbox 1 and untick checkbox 2",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://the-internet.herokuapp.com/checkboxes"
+        },
+        "pre": {
+          "urlPattern": "https://the-internet.herokuapp.com/checkboxes"
+        },
+        "recordedWith": {
+          "at": "2026-10-12T15:29:16.162Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "The Internet: short tasks > dropdown": {
+      "b7985b5add311632": {
+        "actions": [
+          {
+            "args": {
+              "values": [
+                "Option 2"
+              ]
+            },
+            "intent": "Select Option 2",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": "dropdown",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.029166666666666667,
+                  "w": 0.7578125,
+                  "x": 0.12109375,
+                  "y": 0.12317708333333334
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "combobox",
+                "siblingIndex": 0,
+                "tag": "select",
+                "testIds": {},
+                "text": "Please select an option Option 1 Option 2"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"dropdown\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"dropdown\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "role": "combobox"
+            },
+            "tool": "select_option"
+          }
+        ],
+        "instruction": "Choose \"Option 2\" in the dropdown",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://the-internet.herokuapp.com/dropdown"
+        },
+        "pre": {
+          "urlPattern": "https://the-internet.herokuapp.com/dropdown"
+        },
+        "recordedWith": {
+          "at": "2026-10-12T15:29:59.515Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    }
+  },
+  "version": 1
+}

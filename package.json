@@ -20,7 +20,9 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && npm run typecheck --workspaces --if-present",
     "check": "npm run lint && npm run typecheck && npm test",
     "demo-app": "node examples/demo-app/server.mjs",
-    "e2e:toolshop": "npm run build && playwright test --project toolshop --workers=1"
+    "e2e:toolshop": "npm run build && playwright test --project toolshop --workers=1",
+    "e2e:the-internet": "npm run build && playwright test --project the-internet --workers=1",
+    "e2e:todomvc": "npm run build && playwright test --project todomvc --workers=1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

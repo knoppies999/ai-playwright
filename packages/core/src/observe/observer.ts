@@ -12,6 +12,7 @@ export interface Observation {
   notices: string[];
   /** Pruned, masked snapshot text the model sees. */
   snapshot: string;
+  /** Hash of the snapshot text without refs: the same page state gives the same hash. */
   snapshotHash: string;
   /** Refs the model may use. `expand` adds more. */
   refs: Set<string>;
@@ -115,7 +116,10 @@ export class Observer {
       dialogs: this.state.dialogs.map(({ type, message }) => ({ type, message })),
       notices: blocked ? [] : await this.state.drainNotices(),
       snapshot: pruned.text,
-      snapshotHash: createHash('sha1').update(pruned.text).digest('hex'),
+      // Without the refs: a re-rendered element gets a new ref, but the page hasn't changed for the user.
+      snapshotHash: createHash('sha1')
+        .update(pruned.text.replace(/ ?\[ref=[^\]]+\]/g, ''))
+        .digest('hex'),
       refs: new Set(pruned.refs),
       truncated: pruned.truncated,
       tree,
