@@ -45,7 +45,8 @@ export function toReplayCall(action: PlanAction): {
   if (action.target) {
     targets.set('@t', action.target);
     args.ref = '@t';
-  } else if (['press', 'scroll'].includes(action.tool)) {
+  } else if (action.tool in TOOL_SCHEMAS && 'ref' in TOOL_SCHEMAS[action.tool as keyof typeof TOOL_SCHEMAS].shape) {
+    // Recorded without a target (press on the page, wait_for text): plans never store refs, so put back null.
     args.ref = null;
   }
   if (action.tool === 'fill_form' && Array.isArray(args.fields)) {
@@ -71,7 +72,14 @@ export interface HealedTarget {
 
 export type ReplayResult =
   | { ok: true; records: ActionRecord[]; healed: HealedTarget[] }
-  | { ok: false; records: ActionRecord[]; reason: string; failedAt: number; target?: PlanTarget };
+  | {
+      ok: false;
+      records: ActionRecord[];
+      healed: HealedTarget[];
+      reason: string;
+      failedAt: number;
+      target?: PlanTarget;
+    };
 
 export interface ReplayDeps {
   page: () => Page;
@@ -128,6 +136,7 @@ export async function replayAct(plan: StepPlan, deps: ReplayDeps): Promise<Repla
     return {
       ok: false,
       records,
+      healed,
       failedAt: 0,
       reason: `The page is not where the plan starts (${plan.pre.urlPattern}).`,
     };
@@ -137,7 +146,7 @@ export async function replayAct(plan: StepPlan, deps: ReplayDeps): Promise<Repla
     const { tool, args, targets } = toReplayCall(action);
     const validated = validateCall({ tool, args }, offered, deps.codeTools);
     if (!validated.ok)
-      return { ok: false, records, failedAt: i, reason: `Stored action is invalid: ${validated.error}` };
+      return { ok: false, records, healed, failedAt: i, reason: `Stored action is invalid: ${validated.error}` };
     let missing: PlanTarget | undefined;
     const record = await deps.executor.execute(validated.call, EMPTY_OBS(deps.page().url()), async (ref) => {
       const target = targets.get(ref);
@@ -163,7 +172,8 @@ export async function replayAct(plan: StepPlan, deps: ReplayDeps): Promise<Repla
     });
     records.push(record);
     deps.events.emit({ type: 'action', stepId: deps.stepId, record });
-    if (record.result !== 'ok') return { ok: false, records, failedAt: i, reason: record.result, target: missing };
+    if (record.result !== 'ok')
+      return { ok: false, records, healed, failedAt: i, reason: record.result, target: missing };
   }
   if (plan.post) {
     const deadline = Date.now() + deps.waitMs;
@@ -172,6 +182,7 @@ export async function replayAct(plan: StepPlan, deps: ReplayDeps): Promise<Repla
         return {
           ok: false,
           records,
+          healed,
           failedAt: records.length,
           reason: `After replay the page is at ${deps.page().url()}, not ${plan.post.urlPattern}.`,
         };

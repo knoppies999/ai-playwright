@@ -100,6 +100,9 @@ describe('assert compiles to deterministic checks', () => {
       store,
     ).assert('"Buy milk" is shown as completed');
     expect(compiledOf(store)).toBeNull();
+    expect(Object.values(store.file.tests[TEST]!)[0]!.note).toBe(
+      'check 1 (toBeVisible): a visible checkbox says nothing about its state',
+    );
   });
 
   it('is all or nothing: one clause that cannot compile leaves the step AI-judged', async () => {
@@ -110,6 +113,9 @@ describe('assert compiles to deterministic checks', () => {
       store,
     ).assert('"Buy milk" is done and something else');
     expect(compiledOf(store)).toBeNull();
+    expect(Object.values(store.file.tests[TEST]!)[0]!.note).toBe(
+      'check 2 (toHaveText ["x"]): ref "e999" is not in the snapshot',
+    );
   });
 
   it('checks text in an element without a locator on its nearest locatable ancestor', async () => {
@@ -144,6 +150,34 @@ describe('assert compiles to deterministic checks', () => {
     await page.evaluate(() => document.querySelector('li')!.remove());
     const rejudge = new FakeProvider([], [{ pass: false, reason: 'two', evidence: [], checks: [] }]);
     await expect(makeAi(page, rejudge, store).assert('There are 3 todos', { timeout: 200 })).rejects.toThrow();
+  });
+
+  it('counts same-name buttons inside a plain wrapper, not every button', async () => {
+    const store = new MemoryPlanStore();
+    const page = await open(
+      '<main id="content"><button>Add Element</button><div id="elements"><button>Delete</button><button>Delete</button><button>Delete</button></div></main>',
+    );
+    await makeAi(
+      page,
+      judge((p) => [check('toHaveCount', refOf(p, 'button "Delete"'), ['3'])]),
+      store,
+    ).assert('Exactly three Delete buttons are left');
+    expect(compiledOf(store)![0]!.target!.locators[0]!.display).toBe(
+      "locator('[id=\"elements\"]').getByRole('button', { name: 'Delete', exact: true })",
+    );
+  });
+
+  it('compiles a text check with no ref to the element that shows the text', async () => {
+    const store = new MemoryPlanStore();
+    const page = await open('<div id="flash" class="flash error">Your password is invalid! <a href="#">×</a></div>');
+    await makeAi(
+      page,
+      judge(() => [check('toContainText', null, ['Your password is invalid!'])]),
+      store,
+    ).assert('An error says the password is invalid');
+    const [compiled] = compiledOf(store)!;
+    expect(compiled).toMatchObject({ expect: 'toContainText', args: ['Your password is invalid!'] });
+    expect(compiled!.target!.locators[0]!.display).toBe('locator(\'[id="flash"]\')');
   });
 
   it('compiles enabled and disabled checks', async () => {
@@ -239,6 +273,7 @@ describe('extract replay', () => {
     ai.events.on((e) => e.type === 'cache' && events.push(e.outcome));
     await expect(ai.extract('items left', z.number())).resolves.toBe(2);
     expect(JSON.stringify(store.file)).toBe(before);
+    expect(Object.values(store.file.tests[TEST]!)[0]!.note).toBe('the model gave no sources');
     expect(events).not.toContain('broken');
   });
 });

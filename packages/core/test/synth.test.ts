@@ -58,6 +58,19 @@ describe('synthesizeLocators', () => {
     expect(found[0]).toBe("L5 locator('[data-testid=\"todo-item\"]').filter({ hasText: 'Walk the dog' })");
   });
 
+  it('falls back to a positional L7 locator inside the nearest stable ancestor', async () => {
+    const page = await open(
+      `<form id="checkboxes"><input type="checkbox"> checkbox 1<br><input type="checkbox" checked> checkbox 2</form>`,
+    );
+    const found = await synth(page, page.getByRole('checkbox').nth(1), { role: 'checkbox' });
+    expect(found).toEqual(["L7 locator('[id=\"checkboxes\"]').getByRole('checkbox').nth(1)"]);
+  });
+
+  it('finds nothing when there is no stable ancestor to scope a position to', async () => {
+    const page = await open(`<div><input type="checkbox"><input type="checkbox"></div>`);
+    expect(await synth(page, page.getByRole('checkbox').nth(1), { role: 'checkbox' })).toEqual([]);
+  });
+
   it('anchors repeated buttons in table rows by row text', async () => {
     const page = await open(html('shop.html'));
     const target = page.getByRole('button', { name: 'Edit' }).nth(1);
@@ -133,5 +146,20 @@ describe('generated-value filter', () => {
   it('treats short static text as stable', () => {
     expect(isStableText('Forgot password?')).toBe(true);
     expect(isStableText('$29.99')).toBe(false);
+  });
+});
+
+describe('L7 in long lists', () => {
+  it('finds a cell deep in a table by its exact position', async () => {
+    const rows = Array.from(
+      { length: 6 },
+      (_, r) => `<tr>${[1, 2, 3, 4, 5].map((c) => `<td>$${r * 10 + c}.00</td>`).join('')}</tr>`,
+    );
+    const page = await open(
+      `<table id="table1"><tbody>${rows.join('')}</tbody></table><table id="table2"><tbody>${rows.join('')}</tbody></table>`,
+    );
+    const target = page.locator('#table1 td').nth(27);
+    const found = await synth(page, target, { role: 'cell', name: '$53.00' });
+    expect(found).toEqual(["L7 locator('[id=\"table1\"]').locator('td').nth(27)"]);
   });
 });

@@ -111,7 +111,7 @@ test.describe('The Internet: journeys', { tag: '@llm' }, () => {
     await ai.assert('A message says "It\'s gone!"');
     await expect(page.locator('#checkbox')).toHaveCount(0);
     await ai.act('Add the checkbox back and tick it');
-    await expect(page.locator('#checkbox input')).toBeChecked();
+    await expect(page.getByRole('checkbox')).toBeChecked();
     await ai.act('Enable the text field, then type "unlocked" into it');
     await expect(page.locator('#input-example input')).toHaveValue('unlocked');
     await ai.act('Disable the text field again');

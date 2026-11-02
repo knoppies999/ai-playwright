@@ -28,6 +28,20 @@ export interface PlanStats {
   aiOnlyAsserts: number;
   /** Extracts without replayable sources (need the AI on replay). */
   aiOnlyExtracts: number;
+  /** Targets with no stored locator: the step heals (fingerprint or AI) on every replay. */
+  noLocator: number;
+  /** Targets found only by position (L7): replay works, but a reordered page breaks it. */
+  positional: number;
+}
+
+/** Every element target a plan stores: action targets, form fields, checks, extract sources, locate. */
+function targetsOf(step: StepPlan): PlanTarget[] {
+  return [
+    ...(step.actions ?? []).flatMap((a) => [...(a.target ? [a.target] : []), ...(a.targets ?? [])]),
+    ...(step.compiled ?? []).flatMap((c) => (c.target ? [c.target] : [])),
+    ...(step.sources ?? []).map((s) => s.target),
+    ...(step.target ? [step.target] : []),
+  ];
 }
 
 export function planStats(path: string, root: string): PlanStats {
@@ -36,12 +50,18 @@ export function planStats(path: string, root: string): PlanStats {
   let heals = 0;
   let aiOnlyAsserts = 0;
   let aiOnlyExtracts = 0;
+  let noLocator = 0;
+  let positional = 0;
   for (const test of Object.values(file.tests)) {
     for (const step of Object.values(test)) {
       steps[step.kind] = (steps[step.kind] ?? 0) + 1;
       heals += step.stats.heals;
       if (step.kind === 'assert' && !step.compiled?.length) aiOnlyAsserts++;
       if (step.kind === 'extract' && !step.sources?.length) aiOnlyExtracts++;
+      for (const t of targetsOf(step)) {
+        if (!t.locators.length) noLocator++;
+        else if (t.locators[0]!.rung === 'L7') positional++;
+      }
     }
   }
   return {
@@ -51,6 +71,8 @@ export function planStats(path: string, root: string): PlanStats {
     heals,
     aiOnlyAsserts,
     aiOnlyExtracts,
+    noLocator,
+    positional,
   };
 }
 
@@ -72,7 +94,10 @@ function describeStep(step: StepPlan): string[] {
     lines.push(
       `  check: ${c.not ? 'not.' : ''}${c.expect}(${c.target?.locators[0]?.display ?? 'page'}) ${JSON.stringify(c.args)}`,
     );
-  if (step.kind === 'assert' && !step.compiled?.length) lines.push('  check: none (judged by AI on every run)');
+  if (step.kind === 'assert' && !step.compiled?.length)
+    lines.push(`  check: none (judged by AI on every run)${step.note ? `: ${step.note}` : ''}`);
+  if (step.kind === 'extract' && !step.sources?.length)
+    lines.push(`  sources: none (read by AI on every run)${step.note ? `: ${step.note}` : ''}`);
   for (const s of step.sources ?? [])
     lines.push(`  source ${s.path || '(value)'}: ${s.target.locators[0]?.display ?? 'no locator'}`);
   if (step.target) lines.push(`  → ${step.target.locators[0]?.display ?? 'no locator'}`);
@@ -133,7 +158,9 @@ export function runCacheCommand(args: string[], root = process.cwd()): number {
           .map(([k, n]) => `${n} ${k}`)
           .join(', ');
         console.log(
-          `${r.file}: ${r.tests} tests, ${steps}; ${r.heals} heals; AI on replay: ${r.aiOnlyAsserts} asserts, ${r.aiOnlyExtracts} extracts`,
+          `${r.file}: ${r.tests} tests, ${steps}; ${r.heals} heals; AI on replay: ${r.aiOnlyAsserts} asserts, ${r.aiOnlyExtracts} extracts` +
+            (r.noLocator ? `; ${r.noLocator} targets without a locator` : '') +
+            (r.positional ? `; ${r.positional} positional (L7)` : ''),
         );
       }
       return 0;

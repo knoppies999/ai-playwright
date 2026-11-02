@@ -494,11 +494,75 @@
     },
     "SauceDemo usability > 11 reset app state": {
       "7d2f1e1bc521bb97": {
-        "compiled": null,
+        "compiled": [
+          {
+            "args": [
+              ""
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "banner"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.03125,
+                  "x": 0.953125,
+                  "y": 0.013888888888888888
+                },
+                "label": "Cart, empty",
+                "name": "Cart, empty",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "shopping-cart-link"
+                },
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('shopping-cart-link')",
+                  "expr": [
+                    {
+                      "id": "shopping-cart-link",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('button', { name: 'Cart, empty', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Cart, empty",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Cart, empty",
+              "role": "button"
+            }
+          }
+        ],
         "instruction": "The shopping cart shows no item count",
         "kind": "assert",
         "recordedWith": {
-          "at": "2026-10-09T21:08:41.038Z",
+          "at": "2026-11-02T16:52:42.077Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },

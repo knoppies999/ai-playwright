@@ -6,7 +6,7 @@ import { buildLocator, type LocatorExpr } from './expr.js';
 import { DEFAULT_REJECT_ID_PATTERNS, isGeneratedId, isStableText } from './generated.js';
 import { isConfiguredTestIdAttribute, isRejectedTestIdValue, looksLikeTestIdAttribute } from './test-ids.js';
 
-export type Rung = 'L1' | 'L2' | 'L3' | 'L4' | 'L5' | 'L6';
+export type Rung = 'L1' | 'L2' | 'L3' | 'L4' | 'L5' | 'L6' | 'L7';
 
 export interface LocatorCandidate {
   rung: Rung;
@@ -52,6 +52,8 @@ interface ElementFacts {
   items: { selector: string; anchors: string[] }[];
   /** The element itself when it is a repeated item (a todo row, a product card), with its unique text lines. */
   self: { selector: string; anchors: string[] } | null;
+  /** Ancestors (closest first) that could scope a structural L7 locator: their test ids and id. */
+  scopes: { testIds: Attr[]; id: string | null; tagIndex: number }[];
 }
 
 /** Runs in the page. Must stay self-contained (it is serialised). */
@@ -96,6 +98,13 @@ function gatherFacts(el: Element, args: { marker: string; token: string; testIdN
     else items.push({ selector, anchors: anchors.slice(0, 3) });
   }
 
+  const scopes: ElementFacts['scopes'] = [];
+  for (let a = el.parentElement, depth = 0; a && depth < 6 && scopes.length < 3; a = a.parentElement, depth++) {
+    const tagIndex = Array.from(a.querySelectorAll(el.tagName.toLowerCase())).indexOf(el);
+    const scope = { testIds: testIdsOf(a), id: a.getAttribute('id'), tagIndex };
+    if (scope.testIds.length || scope.id) scopes.push(scope);
+  }
+
   const input = el as HTMLInputElement;
   const labelledBy = el.getAttribute('aria-labelledby');
   const label =
@@ -119,6 +128,7 @@ function gatherFacts(el: Element, args: { marker: string; token: string; testIdN
     testIds: testIdsOf(el),
     items,
     self,
+    scopes,
   };
 }
 
@@ -247,6 +257,52 @@ export async function synthesizeLocators(page: Page, target: Locator, opts: Synt
           const full = [...prefix, ...t.expr];
           found.push({ rung: t.rung, expr: full, display: buildLocator(page, full).toString() });
           break; // one verified variant per base is enough
+        }
+      }
+    }
+    // L7, last resort (docs/12 §3): the n-th element of its role (or tag) inside the nearest stable ancestor.
+    // Positional, so fragile, but it replays; without it the step goes to the AI on every run.
+    if (!found.length) {
+      const scopes = facts.scopes.flatMap((sc) =>
+        [
+          ...sc.testIds
+            .filter((t) => !isRejectedTestIdValue(t.value, opts.rejectTestIdValues))
+            .map((t) => css(t.attr, t.value)),
+          ...(sc.id && !isGeneratedId(sc.id, opts.rejectIdPatterns ?? DEFAULT_REJECT_ID_PATTERNS)
+            ? [css('id', sc.id)]
+            : []),
+        ].map((selector) => ({ selector, tagIndex: sc.tagIndex })),
+      );
+      const byRole = opts.role && !NO_ROLE_LOCATOR.has(opts.role);
+      for (const scope of scopes) {
+        let hit: LocatorExpr | undefined;
+        // Readable first: the n-th of its role. Probed, so only for short lists.
+        if (byRole) {
+          const all: LocatorExpr = [
+            { m: 'locator', selector: scope.selector },
+            { m: 'getByRole', role: opts.role! },
+          ];
+          const n = await buildLocator(page, [...prefix, ...all])
+            .count()
+            .catch(() => 0);
+          for (let i = 0; i < Math.min(n, 12) && !hit; i++) {
+            const expr: LocatorExpr = [...all, { m: 'nth', index: i }];
+            if (await isTarget(expr)) hit = expr;
+          }
+        }
+        // Otherwise the n-th of its tag, with the index computed in the page (a cell deep in a table).
+        if (!hit && scope.tagIndex >= 0) {
+          const expr: LocatorExpr = [
+            { m: 'locator', selector: scope.selector },
+            { m: 'locator', selector: facts.tag },
+            { m: 'nth', index: scope.tagIndex },
+          ];
+          if (await isTarget(expr)) hit = expr;
+        }
+        if (hit) {
+          const full = [...prefix, ...hit];
+          found.push({ rung: 'L7', expr: full, display: buildLocator(page, full).toString() });
+          break;
         }
       }
     }

@@ -124,15 +124,22 @@ describe('plan cache', () => {
       const result = await login(ai);
       expect(result.source).toBe('healed');
       expect(provider.decisionRequests[0]!.context).toContain('HEALING: a previously recorded plan');
+      // The two fills replayed before the click broke: the model is told so, and the healed plan keeps them.
+      expect(provider.decisionRequests[0]!.context).toContain(
+        'Already done by the replay: fill textbox "Username", then fill textbox "Password".',
+      );
       await expect(page.locator('#welcome').isVisible()).resolves.toBe(true);
       expect(events.find((e) => e.type === 'heal')).toMatchObject({ source: 'ai', policy: 'accept' });
 
       const healed = Object.values(store.file.tests[TEST]!)[0]!;
       expect(healed.stats.heals).toBe(1);
       expect(healed.history).toHaveLength(1);
-      // The healed plan replays on variant B with no AI.
-      const replayed = await login(makeAi(await openApp(variantB), new FakeProvider(), store).ai);
+      expect(healed.actions!.map((a) => a.tool)).toEqual(['fill', 'fill', 'click']);
+      // The healed plan replays on variant B with no AI, and really logs in.
+      const pageB = await openApp(variantB);
+      const replayed = await login(makeAi(pageB, new FakeProvider(), store).ai);
       expect(replayed.source).toBe('cache');
+      await expect(pageB.locator('#welcome').isVisible()).resolves.toBe(true);
     });
 
     it('report policy leaves the committed plan alone and writes the healed one aside', async () => {

@@ -86,6 +86,8 @@ const StepPlanBase = z.strictObject({
   sources: z.array(z.strictObject({ path: z.string(), target: PlanTargetSchema })).optional(),
   /** locate */
   target: PlanTargetSchema.optional(),
+  /** assert/extract that can't replay without AI: why, for `aipw cache show`. */
+  note: z.string().optional(),
   stats: z.strictObject({ heals: z.number().int(), lastHealAt: z.string().optional() }),
 });
 
