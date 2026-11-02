@@ -10,3 +10,4 @@ blob-report/
 !.env.example
 spikes/out/
 *.tsbuildinfo
+dist-packages/

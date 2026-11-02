@@ -68,6 +68,14 @@ describe('aipw cache', () => {
     );
   });
 
+  it('lists steps in the order they appear in the spec', () => {
+    const source = "await ai.assert('Saved');\nawait ai.act('Save');";
+    const lines = showPlans(file, 'create', source).split('\n');
+    expect(lines.findIndex((l) => l.includes('assert: Saved'))).toBeLessThan(
+      lines.findIndex((l) => l.includes('act: Save')),
+    );
+  });
+
   it('prunes tests that no longer exist', () => {
     const { file: pruned, removed } = prunePlans(file, new Set(['users > create']));
     expect(removed).toEqual(['users > gone']);

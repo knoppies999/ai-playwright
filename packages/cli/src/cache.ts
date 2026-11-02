@@ -1,7 +1,7 @@
 // `aipw cache stats|show|prune|refresh` (docs/06 §8).
 import { readPlanFile, stableStringify, type PlanFile, type PlanTarget, type StepPlan } from '@aipw/core';
 import { spawnSync } from 'node:child_process';
-import { readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, relative } from 'node:path';
 
 /** Every *.plans.json under a __aipw__ folder, skipping node_modules and dot folders. */
@@ -105,12 +105,24 @@ function describeStep(step: StepPlan): string[] {
   return lines;
 }
 
-export function showPlans(file: PlanFile, grep?: string): string {
+/**
+ * Plans are keyed by hash, so they have no order. Given the spec's source, steps are listed in the order their
+ * instructions appear in it (instructions built with ${…} aren't found and come last).
+ */
+export function showPlans(file: PlanFile, grep?: string, specSource?: string): string {
   const out: string[] = [];
+  // As a string literal, so "Save" isn't found inside "Saved".
+  const position = (step: StepPlan) => {
+    const found = ["'", '"', '`']
+      .map((q) => specSource?.indexOf(`${q}${step.instruction}${q}`) ?? -1)
+      .filter((at) => at >= 0);
+    return found.length ? Math.min(...found) : Number.MAX_SAFE_INTEGER;
+  };
   for (const [title, steps] of Object.entries(file.tests).sort(([a], [b]) => a.localeCompare(b))) {
     if (grep && !title.includes(grep)) continue;
     out.push(title);
-    for (const step of Object.values(steps)) out.push(...describeStep(step).map((l) => `  ${l}`));
+    const ordered = Object.values(steps).sort((a, b) => position(a) - position(b));
+    for (const step of ordered) out.push(...describeStep(step).map((l) => `  ${l}`));
   }
   return out.join('\n');
 }
@@ -172,7 +184,8 @@ export function runCacheCommand(args: string[], root = process.cwd()): number {
       }
       const grep = rest[0] === '--grep' ? rest[1] : undefined;
       const path = join(dirname(target), '__aipw__', `${basename(target)}.plans.json`);
-      console.log(showPlans(readPlanFile(path), grep) || 'No plans.');
+      const source = existsSync(target) ? readFileSync(target, 'utf8') : undefined;
+      console.log(showPlans(readPlanFile(path), grep, source) || 'No plans.');
       return 0;
     }
     case 'prune': {
