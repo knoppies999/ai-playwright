@@ -44,6 +44,8 @@ interface ElementFacts {
   testIds: Attr[];
   /** Repeated-item ancestors (closest first) with text lines unique to this item. */
   items: { selector: string; anchors: string[] }[];
+  /** The element itself when it is a repeated item (a todo row, a product card), with its unique text lines. */
+  self: { selector: string; anchors: string[] } | null;
 }
 
 /** Runs in the page. Must stay self-contained (it is serialised). */
@@ -65,8 +67,9 @@ function gatherFacts(el: Element, args: { marker: string; token: string; testIdN
       .filter((l) => l.length >= 2 && l.length <= 60);
 
   const items: ElementFacts['items'] = [];
-  let anc = el.parentElement;
-  for (let depth = 0; anc && depth < 8 && items.length < 3; depth++, anc = anc.parentElement) {
+  let self: ElementFacts['self'] = null;
+  let anc: Element | null = el;
+  for (let depth = 0; anc && depth < 9 && items.length < 3; depth++, anc = anc.parentElement) {
     const tag = anc.tagName.toLowerCase();
     const role = anc.getAttribute('role');
     const tid = testIdsOf(anc)[0];
@@ -82,7 +85,9 @@ function gatherFacts(el: Element, args: { marker: string; token: string; testIdN
     if (!siblings.length) continue; // not a repeated item
     const others = new Set(siblings.flatMap(lines));
     const anchors = lines(anc).filter((l) => !others.has(l));
-    if (anchors.length) items.push({ selector, anchors: anchors.slice(0, 3) });
+    if (!anchors.length) continue;
+    if (anc === el) self = { selector, anchors: anchors.slice(0, 3) };
+    else items.push({ selector, anchors: anchors.slice(0, 3) });
   }
 
   const input = el as HTMLInputElement;
@@ -107,6 +112,7 @@ function gatherFacts(el: Element, args: { marker: string; token: string; testIdN
     text: ((el as HTMLElement).innerText ?? el.textContent ?? '').trim().replace(/\s+/g, ' ').slice(0, 100),
     testIds: testIdsOf(el),
     items,
+    self,
   };
 }
 
@@ -192,6 +198,16 @@ export async function synthesizeLocators(page: Page, target: Locator, opts: Synt
     }
     if (opts.role && !NO_ROLE_LOCATOR.has(opts.role) && opts.name && opts.name.length <= 80) {
       bases.push({ rung: 'L2', expr: [{ m: 'getByRole', role: opts.role, name: opts.name, exact: true }] });
+    }
+    // The target is itself a repeated item (hovering a todo row): the item selector, filtered by its own text.
+    for (const anchor of facts.self?.anchors.slice(0, 2) ?? []) {
+      bases.push({
+        rung: 'L5',
+        expr: [
+          { m: 'locator', selector: facts.self!.selector },
+          { m: 'filter', hasText: anchor },
+        ],
+      });
     }
     if (FORM_TAGS.has(facts.tag)) {
       if (facts.label) bases.push({ rung: 'L3', expr: [{ m: 'getByLabel', text: facts.label, exact: true }] });

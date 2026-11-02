@@ -15,9 +15,9 @@ import {
 } from '@aipw/core';
 import { test as base, type PlaywrightTestConfig } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
-import { existsSync } from 'node:fs';
+import { existsSync, realpathSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { costOf, stepsFromEvents, SUMMARY_ATTACHMENT, type TestSummary } from './summary.js';
 
 export { expect } from '@playwright/test';
@@ -54,16 +54,47 @@ const safeDecode = (s: string) => {
   }
 };
 
+const normDir = (p: string) => `${p.replace(/\\/g, '/').replace(/\/$/, '')}/`.toLowerCase();
+
+/** Package roots of @aipw/test and @aipw/core, as real paths (workspaces link them from node_modules). */
+function ownPackageDirs(): string[] {
+  const dirs = [join(dirname(fileURLToPath(import.meta.url)), '..')];
+  try {
+    dirs.push(join(dirname(fileURLToPath(import.meta.resolve('@aipw/core'))), '..'));
+  } catch {
+    // not resolvable from here; node_modules frames are skipped anyway
+  }
+  return dirs.map((d) => {
+    try {
+      return normDir(realpathSync(d));
+    } catch {
+      return normDir(d);
+    }
+  });
+}
+const OWN_DIRS = ownPackageDirs();
+
 /** The first stack frame outside aipw itself: the spec line that called ai.*. */
 function captureCallsite(): Callsite | undefined {
-  const frames = (new Error().stack ?? '').split('\n').slice(1);
+  return callsiteFromStack(new Error().stack ?? '');
+}
+
+/**
+ * Parses a stack trace for captureCallsite (exported for tests). Node internals are skipped by frame: in
+ * "node:internal/process/task_queues:65:5" the "e:" would otherwise pass for a Windows drive letter.
+ * aipw's own frames are recognised by package directory, so a user's own packages/core isn't skipped.
+ */
+export function callsiteFromStack(stack: string, cwd = process.cwd(), ownDirs = OWN_DIRS): Callsite | undefined {
+  const frames = stack.split('\n').slice(1);
   for (const frame of frames) {
+    if (/\bnode:/.test(frame)) continue;
     const m = /\(?((?:[A-Za-z]:)?[^():]+):(\d+):(\d+)\)?\s*$/.exec(frame.trim());
     if (!m) continue;
     // ESM frames are file:// URLs: a path with spaces arrives as "Dev%20stuff".
     const file = safeDecode(m[1]!.replace(/^file:\/\/\/?/, ''));
-    if (/[\\/](packages[\\/](core|test)[\\/]|node_modules[\\/])|^node:/.test(file)) continue;
-    return { file: relative(process.cwd(), file).replace(/\\/g, '/'), line: Number(m[2]), column: Number(m[3]) };
+    const lower = file.replace(/\\/g, '/').toLowerCase();
+    if (lower.includes('/node_modules/') || ownDirs.some((d) => lower.startsWith(d))) continue;
+    return { file: relative(cwd, file).replace(/\\/g, '/'), line: Number(m[2]), column: Number(m[3]) };
   }
   return undefined;
 }

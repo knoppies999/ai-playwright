@@ -1,0 +1,227 @@
+{
+  "tests": {
+    "Toolshop shopping > add a quantity to the cart": {
+      "1e42c0724299d998": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open Combination Pliers",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.5219618055555556,
+                  "w": 0.20234375,
+                  "x": 0.29609375,
+                  "y": 0.7762369791666667
+                },
+                "label": null,
+                "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+                "placeholder": null,
+                "role": "'link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK"
+                },
+                "text": "Combination Pliers A B C D E $14.15"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('product-01M4KFJHJFJBXR3A2RWKK2Z7GK')",
+                  "expr": [
+                    {
+                      "id": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                }
+              ],
+              "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+              "role": "'link"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "value": "3"
+            },
+            "intent": "Set quantity to 3",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": "quantity-input",
+                  "name": null,
+                  "type": "number"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.03671875,
+                  "x": 0.53984375,
+                  "y": 0.8790147569444444
+                },
+                "label": "Quantity",
+                "name": "Quantity",
+                "placeholder": null,
+                "role": "spinbutton",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {
+                  "data-test": "quantity"
+                },
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('quantity')",
+                  "expr": [
+                    {
+                      "id": "quantity",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('spinbutton', { name: 'Quantity', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Quantity",
+                      "role": "spinbutton"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[id=\"quantity-input\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"quantity-input\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "Quantity",
+              "role": "spinbutton"
+            },
+            "tool": "fill"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Add to cart",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": "btn-add-to-cart",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.1025390625,
+                  "x": 0.509375,
+                  "y": 0.9429036458333333
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "add-to-cart"
+                },
+                "text": "Add to cart"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('add-to-cart')",
+                  "expr": [
+                    {
+                      "id": "add-to-cart",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "locator('[id=\"btn-add-to-cart\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"btn-add-to-cart\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                },
+                {
+                  "display": "getByText('Add to cart', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Add to cart"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Open \"Combination Pliers\", set the quantity to 3 and add it to the cart",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/product/01M4KFJHJFJBXR3A2RWKK2Z7GK"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-10-10T18:27:38.648Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "b9a0c466fdd84d59": {
+        "compiled": null,
+        "instruction": "A message says the product was added to the cart",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-10-10T18:27:46.930Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    }
+  },
+  "version": 1
+}

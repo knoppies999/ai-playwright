@@ -232,14 +232,14 @@ function provider_wait(): ScriptedDecision {
 describe('ai.assert / check', () => {
   it('passes on a positive verdict', async () => {
     const page = await openApp();
-    const provider = new FakeProvider([], [{ pass: true, reason: 'shown', evidence: ['Login'], check: null }]);
+    const provider = new FakeProvider([], [{ pass: true, reason: 'shown', evidence: ['Login'], checks: [] }]);
     await expect(makeAi(page, provider).ai.assert('A login form is shown')).resolves.toMatchObject({ pass: true });
     expect(provider.structuredRequests[0]!.prompt).toContain('ASSERTION: A login form is shown');
   });
 
   it('judges each distinct snapshot once and throws AiAssertionError at the timeout', async () => {
     const page = await openApp();
-    const provider = new FakeProvider([], [{ pass: false, reason: 'not there', evidence: [], check: null }]);
+    const provider = new FakeProvider([], [{ pass: false, reason: 'not there', evidence: [], checks: [] }]);
     const error = await makeAi(page, provider)
       .ai.assert('Welcome is shown', { timeout: 1200 })
       .catch((e) => e);
@@ -252,8 +252,8 @@ describe('ai.assert / check', () => {
     const provider = new FakeProvider(
       [],
       [
-        { pass: false, reason: 'not yet', evidence: [], check: null },
-        { pass: true, reason: 'now', evidence: ['Welcome back!'], check: null },
+        { pass: false, reason: 'not yet', evidence: [], checks: [] },
+        { pass: true, reason: 'now', evidence: ['Welcome back!'], checks: [] },
       ],
     );
     setTimeout(() => void page.evaluate(() => (document.getElementById('welcome')!.hidden = false)), 300);
@@ -264,7 +264,7 @@ describe('ai.assert / check', () => {
 
   it('check returns the verdict instead of throwing', async () => {
     const page = await openApp();
-    const provider = new FakeProvider([], [{ pass: false, reason: 'no', evidence: [], check: null }]);
+    const provider = new FakeProvider([], [{ pass: false, reason: 'no', evidence: [], checks: [] }]);
     await expect(makeAi(page, provider).ai.check('Is there an error?')).resolves.toMatchObject({ pass: false });
   });
 });
@@ -326,7 +326,7 @@ describe('ai.run', () => {
     const provider = new FakeProvider(
       [done('clicked')],
       [
-        { pass: true, reason: 'ok', evidence: [], check: null },
+        { pass: true, reason: 'ok', evidence: [], checks: [] },
         { value: 'Login', note: null, sources: [] },
       ],
     );

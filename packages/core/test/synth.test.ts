@@ -46,6 +46,18 @@ describe('synthesizeLocators', () => {
     );
   });
 
+  it('finds a repeated item itself by its own text (hover a todo row)', async () => {
+    const page = await open(
+      `<ul><li data-testid="todo-item">Buy milk</li><li data-testid="todo-item">Walk the dog</li></ul>`,
+      { testIdAttribute: 'data-testid' },
+    );
+    const found = await synth(page, page.getByText('Walk the dog'), {
+      playwrightTestIdAttribute: 'data-testid',
+      role: 'listitem',
+    });
+    expect(found[0]).toBe("L5 locator('[data-testid=\"todo-item\"]').filter({ hasText: 'Walk the dog' })");
+  });
+
   it('anchors repeated buttons in table rows by row text', async () => {
     const page = await open(html('shop.html'));
     const target = page.getByRole('button', { name: 'Edit' }).nth(1);

@@ -1,0 +1,1021 @@
+{
+  "tests": {
+    "Toolshop accounts > register, sign in and look around the account": {
+      "6f5dd6e04b09d07a": {
+        "compiled": [
+          {
+            "args": [
+              "/auth/login"
+            ],
+            "expect": "toHaveURL"
+          }
+        ],
+        "instruction": "The sign-in page is shown, so the registration worked",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-10-10T18:28:20.629Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "8265cefae55e6237": {
+        "actions": [
+          {
+            "args": {
+              "ms": 5000,
+              "state": null,
+              "text": "First name"
+            },
+            "intent": "Wait for form to load",
+            "tool": "wait_for"
+          },
+          {
+            "args": {
+              "fields": [
+                {
+                  "value": "{{data.firstName}}"
+                },
+                {
+                  "value": "{{data.lastName}}"
+                },
+                {
+                  "value": "{{data.dateOfBirth}}"
+                }
+              ]
+            },
+            "intent": "Fill basic fields",
+            "targets": [
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "first_name",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.20220947265625,
+                    "x": 0.28841552734375,
+                    "y": 0.4945095486111111
+                  },
+                  "label": "First name",
+                  "name": "First name",
+                  "placeholder": "First name *",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "first-name"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('first-name')",
+                    "expr": [
+                      {
+                        "id": "first-name",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'First name', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "First name",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('First name', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "First name"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "First name",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "last_name",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.20220947265625,
+                    "x": 0.509375,
+                    "y": 0.4945095486111111
+                  },
+                  "label": "Last name",
+                  "name": "Last name",
+                  "placeholder": "Your last name *",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "last-name"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('last-name')",
+                    "expr": [
+                      {
+                        "id": "last-name",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'Last name', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Last name",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Last name', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Last name"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Last name",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "dob",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.4231689453125,
+                    "x": 0.28841552734375,
+                    "y": 0.6139539930555555
+                  },
+                  "label": "Date of Birth *",
+                  "name": "Date of Birth *",
+                  "placeholder": "YYYY-MM-DD",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "dob"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('dob')",
+                    "expr": [
+                      {
+                        "id": "dob",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'Date of Birth *', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Date of Birth *",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Date of Birth *', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Date of Birth *"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Date of Birth *",
+                "role": "textbox"
+              }
+            ],
+            "tool": "fill_form"
+          },
+          {
+            "args": {
+              "values": [
+                "GB"
+              ]
+            },
+            "intent": "Select country by code",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": "country",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.4231689453125,
+                  "x": 0.28841552734375,
+                  "y": 0.7333984375
+                },
+                "label": "Country",
+                "name": "Country",
+                "placeholder": null,
+                "role": "combobox",
+                "siblingIndex": 0,
+                "tag": "select",
+                "testIds": {
+                  "data-test": "country"
+                },
+                "text": "Your country * Albania Åland Islands Algeria American Samoa Andorra Angola Angui"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('country')",
+                  "expr": [
+                    {
+                      "id": "country",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('combobox', { name: 'Country', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Country",
+                      "role": "combobox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Country', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Country"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Country",
+              "role": "combobox"
+            },
+            "tool": "select_option"
+          },
+          {
+            "args": {
+              "fields": [
+                {
+                  "value": "{{data.postalCode}}"
+                },
+                {
+                  "value": "{{data.houseNumber}}"
+                }
+              ]
+            },
+            "intent": "Fill postal code and house number",
+            "targets": [
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "postal_code",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.20220947265625,
+                    "x": 0.28841552734375,
+                    "y": 0.9306206597222222
+                  },
+                  "label": "Postal code",
+                  "name": "Postal code",
+                  "placeholder": "Your Postcode *",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "postal_code"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('postal_code')",
+                    "expr": [
+                      {
+                        "id": "postal_code",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'Postal code', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Postal code",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Postal code', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Postal code"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Postal code",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "house_number",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.20220947265625,
+                    "x": 0.509375,
+                    "y": 0.9306206597222222
+                  },
+                  "label": "House number",
+                  "name": "House number",
+                  "placeholder": "e.g. 42 *",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "house_number"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('house_number')",
+                    "expr": [
+                      {
+                        "id": "house_number",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'House number', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "House number",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('House number', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "House number"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "House number",
+                "role": "textbox"
+              }
+            ],
+            "tool": "fill_form"
+          },
+          {
+            "args": {
+              "fields": [
+                {
+                  "value": "{{data.street}}"
+                },
+                {
+                  "value": "{{data.city}}"
+                },
+                {
+                  "value": "{{data.state}}"
+                },
+                {
+                  "value": "{{data.phone}}"
+                },
+                {
+                  "value": "{{data.email}}"
+                },
+                {
+                  "value": "{{secret.password}}"
+                }
+              ]
+            },
+            "intent": "Fill remaining fields",
+            "targets": [
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "street",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.4231689453125,
+                    "x": 0.28841552734375,
+                    "y": 1.0500651041666667
+                  },
+                  "label": "Street",
+                  "name": "Street",
+                  "placeholder": "Your Street *",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "street"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('street')",
+                    "expr": [
+                      {
+                        "id": "street",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'Street', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Street",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Street', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Street"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Street",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "city",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.20220947265625,
+                    "x": 0.28841552734375,
+                    "y": 1.1695095486111111
+                  },
+                  "label": "City",
+                  "name": "City",
+                  "placeholder": "Your City *",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "city"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('city')",
+                    "expr": [
+                      {
+                        "id": "city",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'City', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "City",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('City', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "City"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "City",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "state",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.20220947265625,
+                    "x": 0.509375,
+                    "y": 1.1695095486111111
+                  },
+                  "label": "State",
+                  "name": "State",
+                  "placeholder": "Your State *",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "state"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('state')",
+                    "expr": [
+                      {
+                        "id": "state",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'State', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "State",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('State', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "State"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "State",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "phone",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.4231689453125,
+                    "x": 0.28841552734375,
+                    "y": 1.2889539930555556
+                  },
+                  "label": "Phone",
+                  "name": "Phone",
+                  "placeholder": "Your phone *",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "phone"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('phone')",
+                    "expr": [
+                      {
+                        "id": "phone",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'Phone', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Phone",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Phone', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Phone"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Phone",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "email",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.4231689453125,
+                    "x": 0.28841552734375,
+                    "y": 1.4083984375
+                  },
+                  "label": "Email address",
+                  "name": "Email address",
+                  "placeholder": "Your email *",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "email"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('email')",
+                    "expr": [
+                      {
+                        "id": "email",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'Email address', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Email address",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Email address', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Email address"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Email address",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "password",
+                    "name": null,
+                    "type": "password"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.3895751953125,
+                    "x": 0.28841552734375,
+                    "y": 1.5278428819444445
+                  },
+                  "label": "Password",
+                  "name": "Password",
+                  "placeholder": "Your password",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "password"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('password')",
+                    "expr": [
+                      {
+                        "id": "password",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'Password', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Password",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Password', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Password"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Password",
+                "role": "textbox"
+              }
+            ],
+            "tool": "fill_form"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Submit registration",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "submit"
+                },
+                "box": {
+                  "h": 0.056901041666666666,
+                  "w": 0.22095947265625,
+                  "x": 0.27904052734375,
+                  "y": 1.3000651041666667
+                },
+                "label": null,
+                "name": "Register",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "register-submit"
+                },
+                "text": "Register"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('register-submit')",
+                  "expr": [
+                    {
+                      "id": "register-submit",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('button', { name: 'Register', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Register",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Register', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Register"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Register",
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Fill in the registration form and register",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/auth/login"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/auth/register"
+        },
+        "recordedWith": {
+          "at": "2026-10-10T18:28:15.844Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    }
+  },
+  "version": 1
+}

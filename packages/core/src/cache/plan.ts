@@ -48,17 +48,22 @@ export const PlanActionSchema = z.strictObject({
 });
 export type PlanAction = z.infer<typeof PlanActionSchema>;
 
+/** The Playwright web-first assertions a compiled check can use. */
+export const CHECK_EXPECTS = [
+  'toBeVisible',
+  'toBeHidden',
+  'toContainText',
+  'toHaveText',
+  'toHaveCount',
+  'toHaveURL',
+  'toHaveValue',
+  'toBeChecked',
+  'toBeEnabled',
+  'toBeDisabled',
+] as const;
+
 export const CompiledCheckSchema = z.strictObject({
-  /** Playwright web-first assertion, e.g. toBeVisible, toContainText, toHaveText, toHaveCount, toHaveURL. */
-  expect: z.enum([
-    'toBeVisible',
-    'toBeHidden',
-    'toContainText',
-    'toHaveText',
-    'toHaveCount',
-    'toHaveURL',
-    'toHaveValue',
-  ]),
+  expect: z.enum(CHECK_EXPECTS),
   target: PlanTargetSchema.optional(),
   args: z.array(z.union([z.string(), z.number()])),
   not: z.boolean().optional(),

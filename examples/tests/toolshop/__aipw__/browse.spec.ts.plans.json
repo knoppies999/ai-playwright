@@ -1,5 +1,1165 @@
 {
   "tests": {
+    "Toolshop browsing > a search with no results, then clear it": {
+      "10da13fd364d2ef3": {
+        "actions": [
+          {
+            "args": {
+              "submit": true,
+              "text": "chainsaw sharpener deluxe 9000"
+            },
+            "intent": "Search for product",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": "search-query",
+                  "name": null,
+                  "type": "text"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.12152099609375,
+                  "x": 0.06328125,
+                  "y": 1.2059461805555556
+                },
+                "label": "Search",
+                "name": "Search",
+                "placeholder": "Search",
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {
+                  "data-test": "search-query"
+                },
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('search-query')",
+                  "expr": [
+                    {
+                      "id": "search-query",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('textbox', { name: 'Search', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Search",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Search', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Search"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Search",
+              "role": "textbox"
+            },
+            "tool": "type"
+          }
+        ],
+        "instruction": "Search for \"chainsaw sharpener deluxe 9000\"",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-10-10T18:27:33.002Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "1f455d882a97943b": {
+        "compiled": [
+          {
+            "args": [
+              "There are no products found."
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.64921875,
+                  "x": 0.28671875,
+                  "y": 0.14650607638888888
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 0,
+                "tag": "div",
+                "testIds": {
+                  "data-test": "search_completed"
+                },
+                "text": "There are no products found."
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('search_completed')",
+                  "expr": [
+                    {
+                      "id": "search_completed",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                }
+              ],
+              "role": "generic"
+            }
+          }
+        ],
+        "instruction": "The page says no products were found",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-10-10T18:27:37.084Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "bd12f28fdf687377": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Click X to clear search",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "reset"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.027685546875,
+                  "x": 0.18402099609375,
+                  "y": 0.4740017361111111
+                },
+                "label": null,
+                "name": "X",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "search-reset"
+                },
+                "text": "X"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('search-reset')",
+                  "expr": [
+                    {
+                      "id": "search-reset",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('button', { name: 'X', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "X",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "X",
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Clear the search",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-10-10T18:27:50.966Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "f89e57b429ad91c4": {
+        "compiled": [
+          {
+            "args": [],
+            "expect": "toBeVisible",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.5219618055555556,
+                  "w": 0.20234375,
+                  "x": 0.29609375,
+                  "y": 0.04429253472222222
+                },
+                "label": null,
+                "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+                "placeholder": null,
+                "role": "'link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK"
+                },
+                "text": "Combination Pliers A B C D E $14.15"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('product-01M4KFJHJFJBXR3A2RWKK2Z7GK')",
+                  "expr": [
+                    {
+                      "id": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                }
+              ],
+              "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+              "role": "'link"
+            }
+          }
+        ],
+        "instruction": "Products are listed again",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-10-10T18:27:55.944Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "Toolshop browsing > filter by category": {
+      "0da2f45922bd36d9": {
+        "compiled": null,
+        "instruction": "Only hammers are listed",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-10-10T18:29:41.007Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "9fb94c367ae9f58a": {
+        "actions": [
+          {
+            "args": {
+              "checked": true
+            },
+            "intent": "Check Hammer category filter",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "list"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": "category_id",
+                  "type": "checkbox"
+                },
+                "box": {
+                  "h": 0.018055555555555554,
+                  "w": 0.01015625,
+                  "x": 0.083203125,
+                  "y": 1.4581597222222222
+                },
+                "label": "Hammer",
+                "name": "Hammer",
+                "placeholder": null,
+                "role": "checkbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {
+                  "data-test": "category-01M4KFJHGYSDS2H4ZRACN47VH2"
+                },
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('category-01M4KFJHGYSDS2H4ZRACN47VH2')",
+                  "expr": [
+                    {
+                      "id": "category-01M4KFJHGYSDS2H4ZRACN47VH2",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('checkbox', { name: 'Hammer', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Hammer",
+                      "role": "checkbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Hammer', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Hammer"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Hammer",
+              "role": "checkbox"
+            },
+            "tool": "set_checked"
+          }
+        ],
+        "instruction": "Use the category filters to show only hammers",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-10-10T18:29:35.195Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "Toolshop browsing > page through the results": {
+      "b5885f5b303cccd5": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Go to page 2",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "navigation"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "button"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.02705078125,
+                  "x": 0.3329833984375,
+                  "y": 2.4393446180555554
+                },
+                "label": "Page-2",
+                "name": "Page-2",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "2"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Page-2', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Page-2",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Page-2",
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Go to page 2 of the product list",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-10-10T18:30:13.068Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "f37827965769cb81": {
+        "compiled": [
+          {
+            "args": [],
+            "expect": "toBeVisible",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "navigation"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "button"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.02705078125,
+                  "x": 0.3329833984375,
+                  "y": 0.6671223958333333
+                },
+                "label": "Page-2",
+                "name": "Page-2",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "2"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Page-2', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Page-2",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Page-2",
+              "role": "button"
+            }
+          }
+        ],
+        "instruction": "Page 2 of the results is shown",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-10-10T18:30:17.583Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "Toolshop browsing > read a product page": {
+      "336d508a116579ee": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open Combination Pliers product",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.5219618055555556,
+                  "w": 0.20234375,
+                  "x": 0.290234375,
+                  "y": 0.7762369791666667
+                },
+                "label": null,
+                "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+                "placeholder": null,
+                "role": "'link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK"
+                },
+                "text": "Combination Pliers A B C D E $14.15"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('product-01M4KFJHJFJBXR3A2RWKK2Z7GK')",
+                  "expr": [
+                    {
+                      "id": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                }
+              ],
+              "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+              "role": "'link"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Open the \"Combination Pliers\" product",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/product/01M4KFJHJFJBXR3A2RWKK2Z7GK"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-10-10T18:30:28.413Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "a64a75ed5e858d5b": {
+        "instruction": "the product name, its price, and its material and weight from the specifications",
+        "kind": "extract",
+        "recordedWith": {
+          "at": "2026-10-10T18:30:32.788Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "sources": [],
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "Toolshop browsing > related products": {
+      "55c0865c8b3b3801": {
+        "compiled": [
+          {
+            "args": [
+              "Pliers"
+            ],
+            "expect": "toHaveText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.4265625,
+                  "x": 0.503515625,
+                  "y": 0.2623480902777778
+                },
+                "label": null,
+                "name": "Pliers",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h1",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Pliers"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('product-name')",
+                  "expr": [
+                    {
+                      "id": "product-name",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('heading', { name: 'Pliers', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Pliers",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Pliers",
+              "role": "heading"
+            }
+          }
+        ],
+        "instruction": "A different pliers product page is shown, not Combination Pliers",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-10-10T18:30:53.665Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "c7f4aa1b8f1ed91d": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open Combination Pliers",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.5219618055555556,
+                  "w": 0.20234375,
+                  "x": 0.290234375,
+                  "y": 0.7762369791666667
+                },
+                "label": null,
+                "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+                "placeholder": null,
+                "role": "'link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK"
+                },
+                "text": "Combination Pliers A B C D E $14.15"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('product-01M4KFJHJFJBXR3A2RWKK2Z7GK')",
+                  "expr": [
+                    {
+                      "id": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                }
+              ],
+              "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+              "role": "'link"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open first related product (Pliers)",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.4583333333333333,
+                  "w": 0.16124267578125,
+                  "x": 0.067578125,
+                  "y": 1.5039930555555556
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Pliers More information"
+              },
+              "locators": [],
+              "role": "link"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Open \"Combination Pliers\", then open the first related product below it",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/product/01M4KFJHK0FVX48Z0RDJJ2M9Y3"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-10-10T18:30:48.868Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "Toolshop browsing > rentals": {
+      "3770017c7a6313c7": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open Categories menu",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "menuitem"
+                  },
+                  {
+                    "name": "Main menu",
+                    "role": "menubar"
+                  },
+                  {
+                    "name": null,
+                    "role": "navigation"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "button"
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.084130859375,
+                  "x": 0.69610595703125,
+                  "y": 0.1558159722222222
+                },
+                "label": null,
+                "name": "Categories",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "nav-categories"
+                },
+                "text": "Categories"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('nav-categories')",
+                  "expr": [
+                    {
+                      "id": "nav-categories",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('button', { name: 'Categories', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Categories",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('li').filter({ hasText: 'Categories' }).getByText('Categories', { exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "li"
+                    },
+                    {
+                      "hasText": "Categories",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Categories"
+                    }
+                  ],
+                  "rung": "L5"
+                }
+              ],
+              "name": "Categories",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open Rentals page",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": "nav-categories",
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "menuitem"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.044444444444444446,
+                  "w": 0.1234375,
+                  "x": 0.69688720703125,
+                  "y": 0.42803819444444446
+                },
+                "label": null,
+                "name": "Rentals",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "nav-rentals"
+                },
+                "text": "Rentals"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('nav-rentals')",
+                  "expr": [
+                    {
+                      "id": "nav-rentals",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('link', { name: 'Rentals', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Rentals",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Rentals', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Rentals"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Rentals",
+              "role": "link"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open the excavator",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.2713541666666667,
+                  "w": 0.203515625,
+                  "x": 0.058984375,
+                  "y": 0.31929253472222224
+                },
+                "label": null,
+                "name": "Excavator",
+                "placeholder": null,
+                "role": "img",
+                "siblingIndex": 0,
+                "tag": "img",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('img', { name: 'Excavator', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Excavator",
+                      "role": "img"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Excavator",
+              "role": "img"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Open the rentals page from the Categories menu and open the excavator",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/product/01M4KFJHQ7DCZPAAVBCF32CGAH"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-10-10T18:31:48.998Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "961caf9905901e30": {
+        "compiled": [
+          {
+            "args": [
+              "Excavator"
+            ],
+            "expect": "toHaveText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.4265625,
+                  "x": 0.503515625,
+                  "y": 0.2623480902777778
+                },
+                "label": null,
+                "name": "Excavator",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h1",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Excavator"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('product-name')",
+                  "expr": [
+                    {
+                      "id": "product-name",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('heading', { name: 'Excavator', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Excavator",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Excavator', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Excavator"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Excavator",
+              "role": "heading"
+            }
+          }
+        ],
+        "instruction": "The excavator rental page is shown",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-10-10T18:31:53.842Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
     "Toolshop browsing > search for a product": {
       "db463728f56e9aae": {
         "actions": [
@@ -152,6 +1312,1401 @@
         "kind": "assert",
         "recordedWith": {
           "at": "2026-10-10T18:24:13.932Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "Toolshop browsing > sort by name, Z to A": {
+      "3936457f85a3343e": {
+        "actions": [
+          {
+            "args": {
+              "values": [
+                "Name (Z - A)"
+              ]
+            },
+            "intent": "Sort by name Z-A",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.20390625,
+                  "x": 0.058203125,
+                  "y": 0.8620659722222223
+                },
+                "label": "sort",
+                "name": "sort",
+                "placeholder": null,
+                "role": "combobox",
+                "siblingIndex": 0,
+                "tag": "select",
+                "testIds": {
+                  "data-test": "sort"
+                },
+                "text": "Name (A - Z) Name (Z - A) Price (High - Low) Price (Low - High) CO₂ Rating (A - "
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('sort')",
+                  "expr": [
+                    {
+                      "id": "sort",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('combobox', { name: 'sort', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "sort",
+                      "role": "combobox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('sort', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "sort"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "sort",
+              "role": "combobox"
+            },
+            "tool": "select_option"
+          }
+        ],
+        "instruction": "Sort the products by name from Z to A",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-10-10T18:29:19.021Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "ae73e940a325f8a3": {
+        "instruction": "the name of every product shown, in order",
+        "kind": "extract",
+        "recordedWith": {
+          "at": "2026-10-10T18:29:24.230Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "sources": [
+          {
+            "path": "0",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.17578125,
+                  "x": 0.303515625,
+                  "y": 1.133181423611111
+                },
+                "label": null,
+                "name": "Wood Saw",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Wood Saw"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Wood Saw', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Wood Saw",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Wood Saw', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Wood Saw"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Wood Saw",
+              "role": "heading"
+            }
+          },
+          {
+            "path": "1",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.17578125,
+                  "x": 0.517578125,
+                  "y": 1.133181423611111
+                },
+                "label": null,
+                "name": "Wood Carving Chisels",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Wood Carving Chisels"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Wood Carving Chisels', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Wood Carving Chisels",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Wood Carving Chisels', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Wood Carving Chisels"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Wood Carving Chisels",
+              "role": "heading"
+            }
+          },
+          {
+            "path": "2",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.17578125,
+                  "x": 0.731640625,
+                  "y": 1.133181423611111
+                },
+                "label": null,
+                "name": "Washers",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Washers"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Washers', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Washers",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Washers', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Washers"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Washers",
+              "role": "heading"
+            }
+          },
+          {
+            "path": "3",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.17578125,
+                  "x": 0.303515625,
+                  "y": 1.6759765625
+                },
+                "label": null,
+                "name": "Tool Cabinet",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Tool Cabinet"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Tool Cabinet', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Tool Cabinet",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Tool Cabinet', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Tool Cabinet"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Tool Cabinet",
+              "role": "heading"
+            }
+          },
+          {
+            "path": "4",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.17578125,
+                  "x": 0.517578125,
+                  "y": 1.6759765625
+                },
+                "label": null,
+                "name": "Thor Hammer",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Thor Hammer"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Thor Hammer', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Thor Hammer",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Thor Hammer', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Thor Hammer"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Thor Hammer",
+              "role": "heading"
+            }
+          },
+          {
+            "path": "5",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.17578125,
+                  "x": 0.731640625,
+                  "y": 1.6759765625
+                },
+                "label": null,
+                "name": "Tape Measure 7.5m",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Tape Measure 7.5m"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Tape Measure 7.5m', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Tape Measure 7.5m",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Tape Measure 7.5m",
+              "role": "heading"
+            }
+          },
+          {
+            "path": "6",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.17578125,
+                  "x": 0.303515625,
+                  "y": 2.218771701388889
+                },
+                "label": null,
+                "name": "Tape Measure 5m",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Tape Measure 5m"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Tape Measure 5m', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Tape Measure 5m",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Tape Measure 5m",
+              "role": "heading"
+            }
+          },
+          {
+            "path": "7",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.17578125,
+                  "x": 0.517578125,
+                  "y": 2.218771701388889
+                },
+                "label": null,
+                "name": "Swiss Woodcarving Chisels",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Swiss Woodcarving Chisels"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Swiss Woodcarving Chisels', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Swiss Woodcarving Chisels",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Swiss Woodcarving Chisels', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Swiss Woodcarving Chisels"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Swiss Woodcarving Chisels",
+              "role": "heading"
+            }
+          },
+          {
+            "path": "8",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.17578125,
+                  "x": 0.731640625,
+                  "y": 2.218771701388889
+                },
+                "label": null,
+                "name": "Super-thin Protection Gloves",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Super-thin Protection Gloves"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Super-thin Protection Gloves', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Super-thin Protection Gloves",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Super-thin Protection Gloves', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Super-thin Protection Gloves"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Super-thin Protection Gloves",
+              "role": "heading"
+            }
+          }
+        ],
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "Toolshop browsing > sort by price, cheapest first": {
+      "32580c94c283aafe": {
+        "actions": [
+          {
+            "args": {
+              "values": [
+                "Price (Low - High)"
+              ]
+            },
+            "intent": "Sort by price low to high",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.20390625,
+                  "x": 0.0640625,
+                  "y": 0.8620659722222223
+                },
+                "label": "sort",
+                "name": "sort",
+                "placeholder": null,
+                "role": "combobox",
+                "siblingIndex": 0,
+                "tag": "select",
+                "testIds": {
+                  "data-test": "sort"
+                },
+                "text": "Name (A - Z) Name (Z - A) Price (High - Low) Price (Low - High) CO₂ Rating (A - "
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('sort')",
+                  "expr": [
+                    {
+                      "id": "sort",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('combobox', { name: 'sort', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "sort",
+                      "role": "combobox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('sort', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "sort"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "sort",
+              "role": "combobox"
+            },
+            "tool": "select_option"
+          }
+        ],
+        "instruction": "Sort the products by price, from low to high",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-10-10T18:28:07.551Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "34510130fadcf2a3": {
+        "history": [
+          {
+            "instruction": "the price of every product shown, in order, as numbers",
+            "kind": "extract",
+            "recordedWith": {
+              "at": "2026-10-10T18:28:11.910Z",
+              "model": "claude-sonnet-5-5",
+              "provider": "claude-code"
+            },
+            "sources": [],
+            "stats": {
+              "heals": 0
+            }
+          }
+        ],
+        "instruction": "the price of every product shown, in order, as numbers",
+        "kind": "extract",
+        "recordedWith": {
+          "at": "2026-10-10T18:29:08.225Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "sources": [],
+        "stats": {
+          "heals": 1,
+          "lastHealAt": "2026-10-10T18:29:08.225Z"
+        }
+      }
+    },
+    "Toolshop browsing > switch the language": {
+      "472bb90b87a16ef6": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open language menu",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "navigation"
+                  }
+                ],
+                "attrs": {
+                  "id": "language",
+                  "name": null,
+                  "type": "button"
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.0438720703125,
+                  "x": 0.8862060546875,
+                  "y": 0.16692708333333334
+                },
+                "label": "Select language",
+                "name": "Select language",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "language-select"
+                },
+                "text": "DE"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('language-select')",
+                  "expr": [
+                    {
+                      "id": "language-select",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('button', { name: 'Select language', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Select language",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[id=\"language\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"language\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "Select language",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Select English",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "menu"
+                  },
+                  {
+                    "name": null,
+                    "role": "navigation"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.044444444444444446,
+                  "w": 0.1234375,
+                  "x": 0.8869873046875,
+                  "y": 0.30442708333333335
+                },
+                "label": null,
+                "name": "EN",
+                "placeholder": null,
+                "role": "menuitem",
+                "siblingIndex": 2,
+                "tag": "li",
+                "testIds": {},
+                "text": "EN"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('menuitem', { name: 'EN', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "EN",
+                      "role": "menuitem"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "EN",
+              "role": "menuitem"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Switch the language back to English",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-10-10T18:31:28.265Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "a76f713d6f24c692": {
+        "compiled": [
+          {
+            "args": [
+              "Kontakt"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "menuitem"
+                  },
+                  {
+                    "name": "Main menu",
+                    "role": "menubar"
+                  },
+                  {
+                    "name": null,
+                    "role": "navigation"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.05489501953125,
+                  "x": 0.7636962890625,
+                  "y": 0.1558159722222222
+                },
+                "label": null,
+                "name": "Kontakt",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "nav-contact"
+                },
+                "text": "Kontakt"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('nav-contact')",
+                  "expr": [
+                    {
+                      "id": "nav-contact",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('link', { name: 'Kontakt', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Kontakt",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Kontakt', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Kontakt"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Kontakt",
+              "role": "link"
+            }
+          }
+        ],
+        "instruction": "The navigation menu is in German",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-10-10T18:31:14.406Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "c0108c48ea2333c0": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open language menu",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "navigation"
+                  }
+                ],
+                "attrs": {
+                  "id": "language",
+                  "name": null,
+                  "type": "button"
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.0444580078125,
+                  "x": 0.8856201171875,
+                  "y": 0.16692708333333334
+                },
+                "label": "Select language",
+                "name": "Select language",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "language-select"
+                },
+                "text": "EN"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('language-select')",
+                  "expr": [
+                    {
+                      "id": "language-select",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('button', { name: 'Select language', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Select language",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[id=\"language\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"language\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "Select language",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Select German",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "menu"
+                  },
+                  {
+                    "name": null,
+                    "role": "navigation"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.044444444444444446,
+                  "w": 0.1234375,
+                  "x": 0.8864013671875,
+                  "y": 0.21553819444444444
+                },
+                "label": null,
+                "name": "DE",
+                "placeholder": null,
+                "role": "menuitem",
+                "siblingIndex": 0,
+                "tag": "li",
+                "testIds": {},
+                "text": "DE"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('menuitem', { name: 'DE', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "DE",
+                      "role": "menuitem"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "DE",
+              "role": "menuitem"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Switch the site language to German",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-10-10T18:31:09.406Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "Toolshop browsing > top menu: Categories > Power Tools": {
+      "b4d41998af2d5ec2": {
+        "compiled": [
+          {
+            "args": [],
+            "expect": "toBeVisible",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.5219618055555556,
+                  "w": 0.20234375,
+                  "x": 0.504296875,
+                  "y": 0.8806857638888889
+                },
+                "label": null,
+                "name": "Cordless Drill 20V Compare Cordless Drill 20V CO₂: A B C D E $125.23",
+                "placeholder": null,
+                "role": "'link",
+                "siblingIndex": 4,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "product-01M4KFJHPZRRD7B057N8SBJAWB"
+                },
+                "text": "Cordless Drill 20V A B C D E $125.23"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('product-01M4KFJHPZRRD7B057N8SBJAWB')",
+                  "expr": [
+                    {
+                      "id": "product-01M4KFJHPZRRD7B057N8SBJAWB",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                }
+              ],
+              "name": "Cordless Drill 20V Compare Cordless Drill 20V CO₂: A B C D E $125.23",
+              "role": "'link"
+            }
+          }
+        ],
+        "instruction": "The page lists power tools, such as drills or sanders",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-10-10T18:30:01.309Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "ed0afb61f2bb6656": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open Categories menu",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "menuitem"
+                  },
+                  {
+                    "name": "Main menu",
+                    "role": "menubar"
+                  },
+                  {
+                    "name": null,
+                    "role": "navigation"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "button"
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.084130859375,
+                  "x": 0.69610595703125,
+                  "y": 0.1558159722222222
+                },
+                "label": null,
+                "name": "Categories",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "nav-categories"
+                },
+                "text": "Categories"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('nav-categories')",
+                  "expr": [
+                    {
+                      "id": "nav-categories",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('button', { name: 'Categories', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Categories",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('li').filter({ hasText: 'Categories' }).getByText('Categories', { exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "li"
+                    },
+                    {
+                      "hasText": "Categories",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Categories"
+                    }
+                  ],
+                  "rung": "L5"
+                }
+              ],
+              "name": "Categories",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open Power Tools category",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": "nav-categories",
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "menuitem"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.044444444444444446,
+                  "w": 0.1234375,
+                  "x": 0.69688720703125,
+                  "y": 0.27109375
+                },
+                "label": null,
+                "name": "Power Tools",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "nav-power-tools"
+                },
+                "text": "Power Tools"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('nav-power-tools')",
+                  "expr": [
+                    {
+                      "id": "nav-power-tools",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('link', { name: 'Power Tools', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Power Tools",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('li').filter({ hasText: 'Categories' }).getByText('Power Tools', { exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "li"
+                    },
+                    {
+                      "hasText": "Categories",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Power Tools"
+                    }
+                  ],
+                  "rung": "L5"
+                }
+              ],
+              "name": "Power Tools",
+              "role": "link"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Open Power Tools from the Categories menu at the top",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/category/power-tools"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-10-10T18:29:56.976Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },

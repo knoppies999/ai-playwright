@@ -267,12 +267,14 @@ describe('caching assert, extract and locate', () => {
           pass: true,
           reason: 'shown',
           evidence: ['Welcome back!'],
-          check: {
-            expect: 'toContainText',
-            ref: refOf('Welcome back!', req.prompt),
-            args: ['Welcome back'],
-            not: false,
-          },
+          checks: [
+            {
+              expect: 'toContainText',
+              ref: refOf('Welcome back!', req.prompt),
+              args: ['Welcome back'],
+              not: false,
+            },
+          ],
         }),
       ],
     );
@@ -288,7 +290,7 @@ describe('caching assert, extract and locate', () => {
 
     // The message disappears: the compiled check fails, the AI re-judges and confirms the failure.
     await page.evaluate(() => (document.getElementById('welcome')!.hidden = true));
-    const judge = new FakeProvider([], [{ pass: false, reason: 'no welcome', evidence: [], check: null }]);
+    const judge = new FakeProvider([], [{ pass: false, reason: 'no welcome', evidence: [], checks: [] }]);
     await expect(makeAi(page, judge, store).ai.assert('A welcome message is shown', { timeout: 300 })).rejects.toThrow(
       /AI assertion failed/,
     );
