@@ -30,3 +30,11 @@ describe('callsiteFromStack', () => {
     expect(callsiteFromStack(stack, cwd)).toMatchObject({ file: 'tests/a.spec.ts', line: 7 });
   });
 });
+
+describe('callsiteFromStack on POSIX paths', () => {
+  it('reads async frames without parentheses', () => {
+    const stack = ['Error', '    at async /home/runner/work/app/some app/tests/todo.spec.ts:28:5'].join('\n');
+    expect(callsiteFromStack(stack, '/home/runner/work/app/some app', [])).toMatchObject({ line: 28, column: 5 });
+    expect(callsiteFromStack(stack, '/home/runner/work/app/some app', [])!.file).toMatch(/tests\/todo\.spec\.ts$/);
+  });
+});

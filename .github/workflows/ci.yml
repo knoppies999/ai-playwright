@@ -30,4 +30,6 @@ jobs:
       - run: npm run build
       - run: npm test
       - run: npx playwright test --project fixtures --project demo
+      # The showcase's committed plans replay in replay-only mode: any step that would need AI fails.
+      - run: node scripts/demo.mjs --replay
       - run: node scripts/leak-check.mjs DEMO_INITIAL_PASSWORD

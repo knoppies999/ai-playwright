@@ -46,11 +46,12 @@ export async function loadAipwConfig(from = process.cwd()): Promise<AipwConfigIn
   }
 }
 
-const safeDecode = (s: string) => {
+/** file:///C:/Dev%20stuff/a.ts → C:\Dev stuff\a.ts; file:///home/a.ts → /home/a.ts. */
+const fileUrlToPath = (url: string) => {
   try {
-    return decodeURIComponent(s);
+    return fileURLToPath(url);
   } catch {
-    return s;
+    return url;
   }
 };
 
@@ -88,10 +89,11 @@ export function callsiteFromStack(stack: string, cwd = process.cwd(), ownDirs = 
   const frames = stack.split('\n').slice(1);
   for (const frame of frames) {
     if (/\bnode:/.test(frame)) continue;
-    const m = /\(?((?:[A-Za-z]:)?[^():]+):(\d+):(\d+)\)?\s*$/.exec(frame.trim());
+    // "at fn (path:line:col)" or "at [async] path:line:col"; POSIX paths have no colon to anchor on.
+    const m = /\(([^()]*):(\d+):(\d+)\)\s*$/.exec(frame) ?? /^\s*at (?:async )?(\S.*?):(\d+):(\d+)\s*$/.exec(frame);
     if (!m) continue;
     // ESM frames are file:// URLs: a path with spaces arrives as "Dev%20stuff".
-    const file = safeDecode(m[1]!.replace(/^file:\/\/\/?/, ''));
+    const file = m[1]!.startsWith('file:') ? fileUrlToPath(m[1]!) : m[1]!;
     const lower = file.replace(/\\/g, '/').toLowerCase();
     if (lower.includes('/node_modules/') || ownDirs.some((d) => lower.startsWith(d))) continue;
     return { file: relative(cwd, file).replace(/\\/g, '/'), line: Number(m[2]), column: Number(m[3]) };
