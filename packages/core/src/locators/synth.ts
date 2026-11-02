@@ -26,6 +26,12 @@ export interface SynthOptions {
   role?: string;
   name?: string;
   max?: number;
+  /**
+   * Text a check will assert on this element. A locator that finds the element by that same text proves
+   * nothing ("the cell named Active has text Active"), so locators anchored in their row or card by other
+   * text are tried first, and never anchored by this text.
+   */
+  assertedText?: string;
 }
 
 interface Attr {
@@ -175,11 +181,15 @@ export async function synthesizeLocators(page: Page, target: Locator, opts: Synt
         return false;
       }
     };
+    const fold = (s: string) => s.replace(/\s+/g, ' ').trim().toLowerCase();
+    const asserted = opts.assertedText ? fold(opts.assertedText) : '';
+    /** True when the expression finds the element by the text the check will assert. */
+    const circular = (expr: LocatorExpr) => asserted !== '' && fold(JSON.stringify(expr)).includes(asserted);
     const anchored = (expr: LocatorExpr): LocatorExpr[] =>
       facts.items.flatMap((item) =>
-        item.anchors.map(
-          (a) => [{ m: 'locator', selector: item.selector }, { m: 'filter', hasText: a }, ...expr] as LocatorExpr,
-        ),
+        item.anchors
+          .filter((a) => asserted === '' || !fold(a).includes(asserted))
+          .map((a) => [{ m: 'locator', selector: item.selector }, { m: 'filter', hasText: a }, ...expr] as LocatorExpr),
       );
 
     // Ladder rungs in order; each base expression is tried as-is, then anchored inside a repeated item (L5).
@@ -227,10 +237,8 @@ export async function synthesizeLocators(page: Page, target: Locator, opts: Synt
     const seen = new Set<string>();
     for (const base of bases) {
       if (found.length >= max) break;
-      const tries: { rung: Rung; expr: LocatorExpr }[] = [
-        base,
-        ...anchored(base.expr).map((expr) => ({ rung: 'L5' as Rung, expr })),
-      ];
+      const inItem = anchored(base.expr).map((expr) => ({ rung: 'L5' as Rung, expr }));
+      const tries: { rung: Rung; expr: LocatorExpr }[] = circular(base.expr) ? [...inItem, base] : [base, ...inItem];
       for (const t of tries) {
         const key = JSON.stringify(t.expr);
         if (seen.has(key)) continue;

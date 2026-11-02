@@ -655,22 +655,28 @@ export class Ai {
   }
 
   /** A durable target (verified locators + fingerprint) for a ref the model named. */
-  private async targetFor(obs: Observation, ref: string | null | undefined): Promise<PlanTarget | undefined> {
+  private async targetFor(
+    obs: Observation,
+    ref: string | null | undefined,
+    assertedText?: string,
+  ): Promise<PlanTarget | undefined> {
     ref = refIn(obs, ref);
     if (!ref) return undefined;
     const node = findByRef(obs.tree, ref)?.node;
-    return this.targetForLocator(this._page.locator(`aria-ref=${ref}`), node);
+    return this.targetForLocator(this._page.locator(`aria-ref=${ref}`), node, assertedText);
   }
 
   /** Like targetFor, for any element (e.g. the DOM parent of an element the model named). */
   private async targetForLocator(
     loc: Locator,
     node?: { role: string; name?: string },
+    assertedText?: string,
   ): Promise<PlanTarget | undefined> {
     const candidates = await synthesizeLocators(this._page, loc, {
       ...this.synthOptions(),
       role: node?.role,
       name: node?.name,
+      ...(assertedText && { assertedText }),
     }).catch(() => []);
     if (!candidates.length) return undefined;
     const fingerprint = await fingerprintOf(loc, node?.role, node?.name);
@@ -735,7 +741,9 @@ export class Ai {
       return target ? { expect: 'toHaveCount', target, ...base } : null;
     }
     let expect = check.expect;
-    let target = await this.targetFor(obs, ref);
+    const isText = expect === 'toContainText' || expect === 'toHaveText' || expect === 'toHaveValue';
+    const assertedText = isText && !check.not ? check.args[0] : undefined;
+    let target = await this.targetFor(obs, ref, assertedText);
     const found = findByRef(obs.tree, ref);
     // A container without a durable locator (e.g. a plain list): for visibility, its first descendant
     // that has one is visible exactly when the container is.
@@ -752,7 +760,7 @@ export class Ai {
       let el = this._page.locator(`aria-ref=${ref}`);
       for (let depth = 0; depth < 3 && !target; depth++) {
         el = el.locator('xpath=..');
-        target = await this.targetForLocator(el);
+        target = await this.targetForLocator(el, undefined, assertedText);
       }
       if (target) expect = 'toContainText';
     }

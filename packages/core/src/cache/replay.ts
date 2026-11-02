@@ -204,5 +204,5 @@ export function describePlan(plan: StepPlan): string {
       (a) =>
         `${a.tool}${a.target ? ` ${a.target.role ?? 'element'}${a.target.name ? ` "${a.target.name}"` : ''}` : ''}`,
     )
-    .join(' → ');
+    .join(', then ');
 }

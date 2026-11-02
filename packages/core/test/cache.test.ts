@@ -160,7 +160,9 @@ describe('plan cache', () => {
         makeAi(await openApp(variantB), new FakeProvider(healScript()), store, { heal: { policy: 'fail' } }).ai,
       ).catch((e) => e);
       expect(error).toBeInstanceOf(AiHealedError);
-      expect(error.message).toContain('Was: fill textbox "Username" → fill textbox "Password" → click button "Login"');
+      expect(error.message).toContain(
+        'Was: fill textbox "Username", then fill textbox "Password", then click button "Login"',
+      );
     });
 
     it('replay-only does not heal with AI', async () => {

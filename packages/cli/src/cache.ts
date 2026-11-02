@@ -1,5 +1,5 @@
 // `aipw cache stats|show|prune|refresh` (docs/06 §8).
-import { readPlanFile, stableStringify, type PlanFile, type StepPlan } from '@aipw/core';
+import { readPlanFile, stableStringify, type PlanFile, type PlanTarget, type StepPlan } from '@aipw/core';
 import { spawnSync } from 'node:child_process';
 import { readdirSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, relative } from 'node:path';
@@ -56,11 +56,17 @@ export function planStats(path: string, root: string): PlanStats {
 
 function describeStep(step: StepPlan): string[] {
   const lines = [`${step.kind}: ${step.instruction}`];
+  const describeTarget = (t: PlanTarget | undefined) =>
+    t ? ` ${t.role ?? 'element'}${t.name ? ` "${t.name}"` : ''} → ${t.locators[0]?.display ?? 'no locator'}` : '';
   for (const a of step.actions ?? []) {
-    const target = a.target
-      ? ` ${a.target.role ?? 'element'}${a.target.name ? ` "${a.target.name}"` : ''} → ${a.target.locators[0]?.display ?? 'no locator'}`
-      : '';
-    lines.push(`  ${a.tool}${target}`);
+    // What was typed or pressed: data and secrets are stored as placeholders, so this is safe to print.
+    const typed = [a.args.value, a.args.text, a.args.key].find((v) => typeof v === 'string');
+    lines.push(`  ${a.tool}${typed !== undefined ? ` ${JSON.stringify(typed)}` : ''}${describeTarget(a.target)}`);
+    if (a.tool === 'fill_form' && Array.isArray(a.args.fields)) {
+      (a.args.fields as { value?: unknown }[]).forEach((f, i) =>
+        lines.push(`    ${JSON.stringify(f.value)}${describeTarget(a.targets?.[i])}`),
+      );
+    }
   }
   for (const c of step.compiled ?? [])
     lines.push(

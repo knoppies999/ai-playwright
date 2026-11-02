@@ -163,6 +163,37 @@ describe('assert compiles to deterministic checks', () => {
   });
 });
 
+describe('relational text checks', () => {
+  const USERS = `<table><thead><tr><th>Name</th><th>Status</th></tr></thead><tbody>
+    <tr><td>Thandi Mokoena</td><td>Active</td></tr>
+    <tr><td>Sipho Dlamini</td><td>Disabled</td></tr>
+  </tbody></table>`;
+
+  it('anchors a text check in its row, so swapped values fail on replay', async () => {
+    const store = new MemoryPlanStore();
+    const page = await open(USERS);
+    const condition = 'Thandi Mokoena is Active';
+    await makeAi(
+      page,
+      judge((p) => [check('toHaveText', refOf(p, 'cell "Active"'), ['Active'])]),
+      store,
+    ).assert(condition);
+    expect(compiledOf(store)![0]!.target!.locators[0]!.display).toBe(
+      "locator('tr').filter({ hasText: 'Thandi Mokoena' }).getByRole('cell', { name: 'Active', exact: true })",
+    );
+
+    await page.evaluate(() => {
+      const cells = document.querySelectorAll('tbody td:nth-child(2)');
+      cells[0]!.textContent = 'Disabled';
+      cells[1]!.textContent = 'Active';
+    });
+    const rejudge = new FakeProvider([], [{ pass: false, reason: 'Disabled', evidence: [], checks: [] }]);
+    await expect(makeAi(page, rejudge, store).assert(condition, { timeout: 200 })).rejects.toThrow(
+      /AI assertion failed/,
+    );
+  });
+});
+
 describe('extract replay', () => {
   const todos = z.array(z.object({ title: z.string(), completed: z.boolean() }));
 

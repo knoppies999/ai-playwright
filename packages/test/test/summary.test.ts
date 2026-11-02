@@ -127,7 +127,13 @@ describe('run summary', () => {
     expect(text).toContain('aipw summary — provider foundry (gpt-5.4), cache auto');
     expect(text).toContain('AI steps       6    from cache 2 (33.3%)   AI 2   healed 2   failed 2');
     expect(text).toContain('LLM calls      6    tokens in 6.0k / out 300    est. cost $1.00');
-    expect(text).toContain('Healed      users.spec.ts:15 — button "Settings" → button "Preferences" (ai)');
+    expect(text).toContain(
+      [
+        '  Healed      users.spec.ts:15 "Open Settings > Users" (ai heal)',
+        '              was: button "Settings"',
+        '              now: button "Preferences"',
+      ].join('\n'),
+    );
     const md = formatSummaryMarkdown(run);
     expect(md).toContain('| 6 | 2 (33.3%) | 2 | 2 | 2 | 6 | 6.0k / 300 | $1.00 |');
     expect(md).toContain(

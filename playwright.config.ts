@@ -49,6 +49,14 @@ export default defineConfig(
         use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:5173' },
       },
       {
+        // The showcase (npm run demo): a live admin journey on the demo app. Real AI on the first run,
+        // then the committed plan replays with none.
+        name: 'showcase',
+        testDir: 'examples/tests/showcase',
+        fullyParallel: false,
+        use: { ...devices['Desktop Chrome'], baseURL: 'http://localhost:5173' },
+      },
+      {
         // Plain-Playwright smoke spec for the public target. Light load only; not a CI gate (risk R13).
         name: 'saucedemo',
         testDir: 'examples/tests/saucedemo',
