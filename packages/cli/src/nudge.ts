@@ -10,9 +10,9 @@ import {
 } from '@aipw/core';
 import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
-import { createInterface } from 'node:readline/promises';
+import { closeSync, mkdirSync, openSync, readFileSync, writeFileSync } from 'node:fs';
+import { join, relative, resolve } from 'node:path';
+import { createInterface, type Interface } from 'node:readline';
 import { applyRemedies, formatRemedies, isVerifiable, parseChoices, stepShift, verifyRemedies } from './apply.js';
 import { contentHash } from './patch.js';
 
@@ -220,9 +220,51 @@ export interface RemedyTarget {
   hintsDir: string;
 }
 
+/**
+ * Line input that doesn't lose lines: what arrives before a prompt (typed ahead, or piped in a script) is queued
+ * for the next one, and the end of input answers undefined instead of throwing.
+ */
+export class LineReader {
+  private readonly queue: string[] = [];
+  private waiting?: (line: string | undefined) => void;
+  private ended = false;
+  private readonly rl: Interface;
+
+  constructor(
+    private readonly input: NodeJS.ReadableStream & { isTTY?: boolean } = process.stdin,
+    private readonly output: NodeJS.WritableStream = process.stdout,
+  ) {
+    this.rl = createInterface({ input, output, terminal: !!input.isTTY });
+    this.rl.on('line', (line) => {
+      const waiting = this.waiting;
+      this.waiting = undefined;
+      if (waiting) waiting(line);
+      else this.queue.push(line);
+    });
+    this.rl.on('close', () => {
+      this.ended = true;
+      this.waiting?.(undefined);
+      this.waiting = undefined;
+    });
+  }
+
+  async ask(prompt: string): Promise<string | undefined> {
+    this.output.write(prompt);
+    const queued = this.queue.shift();
+    const line = queued ?? (this.ended ? undefined : await new Promise<string | undefined>((r) => (this.waiting = r)));
+    // Piped input isn't echoed by a terminal: show it, so a scripted session reads like a typed one.
+    if (!this.input.isTTY) this.output.write(`${line ?? '(end of input)'}\n`);
+    return line;
+  }
+
+  close(): void {
+    this.rl.close();
+  }
+}
+
 /** Interactive terminal UI. */
 export class TerminalUi implements NudgeUi {
-  private readonly rl = createInterface({ input: process.stdin, output: process.stdout });
+  private readonly rl = new LineReader();
   /** What the human applied, for the session summary. */
   readonly applied: string[] = [];
   /** A remedies pause waiting for verification runs; the driver runs them between relaunches. */
@@ -252,7 +294,8 @@ export class TerminalUi implements NudgeUi {
     }
     console.log(`\n${formatPause(state)}`);
     for (;;) {
-      const parsed = parseCommandLine(await this.rl.question('nudge> '), state);
+      // End of input (Ctrl+D, or the end of a piped script) quits cleanly.
+      const parsed = parseCommandLine((await this.rl.ask('nudge> ')) ?? 'q', state);
       if ('local' in parsed) console.log(parsed.local);
       else return parsed;
     }
@@ -265,7 +308,7 @@ export class TerminalUi implements NudgeUi {
     let choices: number[] | undefined;
     while (
       !(choices = parseChoices(
-        await this.rl.question(`Apply [1-${n}, e.g. 1,3; a = all verified; n = none]> `),
+        (await this.rl.ask(`Apply [1-${n}, e.g. 1,3; a = all verified; n = none]> `)) ?? 'n',
         remedies.options,
       ))
     )
@@ -296,18 +339,18 @@ export class TerminalUi implements NudgeUi {
   }
 }
 
-function runPlaywright(spec: string, env: NodeJS.ProcessEnv): Promise<number> {
+/** Runs the spec. With `logFile`, output goes there instead of the terminal (verification runs). */
+function runPlaywright(spec: string, env: NodeJS.ProcessEnv, logFile?: string): Promise<number> {
   return new Promise((resolve) => {
-    const child = spawn(
-      'npx',
-      ['playwright', 'test', spec, '--workers=1', '--retries=0', '--timeout=0', '--reporter=list'],
-      {
-        stdio: ['ignore', 'inherit', 'inherit'],
-        shell: true,
-        env,
-      },
-    );
-    child.on('exit', (code) => resolve(code ?? 1));
+    const out = logFile ? openSync(logFile, 'w') : 'inherit';
+    // One quoted command line: npx is npx.cmd on Windows and needs a shell, and Node deprecates passing an
+    // argument array together with shell: true (DEP0190).
+    const command = `npx playwright test "${spec.replace(/"/g, '')}" --workers=1 --retries=0 --timeout=0 --reporter=@aipw/test/nudge-reporter`;
+    const child = spawn(command, { stdio: ['ignore', out, out], shell: true, env });
+    child.on('exit', (code) => {
+      if (typeof out === 'number') closeSync(out);
+      resolve(code ?? 1);
+    });
   });
 }
 
@@ -357,7 +400,10 @@ export async function runNudge(argv: string[]): Promise<number> {
     const file = join(dir, `verify-${++jobs}.json`);
     writeFileSync(file, JSON.stringify(job));
     server.verifications.length = 0;
-    await runPlaywright(args.spec, env(job.step, { AIPW_NUDGE_BREAK: 'none', AIPW_NUDGE_VERIFY: file }));
+    // Quiet: a verification run ends by design with VerifyDone, which Playwright prints as a failure.
+    const log = join(dir, `verify-${jobs}.log`);
+    await runPlaywright(args.spec, env(job.step, { AIPW_NUDGE_BREAK: 'none', AIPW_NUDGE_VERIFY: file }), log);
+    console.log(`  (run log: ${relative(process.cwd(), log)})`);
     return server.verifications.shift();
   };
   try {

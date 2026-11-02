@@ -129,6 +129,7 @@ All phases in [docs/10](docs/10-implementation-plan.md) are implemented. What ha
 - **Contract-tested, not yet run live:** the Foundry/OpenAI, Anthropic API and Copilot CLI providers, and the Azure
   Pipelines PR-gate and nightly pipelines. These need credentials or machines this one doesn't have
   ([spikes/README.md](spikes/README.md)).
-- **Not yet tried by a person:** nudge mode (`npx aipw nudge`), which is covered by scripted end-to-end tests.
+- **Nudge mode** (`npx aipw nudge`) has been run live with keystrokes piped in (a hint, then applying the verified fix),
+  but not yet driven by a person at a keyboard.
 
 Development: `npm run check` (lint, typecheck, unit tests) and `npm run e2e` (FakeProvider suites, no AI).

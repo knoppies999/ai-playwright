@@ -480,6 +480,8 @@ export class Ai {
         usage: emptyUsage(),
       };
     }
+    // The instruction as written in the spec: remedies for a correction are offered against it.
+    const written = instruction;
     ({ instruction, options } = nudged);
     return this.step(
       'act',
@@ -646,7 +648,9 @@ export class Ai {
               await this.storeHealed(cache, key, healing.plan, plan, instruction, ctx);
             }
           }
-          if (this.deps.nudge && outcome.human?.length) await this.offerRemedies(instruction, outcome, startUrl);
+          // A hint or edit given before the step is a correction too (docs/07 §6).
+          const human = [...(nudged.correction ? [nudged.correction] : []), ...(outcome.human ?? [])];
+          if (this.deps.nudge && human.length) await this.offerRemedies(written, { ...outcome, human }, startUrl);
           return {
             summary: outcome.summary,
             evidence: outcome.evidence,
@@ -1025,7 +1029,7 @@ export class Ai {
     kind: StepKind,
     instruction: string,
     options: O,
-  ): Promise<{ instruction: string; options: O; skip: boolean }> {
+  ): Promise<{ instruction: string; options: O; skip: boolean; correction?: string }> {
     const nudge = this.deps.nudge;
     if (!nudge) return { instruction, options, skip: false };
     const cache = this.deps.cache;
@@ -1048,9 +1052,19 @@ export class Ai {
       case 'skip':
         return { instruction, options, skip: kind === 'act' || kind === 'assert' };
       case 'hint':
-        return { instruction, options: { ...options, hints: [...(options.hints ?? []), cmd.text] }, skip: false };
+        return {
+          instruction,
+          options: { ...options, hints: [...(options.hints ?? []), cmd.text] },
+          skip: false,
+          correction: `hint: ${cmd.text}`,
+        };
       case 'edit':
-        return { instruction: cmd.instruction, options, skip: false };
+        return {
+          instruction: cmd.instruction,
+          options,
+          skip: false,
+          correction: `changed the instruction to: ${cmd.instruction}`,
+        };
       default:
         return { instruction, options, skip: false };
     }

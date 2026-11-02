@@ -303,3 +303,22 @@ Differences from the design above:
 - **Spec patcher**: the TypeScript compiler API, not ts-morph.
 - **Not built**: `nudge: { onFailure: true }`, the `x` command (use `--fresh`), screenshot / raw request in `v`, a
   control-panel window or VS Code UI, and the budget display in the pause header.
+
+## 11. As built (polish loop, 2026-11)
+
+- **A hint or edit at the pause before a step is a correction.** It used to reach the model but not the remedies, so
+  the most common fix ("h it's the Save in the Notifications section") was never offered as a permanent one. Remedies
+  are now synthesized for the instruction as written in the spec.
+- **Typed-ahead and piped input.** Lines that arrive before a prompt are kept for it, and the end of input quits
+  (or answers "none" at the remedies prompt) instead of crashing. A session can be scripted:
+
+  ```bash
+  printf 'h it is the Save button in the Notifications section\na\n' | npx aipw nudge tests/settings.spec.ts
+  ```
+
+- **Quiet session output.** Runs use `@aipw/test/nudge-reporter`: a planned stop (rewind, the end of a verification
+  run, quit) prints one line instead of a failure report, and each verification run's output goes to
+  `.aipw/nudge/<session>/verify-N.log`.
+- First live session (claude-code, Sonnet 5.5, the demo app's two "Save" buttons): the remedy was diagnosed as
+  `ambiguous-target`; the site-hint candidate passed verification in one session and failed it in another (the hint was
+  too general), the revised instruction passed both times and was applied to the spec.
