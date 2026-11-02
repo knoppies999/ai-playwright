@@ -74,7 +74,14 @@ export { parseSnapshot, pruneSnapshot, renderSnapshot } from './observe/snapshot
 
 export { FilePlanStore, MemoryPlanStore, planFilePath, readPlanFile, type PlanStore } from './cache/store.js';
 export { stepKey } from './cache/keys.js';
-export { PlanFileSchema, stableStringify, type PlanFile, type StepPlan } from './cache/plan.js';
+export {
+  PlanFileSchema,
+  stableStringify,
+  type CompiledCheck,
+  type PlanFile,
+  type PlanTarget,
+  type StepPlan,
+} from './cache/plan.js';
 export type { CacheMode } from './config.js';
 export {
   createGenerators,

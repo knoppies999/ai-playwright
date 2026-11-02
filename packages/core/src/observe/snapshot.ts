@@ -38,6 +38,20 @@ export function parseSnapshot(yaml: string): SnapNode[] {
 }
 
 function parseItem(content: string): SnapNode {
+  // YAML single-quotes a whole item when its text contains ": " (a product link "Pliers CO₂: A B $9.17"):
+  // - 'link "Pliers CO₂: A B $9.17" [ref=e5]':   Unwrap it ('' is an escaped quote) and parse what's inside.
+  if (content.startsWith("'")) {
+    let inner = '';
+    let i = 1;
+    for (; i < content.length; i++) {
+      if (content[i] === "'") {
+        if (content[i + 1] !== "'") break;
+        i++;
+      }
+      inner += content[i];
+    }
+    if (i < content.length) return parseItem(inner + content.slice(i + 1));
+  }
   const roleMatch = /^("(?:[^"\\]|\\.)*"|[^\s"[:]+)/.exec(content);
   if (!roleMatch) return { role: '', attrs: [], colon: false, children: [], verbatim: `- ${content}` };
   let rest = content.slice(roleMatch[0].length);

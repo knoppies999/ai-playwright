@@ -29,6 +29,18 @@ describe('parseSnapshot / renderSnapshot', () => {
     });
   });
 
+  it("unwraps items YAML single-quoted because their text has ': '", () => {
+    const [node] = parseSnapshot(
+      `- 'link "Slip Joint Pliers CO₂: A B C D E $9.17 O''Brien" [ref=e123] [cursor=pointer]':`,
+    );
+    expect(node).toMatchObject({
+      role: 'link',
+      name: "Slip Joint Pliers CO₂: A B C D E $9.17 O'Brien",
+      ref: 'e123',
+      colon: true,
+    });
+  });
+
   it('finds a node and its ancestors by ref', () => {
     const nodes = parseSnapshot(fixture('snapshots', 'saucedemo-inventory.yaml'));
     const found = findByRef(nodes, 'e47');

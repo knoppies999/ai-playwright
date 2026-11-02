@@ -98,6 +98,28 @@ describe('nudge mode', () => {
     expect(result.actions.map((a) => a.tool)).toEqual(['click']);
   });
 
+  it('a hint given before the step counts as a correction: remedies are offered for the written instruction', async () => {
+    const { ui, controller } = await nudged([
+      () => ({ cmd: 'hint', text: 'It is the button labelled Save' }),
+      () => ({ cmd: 'run' }),
+    ]);
+    const provider = new FakeProvider(
+      [clickSave, done],
+      [
+        {
+          diagnosis: 'Exporting is done with Save.',
+          category: 'naming-mismatch',
+          revisedInstruction: 'Click "Save"',
+          splitInto: null,
+          hint: null,
+        },
+      ],
+    );
+    await new Ai({ page: await openApp(), provider, config, nudge: controller }).act('Export the report');
+    expect(provider.structuredRequests[0]!.prompt).toContain('- hint: It is the button labelled Save');
+    expect(ui.seen[1]).toMatchObject({ reason: 'remedies', step: { instruction: 'Export the report' } });
+  });
+
   it('after a corrected step, offers remedies with a hint, a revised instruction and code', async () => {
     const { ui, controller } = await nudged([
       () => ({ cmd: 'run' }),

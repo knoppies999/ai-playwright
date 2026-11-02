@@ -1,7 +1,9 @@
 // Generated-value filter (docs/12 §5): ids and text that change between builds or page loads must
 // never end up in a stored locator.
+import { MIXED_ID_TOKEN } from './volatile.js';
 
 export const DEFAULT_REJECT_ID_PATTERNS: readonly RegExp[] = [
+  MIXED_ID_TOKEN, // ULIDs, nanoids, ObjectIds
   /^:r[0-9a-z]+:$/i, // React useId
   /radix-/i,
   /^(ember|ext-gen|ui-id-|mat-[a-z-]+-|headlessui-[a-z-]+-|downshift-)\d+/i, // framework counters

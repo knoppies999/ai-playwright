@@ -25,8 +25,8 @@ export type AipwEvent =
       pass: boolean;
       reason: string;
       evidence: string[];
-      /** The compiled check the model proposed, for review in reports (risk R6: weak checks). */
-      check?: unknown;
+      /** The checks the model proposed, for review in reports (risk R6: weak checks). */
+      checks?: unknown[];
       usage: Usage;
     }
   | { type: 'cache'; stepId: string; key: string; outcome: 'hit' | 'miss' | 'broken' | 'stored'; reason?: string }

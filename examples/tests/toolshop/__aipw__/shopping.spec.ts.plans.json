@@ -1,0 +1,3706 @@
+{
+  "tests": {
+    "Toolshop shopping > add a quantity to the cart": {
+      "1e42c0724299d998": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open Combination Pliers",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.5219618055555556,
+                  "w": 0.20234375,
+                  "x": 0.29609375,
+                  "y": 0.7762369791666667
+                },
+                "label": null,
+                "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+                "placeholder": null,
+                "role": "'link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK"
+                },
+                "text": "Combination Pliers A B C D E $14.15"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('product-01M4KFJHJFJBXR3A2RWKK2Z7GK')",
+                  "expr": [
+                    {
+                      "id": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                }
+              ],
+              "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+              "role": "'link"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "value": "3"
+            },
+            "intent": "Set quantity to 3",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": "quantity-input",
+                  "name": null,
+                  "type": "number"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.03671875,
+                  "x": 0.53984375,
+                  "y": 0.8790147569444444
+                },
+                "label": "Quantity",
+                "name": "Quantity",
+                "placeholder": null,
+                "role": "spinbutton",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {
+                  "data-test": "quantity"
+                },
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('quantity')",
+                  "expr": [
+                    {
+                      "id": "quantity",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('spinbutton', { name: 'Quantity', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Quantity",
+                      "role": "spinbutton"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[id=\"quantity-input\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"quantity-input\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "Quantity",
+              "role": "spinbutton"
+            },
+            "tool": "fill"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Add to cart",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": "btn-add-to-cart",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.1025390625,
+                  "x": 0.509375,
+                  "y": 0.9429036458333333
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "add-to-cart"
+                },
+                "text": "Add to cart"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('add-to-cart')",
+                  "expr": [
+                    {
+                      "id": "add-to-cart",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "locator('[id=\"btn-add-to-cart\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"btn-add-to-cart\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                },
+                {
+                  "display": "getByText('Add to cart', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Add to cart"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Open \"Combination Pliers\", set the quantity to 3 and add it to the cart",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/product/01M4KFJHJFJBXR3A2RWKK2Z7GK"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-10-10T18:27:38.648Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "b125c1f4cdc5e436": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open Slip Joint Pliers product",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.5552951388888889,
+                  "w": 0.20234375,
+                  "x": 0.51015625,
+                  "y": 1.3190321180555555
+                },
+                "label": null,
+                "name": "Slip Joint Pliers Compare Slip Joint Pliers CO₂: A B C D E $9.17",
+                "placeholder": null,
+                "role": "'link",
+                "siblingIndex": 4,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "product-01M6EK948DPF5EN00G7ZP0MDPP"
+                },
+                "text": "Slip Joint Pliers A B C D E $9.17"
+              },
+              "locators": [],
+              "name": "Slip Joint Pliers Compare Slip Joint Pliers CO₂: A B C D E $9.17",
+              "role": "'link"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "value": "3"
+            },
+            "intent": "Set quantity to 3",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": "quantity-input",
+                  "name": null,
+                  "type": "number"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.03671875,
+                  "x": 0.53984375,
+                  "y": 0.9123480902777777
+                },
+                "label": "Quantity",
+                "name": "Quantity",
+                "placeholder": null,
+                "role": "spinbutton",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {
+                  "data-test": "quantity"
+                },
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('quantity')",
+                  "expr": [
+                    {
+                      "id": "quantity",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('spinbutton', { name: 'Quantity', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Quantity",
+                      "role": "spinbutton"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[id=\"quantity-input\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"quantity-input\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "Quantity",
+              "role": "spinbutton"
+            },
+            "tool": "fill"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Add to cart",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": "btn-add-to-cart",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.1025390625,
+                  "x": 0.509375,
+                  "y": 0.9762369791666666
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "add-to-cart"
+                },
+                "text": "Add to cart"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('add-to-cart')",
+                  "expr": [
+                    {
+                      "id": "add-to-cart",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "locator('[id=\"btn-add-to-cart\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"btn-add-to-cart\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                },
+                {
+                  "display": "getByText('Add to cart', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Add to cart"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Open \"Slip Joint Pliers\", set the quantity to 3 and add it to the cart",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/product/*"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:56:23.321Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "b9a0c466fdd84d59": {
+        "compiled": null,
+        "instruction": "A message says the product was added to the cart",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-10-10T18:27:46.930Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "Toolshop shopping > checkout validation: an empty billing address can’t continue": {
+      "1edf4025b42b700d": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open Slip Joint Pliers product",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.5552951388888889,
+                  "w": 0.20234375,
+                  "x": 0.51015625,
+                  "y": 1.3190321180555555
+                },
+                "label": null,
+                "name": "Slip Joint Pliers Compare Slip Joint Pliers CO₂: A B C D E $9.17",
+                "placeholder": null,
+                "role": "'link",
+                "siblingIndex": 4,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "product-01M6EPPWR3DX82W25Y9NT71W1D"
+                },
+                "text": "Slip Joint Pliers A B C D E $9.17"
+              },
+              "locators": [],
+              "name": "Slip Joint Pliers Compare Slip Joint Pliers CO₂: A B C D E $9.17",
+              "role": "'link"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Add to cart",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": "btn-add-to-cart",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.1025390625,
+                  "x": 0.509375,
+                  "y": 0.9762369791666666
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "add-to-cart"
+                },
+                "text": "Add to cart"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('add-to-cart')",
+                  "expr": [
+                    {
+                      "id": "add-to-cart",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "locator('[id=\"btn-add-to-cart\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"btn-add-to-cart\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                },
+                {
+                  "display": "getByText('Add to cart', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Add to cart"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open cart",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "menuitem"
+                  },
+                  {
+                    "name": "Main menu",
+                    "role": "menubar"
+                  },
+                  {
+                    "name": null,
+                    "role": "navigation"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.04356689453125,
+                  "x": 0.84791259765625,
+                  "y": 0.12664930555555556
+                },
+                "label": "cart",
+                "name": "cart",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "nav-cart"
+                },
+                "text": "1"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('nav-cart')",
+                  "expr": [
+                    {
+                      "id": "nav-cart",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('link', { name: 'cart', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "cart",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "cart",
+              "role": "link"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Proceed to checkout",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "button"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.13360595703125,
+                  "x": 0.80233154296875,
+                  "y": 0.5887369791666667
+                },
+                "label": null,
+                "name": "Proceed to checkout",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 1,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "proceed-1"
+                },
+                "text": "Proceed to checkout"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('proceed-1')",
+                  "expr": [
+                    {
+                      "id": "proceed-1",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('button', { name: 'Proceed to checkout', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Proceed to checkout",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Proceed to checkout",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Choose Continue as Guest",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "tablist"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.058333333333333334,
+                  "w": 0.12689208984375,
+                  "x": 0.35560302734375,
+                  "y": 0.37623697916666665
+                },
+                "label": null,
+                "name": "Continue as Guest",
+                "placeholder": null,
+                "role": "tab",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Continue as Guest"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('tab', { name: 'Continue as Guest', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Continue as Guest",
+                      "role": "tab"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('li').filter({ hasText: 'Continue as Guest' }).getByText('Continue as Guest', { exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "li"
+                    },
+                    {
+                      "hasText": "Continue as Guest",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Continue as Guest"
+                    }
+                  ],
+                  "rung": "L5"
+                }
+              ],
+              "name": "Continue as Guest",
+              "role": "tab"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "fields": [
+                {
+                  "value": "{{data.email}}"
+                },
+                {
+                  "value": "{{data.firstName}}"
+                },
+                {
+                  "value": "{{data.lastName}}"
+                }
+              ]
+            },
+            "intent": "Fill guest details",
+            "targets": [
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    },
+                    {
+                      "name": null,
+                      "role": "tabpanel"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "guest-email",
+                    "name": null,
+                    "type": "email"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.4171875,
+                    "x": 0.29140625,
+                    "y": 0.6145616319444445
+                  },
+                  "label": "Email address *",
+                  "name": "Email address *",
+                  "placeholder": "Your email",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "guest-email"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('guest-email')",
+                    "expr": [
+                      {
+                        "id": "guest-email",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'Email address *', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Email address *",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "locator('[id=\"guest-email\"]')",
+                    "expr": [
+                      {
+                        "m": "locator",
+                        "selector": "[id=\"guest-email\"]"
+                      }
+                    ],
+                    "rung": "L4"
+                  }
+                ],
+                "name": "Email address *",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    },
+                    {
+                      "name": null,
+                      "role": "tabpanel"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "guest-first-name",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.4171875,
+                    "x": 0.29140625,
+                    "y": 0.7340060763888889
+                  },
+                  "label": "First name *",
+                  "name": "First name *",
+                  "placeholder": "Your first name",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "guest-first-name"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('guest-first-name')",
+                    "expr": [
+                      {
+                        "id": "guest-first-name",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'First name *', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "First name *",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('First name *', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "First name *"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "First name *",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    },
+                    {
+                      "name": null,
+                      "role": "tabpanel"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "guest-last-name",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.4171875,
+                    "x": 0.29140625,
+                    "y": 0.8534505208333333
+                  },
+                  "label": "Last name *",
+                  "name": "Last name *",
+                  "placeholder": "Your last name",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "guest-last-name"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('guest-last-name')",
+                    "expr": [
+                      {
+                        "id": "guest-last-name",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'Last name *', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Last name *",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Last name *', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Last name *"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Last name *",
+                "role": "textbox"
+              }
+            ],
+            "tool": "fill_form"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Continue as Guest",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  },
+                  {
+                    "name": null,
+                    "role": "tabpanel"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "submit"
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.20859375,
+                  "x": 0.29140625,
+                  "y": 0.9284505208333333
+                },
+                "label": null,
+                "name": "Continue as Guest",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {
+                  "data-test": "guest-submit"
+                },
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('guest-submit')",
+                  "expr": [
+                    {
+                      "id": "guest-submit",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('button', { name: 'Continue as Guest', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Continue as Guest",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Continue as Guest",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Proceed to checkout as guest",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "button"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.13360595703125,
+                  "x": 0.57498779296875,
+                  "y": 0.43179253472222223
+                },
+                "label": null,
+                "name": "Proceed to checkout",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "proceed-2-guest"
+                },
+                "text": "Proceed to checkout"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('proceed-2-guest')",
+                  "expr": [
+                    {
+                      "id": "proceed-2-guest",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('button', { name: 'Proceed to checkout', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Proceed to checkout",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Proceed to checkout",
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Add \"Slip Joint Pliers\" to the cart, open the cart and proceed to checkout as a guest",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/checkout"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T18:03:06.158Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "3af84d057f5a2544": {
+        "compiled": null,
+        "instruction": "The address step is still shown: it is not possible to continue to payment",
+        "kind": "assert",
+        "note": "check 2 (toBeDisabled): ref null is not in the snapshot",
+        "recordedWith": {
+          "at": "2026-11-02T18:03:29.312Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "504c1bf5451572bd": {
+        "actions": [
+          {
+            "args": {
+              "value": ""
+            },
+            "intent": "Clear the street field",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": "street",
+                  "name": null,
+                  "type": "text"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.4171875,
+                  "x": 0.29140625,
+                  "y": 0.7576171875
+                },
+                "label": "Street",
+                "name": "Street",
+                "placeholder": "Your Street *",
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {
+                  "data-test": "street"
+                },
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('street')",
+                  "expr": [
+                    {
+                      "id": "street",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('textbox', { name: 'Street', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Street",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Street', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Street"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Street",
+              "role": "textbox"
+            },
+            "tool": "fill"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Focus street then blur to trigger validation",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": "street",
+                  "name": null,
+                  "type": "text"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.4171875,
+                  "x": 0.29140625,
+                  "y": 0.7576171875
+                },
+                "label": "Street",
+                "name": "Street",
+                "placeholder": "Your Street *",
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {
+                  "data-test": "street"
+                },
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('street')",
+                  "expr": [
+                    {
+                      "id": "street",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('textbox', { name: 'Street', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Street",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Street', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Street"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Street",
+              "role": "textbox"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "On the billing address step, clear the street and try to proceed",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/checkout"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/checkout"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T18:03:23.397Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "Toolshop shopping > edit the cart": {
+      "1dfea9e3a2f2147a": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open Slip Joint Pliers product",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.5552951388888889,
+                  "w": 0.20234375,
+                  "x": 0.51015625,
+                  "y": 1.3190321180555555
+                },
+                "label": null,
+                "name": "Slip Joint Pliers Compare Slip Joint Pliers CO₂: A B C D E $9.17",
+                "placeholder": null,
+                "role": "'link",
+                "siblingIndex": 4,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "product-01M6EK948DPF5EN00G7ZP0MDPP"
+                },
+                "text": "Slip Joint Pliers A B C D E $9.17"
+              },
+              "locators": [],
+              "name": "Slip Joint Pliers Compare Slip Joint Pliers CO₂: A B C D E $9.17",
+              "role": "'link"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Try add to cart button",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": "btn-add-to-cart",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.1025390625,
+                  "x": 0.509375,
+                  "y": 0.9762369791666666
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "add-to-cart"
+                },
+                "text": "Add to cart"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('add-to-cart')",
+                  "expr": [
+                    {
+                      "id": "add-to-cart",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "locator('[id=\"btn-add-to-cart\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"btn-add-to-cart\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                },
+                {
+                  "display": "getByText('Add to cart', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Add to cart"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {},
+            "intent": "Go back to shop listing",
+            "tool": "go_back"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open Bolt Cutters product",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.5219618055555556,
+                  "w": 0.20234375,
+                  "x": 0.72421875,
+                  "y": -0.32098524305555554
+                },
+                "label": null,
+                "name": "Bolt Cutters Compare Bolt Cutters CO₂: A B C D E $48.41",
+                "placeholder": null,
+                "role": "'link",
+                "siblingIndex": 2,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "product-01M6EK9482C32YFDK95K18GSQ4"
+                },
+                "text": "Bolt Cutters A B C D E $48.41"
+              },
+              "locators": [],
+              "name": "Bolt Cutters Compare Bolt Cutters CO₂: A B C D E $48.41",
+              "role": "'link"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Try add to cart button",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": "btn-add-to-cart",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.1025390625,
+                  "x": 0.509375,
+                  "y": 0.9762369791666666
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "add-to-cart"
+                },
+                "text": "Add to cart"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('add-to-cart')",
+                  "expr": [
+                    {
+                      "id": "add-to-cart",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "locator('[id=\"btn-add-to-cart\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"btn-add-to-cart\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                },
+                {
+                  "display": "getByText('Add to cart', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Add to cart"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Add \"Slip Joint Pliers\" to the cart, go back to the shop and add \"Bolt Cutters\" too",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/product/*"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:57:22.010Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "349f8e5b921cce2d": {
+        "instruction": "every cart line (product name, quantity, line total) and the cart total, as numbers",
+        "kind": "extract",
+        "recordedWith": {
+          "at": "2026-11-02T17:58:04.074Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "sources": [
+          {
+            "path": "lines.0.name",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.0763888888888889,
+                  "w": 0.36328125,
+                  "x": 0.0640625,
+                  "y": 0.4324869791666667
+                },
+                "label": null,
+                "name": "Bolt Cutters",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 0,
+                "tag": "td",
+                "testIds": {},
+                "text": "Bolt Cutters"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('cell', { name: 'Bolt Cutters', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Bolt Cutters",
+                      "role": "cell"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Bolt Cutters",
+              "role": "cell"
+            }
+          },
+          {
+            "path": "lines.0.quantity",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": "quantity-01m6eph4c2tfx4esdt3dah479t",
+                  "name": null,
+                  "type": "number"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.1328125,
+                  "x": 0.43359375,
+                  "y": 0.44429253472222224
+                },
+                "label": "Quantity for Bolt Cutters",
+                "name": "Quantity for Bolt Cutters",
+                "placeholder": null,
+                "role": "spinbutton",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {
+                  "data-test": "product-quantity"
+                },
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('product-quantity')",
+                  "expr": [
+                    {
+                      "id": "product-quantity",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('spinbutton', { name: 'Quantity for Bolt Cutters', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Quantity for Bolt Cutters",
+                      "role": "spinbutton"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Quantity for Bolt Cutters', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Quantity for Bolt Cutters"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Quantity for Bolt Cutters",
+              "role": "spinbutton"
+            }
+          },
+          {
+            "path": "lines.0.lineTotal",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.0763888888888889,
+                  "w": 0.1453125,
+                  "x": 0.71796875,
+                  "y": 0.4324869791666667
+                },
+                "label": null,
+                "name": "$96.82",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 3,
+                "tag": "td",
+                "testIds": {},
+                "text": "$96.82"
+              },
+              "locators": [
+                {
+                  "display": "locator('tr').filter({ hasText: 'Bolt Cutters' }).getByRole('cell', { name: '$96.82', exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "tr"
+                    },
+                    {
+                      "hasText": "Bolt Cutters",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "$96.82",
+                      "role": "cell"
+                    }
+                  ],
+                  "rung": "L5"
+                }
+              ],
+              "name": "$96.82",
+              "role": "cell"
+            }
+          },
+          {
+            "path": "total",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05694444444444444,
+                  "w": 0.1453125,
+                  "x": 0.71796875,
+                  "y": 0.5088758680555555
+                },
+                "label": null,
+                "name": "$96.82",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 3,
+                "tag": "td",
+                "testIds": {
+                  "data-test": "cart-total"
+                },
+                "text": "$96.82"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('cart-total')",
+                  "expr": [
+                    {
+                      "id": "cart-total",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                }
+              ],
+              "name": "$96.82",
+              "role": "cell"
+            }
+          }
+        ],
+        "stats": {
+          "heals": 0
+        }
+      },
+      "76b6cfc7a2a9e15c": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open cart",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "menuitem"
+                  },
+                  {
+                    "name": "Main menu",
+                    "role": "menubar"
+                  },
+                  {
+                    "name": null,
+                    "role": "navigation"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.04356689453125,
+                  "x": 0.84791259765625,
+                  "y": 0.12664930555555556
+                },
+                "label": "cart",
+                "name": "cart",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "nav-cart"
+                },
+                "text": "2"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('nav-cart')",
+                  "expr": [
+                    {
+                      "id": "nav-cart",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('link', { name: 'cart', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "cart",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "cart",
+              "role": "link"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "ms": null,
+              "state": null,
+              "text": "Bolt Cutters"
+            },
+            "intent": "Wait for cart items to load",
+            "tool": "wait_for"
+          },
+          {
+            "args": {
+              "value": "2"
+            },
+            "intent": "Set Bolt Cutters quantity to 2",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": "quantity-01m6eph4c2tfx4esdt3dah479t",
+                  "name": null,
+                  "type": "number"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.1328125,
+                  "x": 0.43359375,
+                  "y": 0.5206814236111111
+                },
+                "label": "Quantity for Bolt Cutters",
+                "name": "Quantity for Bolt Cutters",
+                "placeholder": null,
+                "role": "spinbutton",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {
+                  "data-test": "product-quantity"
+                },
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "locator('tr').filter({ hasText: 'Bolt Cutters' }).getByTestId('product-quantity')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "tr"
+                    },
+                    {
+                      "hasText": "Bolt Cutters",
+                      "m": "filter"
+                    },
+                    {
+                      "id": "product-quantity",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "getByRole('spinbutton', { name: 'Quantity for Bolt Cutters', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Quantity for Bolt Cutters",
+                      "role": "spinbutton"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Quantity for Bolt Cutters', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Quantity for Bolt Cutters"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Quantity for Bolt Cutters",
+              "role": "spinbutton"
+            },
+            "tool": "fill"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Remove Slip Joint Pliers",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.0296875,
+                  "x": 0.86953125,
+                  "y": 0.44429253472222224
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [],
+              "role": "generic"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Open the cart, change the quantity of the Bolt Cutters to 2, and remove the Slip Joint Pliers",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/checkout"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/product/*"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:57:59.160Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "Toolshop shopping > guest checkout, paid cash on delivery": {
+      "18ce785e2bac1c3f": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open Slip Joint Pliers product",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.5552951388888889,
+                  "w": 0.20234375,
+                  "x": 0.51015625,
+                  "y": 1.3190321180555555
+                },
+                "label": null,
+                "name": "Slip Joint Pliers Compare Slip Joint Pliers CO₂: A B C D E $9.17",
+                "placeholder": null,
+                "role": "'link",
+                "siblingIndex": 4,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "product-01M6EK948DPF5EN00G7ZP0MDPP"
+                },
+                "text": "Slip Joint Pliers A B C D E $9.17"
+              },
+              "locators": [],
+              "name": "Slip Joint Pliers Compare Slip Joint Pliers CO₂: A B C D E $9.17",
+              "role": "'link"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Try add to cart button",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": "btn-add-to-cart",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.1025390625,
+                  "x": 0.509375,
+                  "y": 0.9762369791666666
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "add-to-cart"
+                },
+                "text": "Add to cart"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('add-to-cart')",
+                  "expr": [
+                    {
+                      "id": "add-to-cart",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "locator('[id=\"btn-add-to-cart\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"btn-add-to-cart\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                },
+                {
+                  "display": "getByText('Add to cart', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Add to cart"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open Bolt Cutters product",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.4583333333333333,
+                  "w": 0.16124267578125,
+                  "x": 0.41937255859375,
+                  "y": 1.5081597222222223
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 2,
+                "tag": "a",
+                "testIds": {},
+                "text": "Bolt Cutters More information"
+              },
+              "locators": [],
+              "role": "link"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Add Bolt Cutters to cart",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": "btn-add-to-cart",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.1025390625,
+                  "x": 0.509375,
+                  "y": 0.9762369791666666
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "add-to-cart"
+                },
+                "text": "Add to cart"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('add-to-cart')",
+                  "expr": [
+                    {
+                      "id": "add-to-cart",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "locator('[id=\"btn-add-to-cart\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"btn-add-to-cart\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                },
+                {
+                  "display": "getByText('Add to cart', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Add to cart"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open cart",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "menuitem"
+                  },
+                  {
+                    "name": "Main menu",
+                    "role": "menubar"
+                  },
+                  {
+                    "name": null,
+                    "role": "navigation"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.04356689453125,
+                  "x": 0.84791259765625,
+                  "y": 0.12664930555555556
+                },
+                "label": "cart",
+                "name": "cart",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "nav-cart"
+                },
+                "text": "2"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('nav-cart')",
+                  "expr": [
+                    {
+                      "id": "nav-cart",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('link', { name: 'cart', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "cart",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "cart",
+              "role": "link"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "ms": null,
+              "state": null,
+              "text": "Bolt Cutters"
+            },
+            "intent": "Verify cart contents loaded",
+            "tool": "wait_for"
+          }
+        ],
+        "instruction": "Add \"Slip Joint Pliers\" and \"Bolt Cutters\" to the cart, then open the cart",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/checkout"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:58:52.921Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "52ea7f77a47f6223": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Proceed to billing address step",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "button"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.13360595703125,
+                  "x": 0.57498779296875,
+                  "y": 0.43179253472222223
+                },
+                "label": null,
+                "name": "Proceed to checkout",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "proceed-2-guest"
+                },
+                "text": "Proceed to checkout"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('proceed-2-guest')",
+                  "expr": [
+                    {
+                      "id": "proceed-2-guest",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('button', { name: 'Proceed to checkout', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Proceed to checkout",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Proceed to checkout",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "values": [
+                "GB"
+              ]
+            },
+            "intent": "Select country by code",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": "country",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.4171875,
+                  "x": 0.29140625,
+                  "y": 0.47845052083333334
+                },
+                "label": "Country",
+                "name": "Country",
+                "placeholder": null,
+                "role": "combobox",
+                "siblingIndex": 0,
+                "tag": "select",
+                "testIds": {
+                  "data-test": "country"
+                },
+                "text": "Your country * Albania Åland Islands Algeria American Samoa Andorra Angola Angui"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('country')",
+                  "expr": [
+                    {
+                      "id": "country",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('combobox', { name: 'Country', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Country",
+                      "role": "combobox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Country', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Country"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Country",
+              "role": "combobox"
+            },
+            "tool": "select_option"
+          },
+          {
+            "args": {
+              "fields": [
+                {
+                  "value": "{{data.postalCode}}"
+                },
+                {
+                  "value": "{{data.houseNumber}}"
+                },
+                {
+                  "value": "{{data.street}}"
+                },
+                {
+                  "value": "{{data.city}}"
+                },
+                {
+                  "value": "{{data.state}}"
+                }
+              ]
+            },
+            "intent": "Fill billing address fields",
+            "targets": [
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "postal_code",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.19921875,
+                    "x": 0.29140625,
+                    "y": 0.6381727430555556
+                  },
+                  "label": "Postal code",
+                  "name": "Postal code",
+                  "placeholder": "Your Postcode *",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "postal_code"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('postal_code')",
+                    "expr": [
+                      {
+                        "id": "postal_code",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'Postal code', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Postal code",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Postal code', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Postal code"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Postal code",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "house_number",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.19921875,
+                    "x": 0.509375,
+                    "y": 0.6381727430555556
+                  },
+                  "label": "House number",
+                  "name": "House number",
+                  "placeholder": "e.g. 42 *",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "house_number"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('house_number')",
+                    "expr": [
+                      {
+                        "id": "house_number",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'House number', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "House number",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('House number', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "House number"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "House number",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "street",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.4171875,
+                    "x": 0.29140625,
+                    "y": 0.7576171875
+                  },
+                  "label": "Street",
+                  "name": "Street",
+                  "placeholder": "Your Street *",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "street"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('street')",
+                    "expr": [
+                      {
+                        "id": "street",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'Street', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Street",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Street', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Street"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Street",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "city",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.4171875,
+                    "x": 0.29140625,
+                    "y": 0.8770616319444444
+                  },
+                  "label": "City",
+                  "name": "City",
+                  "placeholder": "Your City *",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "city"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('city')",
+                    "expr": [
+                      {
+                        "id": "city",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'City', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "City",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('City', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "City"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "City",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "state",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.4171875,
+                    "x": 0.29140625,
+                    "y": 0.9965060763888889
+                  },
+                  "label": "State",
+                  "name": "State",
+                  "placeholder": "State *",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "state"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('state')",
+                    "expr": [
+                      {
+                        "id": "state",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'State', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "State",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('State', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "State"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "State",
+                "role": "textbox"
+              }
+            ],
+            "tool": "fill_form"
+          },
+          {
+            "args": {
+              "fields": [
+                {
+                  "value": "{{data.street}}"
+                },
+                {
+                  "value": "{{data.city}}"
+                },
+                {
+                  "value": "{{data.state}}"
+                }
+              ]
+            },
+            "intent": "Refill address fields after autofill",
+            "targets": [
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "street",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.4171875,
+                    "x": 0.29140625,
+                    "y": 0.7201171875
+                  },
+                  "label": "Street",
+                  "name": "Street",
+                  "placeholder": "Your Street *",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "street"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('street')",
+                    "expr": [
+                      {
+                        "id": "street",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'Street', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Street",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Street', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Street"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Street",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "city",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.4171875,
+                    "x": 0.29140625,
+                    "y": 0.8395616319444444
+                  },
+                  "label": "City",
+                  "name": "City",
+                  "placeholder": "Your City *",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "city"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('city')",
+                    "expr": [
+                      {
+                        "id": "city",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'City', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "City",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('City', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "City"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "City",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "state",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.4171875,
+                    "x": 0.29140625,
+                    "y": 0.9590060763888889
+                  },
+                  "label": "State",
+                  "name": "State",
+                  "placeholder": "State *",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "state"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('state')",
+                    "expr": [
+                      {
+                        "id": "state",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'State', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "State",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('State', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "State"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "State",
+                "role": "textbox"
+              }
+            ],
+            "tool": "fill_form"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Proceed to payment",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "button"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.13360595703125,
+                  "x": 0.57498779296875,
+                  "y": 1.034006076388889
+                },
+                "label": null,
+                "name": "Proceed to checkout",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "proceed-3"
+                },
+                "text": "Proceed to checkout"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('proceed-3')",
+                  "expr": [
+                    {
+                      "id": "proceed-3",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('button', { name: 'Proceed to checkout', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Proceed to checkout",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Proceed to checkout",
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Fill in the billing address and proceed to payment",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/checkout"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/checkout"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T18:00:44.933Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "81f4994e4c9681ce": {
+        "instruction": "the cart total, as a number",
+        "kind": "extract",
+        "recordedWith": {
+          "at": "2026-11-02T17:58:57.612Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "sources": [
+          {
+            "path": "",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05694444444444444,
+                  "w": 0.1453125,
+                  "x": 0.71796875,
+                  "y": 0.5852647569444445
+                },
+                "label": null,
+                "name": "$57.58",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 3,
+                "tag": "td",
+                "testIds": {
+                  "data-test": "cart-total"
+                },
+                "text": "$57.58"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('cart-total')",
+                  "expr": [
+                    {
+                      "id": "cart-total",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('cell', { name: '$57.58', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "$57.58",
+                      "role": "cell"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "$57.58",
+              "role": "cell"
+            }
+          }
+        ],
+        "stats": {
+          "heals": 0
+        }
+      },
+      "d4b4ac17577721dc": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Proceed to checkout",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "button"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.13360595703125,
+                  "x": 0.80233154296875,
+                  "y": 0.6651258680555555
+                },
+                "label": null,
+                "name": "Proceed to checkout",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 1,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "proceed-1"
+                },
+                "text": "Proceed to checkout"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('proceed-1')",
+                  "expr": [
+                    {
+                      "id": "proceed-1",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('button', { name: 'Proceed to checkout', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Proceed to checkout",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Proceed to checkout",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open Continue as Guest tab",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "tablist"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.058333333333333334,
+                  "w": 0.12689208984375,
+                  "x": 0.35560302734375,
+                  "y": 0.37623697916666665
+                },
+                "label": null,
+                "name": "Continue as Guest",
+                "placeholder": null,
+                "role": "tab",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Continue as Guest"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('tab', { name: 'Continue as Guest', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Continue as Guest",
+                      "role": "tab"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('li').filter({ hasText: 'Continue as Guest' }).getByText('Continue as Guest', { exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "li"
+                    },
+                    {
+                      "hasText": "Continue as Guest",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Continue as Guest"
+                    }
+                  ],
+                  "rung": "L5"
+                }
+              ],
+              "name": "Continue as Guest",
+              "role": "tab"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "fields": [
+                {
+                  "value": "{{data.email}}"
+                },
+                {
+                  "value": "{{data.firstName}}"
+                },
+                {
+                  "value": "{{data.lastName}}"
+                }
+              ]
+            },
+            "intent": "Fill guest details",
+            "targets": [
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    },
+                    {
+                      "name": null,
+                      "role": "tabpanel"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "guest-email",
+                    "name": null,
+                    "type": "email"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.4171875,
+                    "x": 0.29140625,
+                    "y": 0.6145616319444445
+                  },
+                  "label": "Email address *",
+                  "name": "Email address *",
+                  "placeholder": "Your email",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "guest-email"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('guest-email')",
+                    "expr": [
+                      {
+                        "id": "guest-email",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'Email address *', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Email address *",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "locator('[id=\"guest-email\"]')",
+                    "expr": [
+                      {
+                        "m": "locator",
+                        "selector": "[id=\"guest-email\"]"
+                      }
+                    ],
+                    "rung": "L4"
+                  }
+                ],
+                "name": "Email address *",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    },
+                    {
+                      "name": null,
+                      "role": "tabpanel"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "guest-first-name",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.4171875,
+                    "x": 0.29140625,
+                    "y": 0.7340060763888889
+                  },
+                  "label": "First name *",
+                  "name": "First name *",
+                  "placeholder": "Your first name",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "guest-first-name"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('guest-first-name')",
+                    "expr": [
+                      {
+                        "id": "guest-first-name",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'First name *', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "First name *",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('First name *', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "First name *"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "First name *",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    },
+                    {
+                      "name": null,
+                      "role": "tabpanel"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "guest-last-name",
+                    "name": null,
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.05277777777777778,
+                    "w": 0.4171875,
+                    "x": 0.29140625,
+                    "y": 0.8534505208333333
+                  },
+                  "label": "Last name *",
+                  "name": "Last name *",
+                  "placeholder": "Your last name",
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {
+                    "data-test": "guest-last-name"
+                  },
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByTestId('guest-last-name')",
+                    "expr": [
+                      {
+                        "id": "guest-last-name",
+                        "m": "getByTestId"
+                      }
+                    ],
+                    "rung": "L1"
+                  },
+                  {
+                    "display": "getByRole('textbox', { name: 'Last name *', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Last name *",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Last name *', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Last name *"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Last name *",
+                "role": "textbox"
+              }
+            ],
+            "tool": "fill_form"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Continue as Guest",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  },
+                  {
+                    "name": null,
+                    "role": "tabpanel"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "submit"
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.20859375,
+                  "x": 0.29140625,
+                  "y": 0.9284505208333333
+                },
+                "label": null,
+                "name": "Continue as Guest",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {
+                  "data-test": "guest-submit"
+                },
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('guest-submit')",
+                  "expr": [
+                    {
+                      "id": "guest-submit",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('button', { name: 'Continue as Guest', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Continue as Guest",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Continue as Guest",
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Proceed to checkout and continue as a guest",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/checkout"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/checkout"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:59:28.094Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    }
+  },
+  "version": 1
+}

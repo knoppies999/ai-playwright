@@ -1,5 +1,3366 @@
 {
   "tests": {
+    "The Internet: journeys > a wrong password is refused, then the right one works": {
+      "8253a49d19f28df3": {
+        "compiled": [
+          {
+            "args": [
+              "Your password is invalid!"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": "flash",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05017361111111111,
+                  "w": 0.7578125,
+                  "x": 0.12109375,
+                  "y": 0.13663194444444443
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": null,
+                "siblingIndex": 0,
+                "tag": "div",
+                "testIds": {},
+                "text": "Your password is invalid! ×"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"flash\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"flash\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                },
+                {
+                  "display": "getByText('Your password is invalid! ×', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Your password is invalid! ×"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ]
+            }
+          }
+        ],
+        "instruction": "An error says the password is invalid",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-11-02T17:35:16.317Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "9d47f52673d5b7e8": {
+        "actions": [
+          {
+            "args": {
+              "fields": [
+                {
+                  "value": "{{data.username}}"
+                },
+                {
+                  "value": "{{secret.password}}"
+                }
+              ]
+            },
+            "intent": "Fill credentials",
+            "targets": [
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "username",
+                    "name": "username",
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.04496527777777778,
+                    "w": 0.36640625,
+                    "x": 0.121875,
+                    "y": 0.5380208333333333
+                  },
+                  "label": "Username",
+                  "name": "Username",
+                  "placeholder": null,
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {},
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByRole('textbox', { name: 'Username', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Username",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Username', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Username"
+                      }
+                    ],
+                    "rung": "L3"
+                  },
+                  {
+                    "display": "locator('input[name=\"username\"]')",
+                    "expr": [
+                      {
+                        "m": "locator",
+                        "selector": "input[name=\"username\"]"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Username",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "password",
+                    "name": "password",
+                    "type": "password"
+                  },
+                  "box": {
+                    "h": 0.04496527777777778,
+                    "w": 0.36640625,
+                    "x": 0.121875,
+                    "y": 0.6255208333333333
+                  },
+                  "label": "Password",
+                  "name": "Password",
+                  "placeholder": null,
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {},
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByRole('textbox', { name: 'Password', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Password",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Password', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Password"
+                      }
+                    ],
+                    "rung": "L3"
+                  },
+                  {
+                    "display": "locator('input[name=\"password\"]')",
+                    "expr": [
+                      {
+                        "m": "locator",
+                        "selector": "input[name=\"password\"]"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Password",
+                "role": "textbox"
+              }
+            ],
+            "tool": "fill_form"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Submit login",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "submit"
+                },
+                "box": {
+                  "h": 0.08194444444444444,
+                  "w": 0.127880859375,
+                  "x": 0.121875,
+                  "y": 0.6899305555555556
+                },
+                "label": null,
+                "name": " Login",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Login"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: ' Login', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": " Login",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": " Login",
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Now log in as tomsmith with the correct password",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://the-internet.herokuapp.com/secure"
+        },
+        "pre": {
+          "urlPattern": "https://the-internet.herokuapp.com/login"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:35:29.814Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "b23ac496b7b64a14": {
+        "actions": [
+          {
+            "args": {
+              "fields": [
+                {
+                  "value": "{{data.username}}"
+                },
+                {
+                  "value": "{{data.password}}"
+                }
+              ]
+            },
+            "intent": "Fill credentials",
+            "targets": [
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "username",
+                    "name": "username",
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.04496527777777778,
+                    "w": 0.36640625,
+                    "x": 0.121875,
+                    "y": 0.4635416666666667
+                  },
+                  "label": "Username",
+                  "name": "Username",
+                  "placeholder": null,
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {},
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByRole('textbox', { name: 'Username', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Username",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Username', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Username"
+                      }
+                    ],
+                    "rung": "L3"
+                  },
+                  {
+                    "display": "locator('input[name=\"username\"]')",
+                    "expr": [
+                      {
+                        "m": "locator",
+                        "selector": "input[name=\"username\"]"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Username",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "password",
+                    "name": "password",
+                    "type": "password"
+                  },
+                  "box": {
+                    "h": 0.04496527777777778,
+                    "w": 0.36640625,
+                    "x": 0.121875,
+                    "y": 0.5510416666666667
+                  },
+                  "label": "Password",
+                  "name": "Password",
+                  "placeholder": null,
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {},
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByRole('textbox', { name: 'Password', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Password",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Password', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Password"
+                      }
+                    ],
+                    "rung": "L3"
+                  },
+                  {
+                    "display": "locator('input[name=\"password\"]')",
+                    "expr": [
+                      {
+                        "m": "locator",
+                        "selector": "input[name=\"password\"]"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Password",
+                "role": "textbox"
+              }
+            ],
+            "tool": "fill_form"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Submit login",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "submit"
+                },
+                "box": {
+                  "h": 0.08194444444444444,
+                  "w": 0.127880859375,
+                  "x": 0.121875,
+                  "y": 0.6154513888888888
+                },
+                "label": null,
+                "name": " Login",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Login"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: ' Login', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": " Login",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": " Login",
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Try to log in as tomsmith with this password",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://the-internet.herokuapp.com/login"
+        },
+        "pre": {
+          "urlPattern": "https://the-internet.herokuapp.com/login"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:35:09.317Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "The Internet: journeys > add and remove elements": {
+      "0ee76c5d002a0abb": {
+        "compiled": [
+          {
+            "args": [
+              "3"
+            ],
+            "expect": "toHaveCount",
+            "target": {
+              "locators": [
+                {
+                  "display": "locator('[id=\"elements\"]').getByRole('button', { name: 'Delete', exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"elements\"]"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Delete",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L5"
+                }
+              ],
+              "role": "button"
+            }
+          }
+        ],
+        "instruction": "Exactly three Delete buttons are left",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-11-02T17:29:49.927Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "548a7ef1bc79d852": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Click Add Element (1/5)",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.1142578125,
+                  "x": 0.121875,
+                  "y": 0.2834201388888889
+                },
+                "label": null,
+                "name": "Add Element",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Add Element"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Add Element', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Add Element",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Add Element', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Add Element"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Add Element",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Click Add Element (2/5)",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.1142578125,
+                  "x": 0.121875,
+                  "y": 0.2834201388888889
+                },
+                "label": null,
+                "name": "Add Element",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Add Element"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Add Element', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Add Element",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Add Element', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Add Element"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Add Element",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Click Add Element (3/5)",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.1142578125,
+                  "x": 0.121875,
+                  "y": 0.2834201388888889
+                },
+                "label": null,
+                "name": "Add Element",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Add Element"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Add Element', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Add Element",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Add Element', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Add Element"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Add Element",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Click Add Element (4/5)",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.1142578125,
+                  "x": 0.121875,
+                  "y": 0.2834201388888889
+                },
+                "label": null,
+                "name": "Add Element",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Add Element"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Add Element', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Add Element",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Add Element', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Add Element"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Add Element",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Click Add Element (5/5)",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.1142578125,
+                  "x": 0.121875,
+                  "y": 0.2834201388888889
+                },
+                "label": null,
+                "name": "Add Element",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Add Element"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Add Element', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Add Element",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Add Element', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Add Element"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Add Element",
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Click \"Add Element\" five times",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://the-internet.herokuapp.com/add_remove_elements/"
+        },
+        "pre": {
+          "urlPattern": "https://the-internet.herokuapp.com/add_remove_elements/"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:29:31.666Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "f33fb6f761718906": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Delete first element",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.07708740234375,
+                  "x": 0.121875,
+                  "y": 0.41953125
+                },
+                "label": null,
+                "name": "Delete",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Delete"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"elements\"]').getByRole('button').first()",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"elements\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "button"
+                    },
+                    {
+                      "index": 0,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "Delete",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Delete second element",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.07708740234375,
+                  "x": 0.121875,
+                  "y": 0.41953125
+                },
+                "label": null,
+                "name": "Delete",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Delete"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"elements\"]').getByRole('button').first()",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"elements\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "button"
+                    },
+                    {
+                      "index": 0,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "Delete",
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "history": [
+          {
+            "actions": [
+              {
+                "args": {
+                  "button": "left",
+                  "clickCount": 1,
+                  "modifiers": null
+                },
+                "intent": "Delete first element",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": null
+                    },
+                    "box": {
+                      "h": 0.06666666666666667,
+                      "w": 0.07708740234375,
+                      "x": 0.121875,
+                      "y": 0.41953125
+                    },
+                    "label": null,
+                    "name": "Delete",
+                    "placeholder": null,
+                    "role": "button",
+                    "siblingIndex": 0,
+                    "tag": "button",
+                    "testIds": {},
+                    "text": "Delete"
+                  },
+                  "locators": [],
+                  "name": "Delete",
+                  "role": "button"
+                },
+                "tool": "click"
+              },
+              {
+                "args": {
+                  "button": "left",
+                  "clickCount": 1,
+                  "modifiers": null
+                },
+                "intent": "Delete second element",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": null
+                    },
+                    "box": {
+                      "h": 0.06666666666666667,
+                      "w": 0.07708740234375,
+                      "x": 0.121875,
+                      "y": 0.41953125
+                    },
+                    "label": null,
+                    "name": "Delete",
+                    "placeholder": null,
+                    "role": "button",
+                    "siblingIndex": 0,
+                    "tag": "button",
+                    "testIds": {},
+                    "text": "Delete"
+                  },
+                  "locators": [],
+                  "name": "Delete",
+                  "role": "button"
+                },
+                "tool": "click"
+              }
+            ],
+            "instruction": "Delete two of the added elements",
+            "kind": "act",
+            "post": {
+              "urlPattern": "https://the-internet.herokuapp.com/add_remove_elements/"
+            },
+            "pre": {
+              "urlPattern": "https://the-internet.herokuapp.com/add_remove_elements/"
+            },
+            "recordedWith": {
+              "at": "2026-11-02T16:58:59.766Z",
+              "model": "claude-sonnet-5-5",
+              "provider": "claude-code"
+            },
+            "stats": {
+              "heals": 0
+            }
+          }
+        ],
+        "instruction": "Delete two of the added elements",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://the-internet.herokuapp.com/add_remove_elements/"
+        },
+        "pre": {
+          "urlPattern": "https://the-internet.herokuapp.com/add_remove_elements/"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:29:46.033Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "The Internet: journeys > controls that appear, disappear and unlock": {
+      "0d63c94f0a0c7ba2": {
+        "compiled": [
+          {
+            "args": [
+              "It's gone!"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": "message",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.035546875,
+                  "w": 0.7578125,
+                  "x": 0.12109375,
+                  "y": 0.3410590277777778
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "paragraph",
+                "siblingIndex": 0,
+                "tag": "p",
+                "testIds": {},
+                "text": "It's gone!"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"message\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"message\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                },
+                {
+                  "display": "getByText('It\\'s gone!', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "It's gone!"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "paragraph"
+            }
+          }
+        ],
+        "instruction": "A message says \"It's gone!\"",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-11-02T17:27:56.564Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "7f7e56f009bd834c": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Click Add to restore checkbox",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "button"
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.062255859375,
+                  "x": 0.12109375,
+                  "y": 0.24661458333333333
+                },
+                "label": null,
+                "name": "Add",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Add"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Add', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Add",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Add', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Add"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Add",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "ms": null,
+              "state": null,
+              "text": "It's back!"
+            },
+            "intent": "Wait for checkbox to return",
+            "tool": "wait_for"
+          },
+          {
+            "args": {
+              "checked": true
+            },
+            "intent": "Tick the checkbox",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": "checkbox",
+                  "name": null,
+                  "type": "checkbox"
+                },
+                "box": {
+                  "h": 0.018055555555555554,
+                  "w": 0.01015625,
+                  "x": 0.12109375,
+                  "y": 0.40438368055555557
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "checkbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"checkbox\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"checkbox\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "role": "checkbox"
+            },
+            "tool": "set_checked"
+          }
+        ],
+        "history": [
+          {
+            "actions": [
+              {
+                "args": {
+                  "button": "left",
+                  "clickCount": 1,
+                  "modifiers": null
+                },
+                "intent": "Click Add to restore checkbox",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [
+                      {
+                        "name": null,
+                        "role": "form"
+                      }
+                    ],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": "button"
+                    },
+                    "box": {
+                      "h": 0.06666666666666667,
+                      "w": 0.062255859375,
+                      "x": 0.12109375,
+                      "y": 0.24661458333333333
+                    },
+                    "label": null,
+                    "name": "Add",
+                    "placeholder": null,
+                    "role": "button",
+                    "siblingIndex": 0,
+                    "tag": "button",
+                    "testIds": {},
+                    "text": "Add"
+                  },
+                  "locators": [
+                    {
+                      "display": "getByRole('button', { name: 'Add', exact: true })",
+                      "expr": [
+                        {
+                          "exact": true,
+                          "m": "getByRole",
+                          "name": "Add",
+                          "role": "button"
+                        }
+                      ],
+                      "rung": "L2"
+                    },
+                    {
+                      "display": "getByText('Add', { exact: true })",
+                      "expr": [
+                        {
+                          "exact": true,
+                          "m": "getByText",
+                          "text": "Add"
+                        }
+                      ],
+                      "rung": "L6"
+                    }
+                  ],
+                  "name": "Add",
+                  "role": "button"
+                },
+                "tool": "click"
+              },
+              {
+                "args": {
+                  "ms": null,
+                  "state": null,
+                  "text": "It's back!"
+                },
+                "intent": "Wait for checkbox to be added",
+                "tool": "wait_for"
+              },
+              {
+                "args": {
+                  "checked": true
+                },
+                "intent": "Tick the checkbox",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [
+                      {
+                        "name": null,
+                        "role": "form"
+                      }
+                    ],
+                    "attrs": {
+                      "id": "checkbox",
+                      "name": null,
+                      "type": "checkbox"
+                    },
+                    "box": {
+                      "h": 0.018055555555555554,
+                      "w": 0.01015625,
+                      "x": 0.12109375,
+                      "y": 0.40438368055555557
+                    },
+                    "label": null,
+                    "name": null,
+                    "placeholder": null,
+                    "role": "checkbox",
+                    "siblingIndex": 0,
+                    "tag": "input",
+                    "testIds": {},
+                    "text": ""
+                  },
+                  "locators": [
+                    {
+                      "display": "locator('[id=\"checkbox\"]')",
+                      "expr": [
+                        {
+                          "m": "locator",
+                          "selector": "[id=\"checkbox\"]"
+                        }
+                      ],
+                      "rung": "L4"
+                    }
+                  ],
+                  "role": "checkbox"
+                },
+                "tool": "set_checked"
+              }
+            ],
+            "instruction": "Add the checkbox back and tick it",
+            "kind": "act",
+            "post": {
+              "urlPattern": "https://the-internet.herokuapp.com/dynamic_controls"
+            },
+            "pre": {
+              "urlPattern": "https://the-internet.herokuapp.com/dynamic_controls"
+            },
+            "recordedWith": {
+              "at": "2026-11-02T16:57:55.195Z",
+              "model": "claude-sonnet-5-5",
+              "provider": "claude-code"
+            },
+            "stats": {
+              "heals": 0
+            }
+          }
+        ],
+        "instruction": "Add the checkbox back and tick it",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://the-internet.herokuapp.com/dynamic_controls"
+        },
+        "pre": {
+          "urlPattern": "https://the-internet.herokuapp.com/dynamic_controls"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:28:21.361Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "96c47dde2e71adc6": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Click Enable button",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "button"
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.078857421875,
+                  "x": 0.12109375,
+                  "y": 0.6983506944444444
+                },
+                "label": null,
+                "name": "Enable",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Enable"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Enable', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Enable",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Enable', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Enable"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Enable",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "ms": null,
+              "state": null,
+              "text": "It's enabled!"
+            },
+            "intent": "Wait for enabling to finish",
+            "tool": "wait_for"
+          },
+          {
+            "args": {
+              "value": "unlocked"
+            },
+            "intent": "Type unlocked into text field",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "text"
+                },
+                "box": {
+                  "h": 0.04496527777777778,
+                  "w": 0.22734375,
+                  "x": 0.12109375,
+                  "y": 0.5706163194444445
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"input-example\"]').getByRole('textbox').first()",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"input-example\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "textbox"
+                    },
+                    {
+                      "index": 0,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "textbox"
+            },
+            "tool": "fill"
+          }
+        ],
+        "instruction": "Enable the text field, then type \"unlocked\" into it",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://the-internet.herokuapp.com/dynamic_controls"
+        },
+        "pre": {
+          "urlPattern": "https://the-internet.herokuapp.com/dynamic_controls"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:28:42.363Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "9ea37197631a4ffb": {
+        "compiled": [
+          {
+            "args": [
+              "It's disabled!"
+            ],
+            "expect": "toHaveText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": "message",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.035546875,
+                  "w": 0.7578125,
+                  "x": 0.12109375,
+                  "y": 0.7294704861111111
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "paragraph",
+                "siblingIndex": 0,
+                "tag": "p",
+                "testIds": {},
+                "text": "It's disabled!"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"message\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"message\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                },
+                {
+                  "display": "getByText('It\\'s disabled!', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "It's disabled!"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "paragraph"
+            }
+          }
+        ],
+        "instruction": "A message says \"It's disabled!\"",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-11-02T17:29:01.025Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "cf963350e18624a0": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Click Remove button",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "button"
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.08553466796875,
+                  "x": 0.12109375,
+                  "y": 0.2868923611111111
+                },
+                "label": null,
+                "name": "Remove",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Remove"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Remove', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Remove",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Remove', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Remove"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Remove",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "ms": null,
+              "state": null,
+              "text": "It's gone!"
+            },
+            "intent": "Wait for removal message",
+            "tool": "wait_for"
+          }
+        ],
+        "history": [
+          {
+            "actions": [
+              {
+                "args": {
+                  "button": "left",
+                  "clickCount": 1,
+                  "modifiers": null
+                },
+                "intent": "Click Remove button",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [
+                      {
+                        "name": null,
+                        "role": "form"
+                      }
+                    ],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": "button"
+                    },
+                    "box": {
+                      "h": 0.06666666666666667,
+                      "w": 0.08553466796875,
+                      "x": 0.12109375,
+                      "y": 0.2868923611111111
+                    },
+                    "label": null,
+                    "name": "Remove",
+                    "placeholder": null,
+                    "role": "button",
+                    "siblingIndex": 0,
+                    "tag": "button",
+                    "testIds": {},
+                    "text": "Remove"
+                  },
+                  "locators": [
+                    {
+                      "display": "getByRole('button', { name: 'Remove', exact: true })",
+                      "expr": [
+                        {
+                          "exact": true,
+                          "m": "getByRole",
+                          "name": "Remove",
+                          "role": "button"
+                        }
+                      ],
+                      "rung": "L2"
+                    },
+                    {
+                      "display": "getByText('Remove', { exact: true })",
+                      "expr": [
+                        {
+                          "exact": true,
+                          "m": "getByText",
+                          "text": "Remove"
+                        }
+                      ],
+                      "rung": "L6"
+                    }
+                  ],
+                  "name": "Remove",
+                  "role": "button"
+                },
+                "tool": "click"
+              },
+              {
+                "args": {
+                  "ms": null,
+                  "state": null,
+                  "text": "It's gone!"
+                },
+                "intent": "Wait for removal message",
+                "tool": "wait_for"
+              }
+            ],
+            "instruction": "Remove the checkbox and wait until it has gone",
+            "kind": "act",
+            "post": {
+              "urlPattern": "https://the-internet.herokuapp.com/dynamic_controls"
+            },
+            "pre": {
+              "urlPattern": "https://the-internet.herokuapp.com/dynamic_controls"
+            },
+            "recordedWith": {
+              "at": "2026-11-02T16:57:17.834Z",
+              "model": "claude-sonnet-5-5",
+              "provider": "claude-code"
+            },
+            "stats": {
+              "heals": 0
+            }
+          }
+        ],
+        "instruction": "Remove the checkbox and wait until it has gone",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://the-internet.herokuapp.com/dynamic_controls"
+        },
+        "pre": {
+          "urlPattern": "https://the-internet.herokuapp.com/dynamic_controls"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:27:47.156Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "de95b2ba3572f7ad": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Click Disable button",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "button"
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.082958984375,
+                  "x": 0.12109375,
+                  "y": 0.6350260416666667
+                },
+                "label": null,
+                "name": "Disable",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Disable"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Disable', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Disable",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Disable', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Disable"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Disable",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "ms": null,
+              "state": null,
+              "text": "It's disabled!"
+            },
+            "intent": "Wait for disable to complete",
+            "tool": "wait_for"
+          }
+        ],
+        "instruction": "Disable the text field again",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://the-internet.herokuapp.com/dynamic_controls"
+        },
+        "pre": {
+          "urlPattern": "https://the-internet.herokuapp.com/dynamic_controls"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:28:56.640Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "The Internet: journeys > log in, see the secure area, log out": {
+      "19fcfc180ab4a42e": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Click Logout",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.07950439453125,
+                  "x": 0.121875,
+                  "y": 0.42552083333333335
+                },
+                "label": null,
+                "name": "Logout",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Logout"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('link', { name: 'Logout', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Logout",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Logout",
+              "role": "link"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Log out",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://the-internet.herokuapp.com/login"
+        },
+        "pre": {
+          "urlPattern": "https://the-internet.herokuapp.com/secure"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:34:39.974Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "42e709d3947e58ee": {
+        "compiled": [
+          {
+            "args": [
+              "You logged into a secure area!"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": "flash",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05017361111111111,
+                  "w": 0.7578125,
+                  "x": 0.12109375,
+                  "y": 0.13663194444444443
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": null,
+                "siblingIndex": 0,
+                "tag": "div",
+                "testIds": {},
+                "text": "You logged into a secure area! ×"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"flash\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"flash\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                },
+                {
+                  "display": "getByText('You logged into a secure area! ×', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "You logged into a secure area! ×"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ]
+            }
+          }
+        ],
+        "instruction": "A message says I logged into a secure area",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-11-02T17:34:31.130Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "6a7a529c8f4f9efd": {
+        "compiled": [
+          {
+            "args": [
+              "You logged out of the secure area!"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": "flash",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05017361111111111,
+                  "w": 0.7578125,
+                  "x": 0.12109375,
+                  "y": 0.13663194444444443
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": null,
+                "siblingIndex": 0,
+                "tag": "div",
+                "testIds": {},
+                "text": "You logged out of the secure area! ×"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"flash\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"flash\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                },
+                {
+                  "display": "getByText('You logged out of the secure area! ×', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "You logged out of the secure area! ×"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ]
+            }
+          }
+        ],
+        "instruction": "A message says I logged out of the secure area",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-11-02T17:34:48.529Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "a66c4466b65be4e6": {
+        "actions": [
+          {
+            "args": {
+              "fields": [
+                {
+                  "value": "{{data.username}}"
+                },
+                {
+                  "value": "{{secret.password}}"
+                }
+              ]
+            },
+            "intent": "Enter credentials",
+            "targets": [
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "username",
+                    "name": "username",
+                    "type": "text"
+                  },
+                  "box": {
+                    "h": 0.04496527777777778,
+                    "w": 0.36640625,
+                    "x": 0.121875,
+                    "y": 0.4635416666666667
+                  },
+                  "label": "Username",
+                  "name": "Username",
+                  "placeholder": null,
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {},
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByRole('textbox', { name: 'Username', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Username",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Username', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Username"
+                      }
+                    ],
+                    "rung": "L3"
+                  },
+                  {
+                    "display": "locator('input[name=\"username\"]')",
+                    "expr": [
+                      {
+                        "m": "locator",
+                        "selector": "input[name=\"username\"]"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Username",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": null,
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": "password",
+                    "name": "password",
+                    "type": "password"
+                  },
+                  "box": {
+                    "h": 0.04496527777777778,
+                    "w": 0.36640625,
+                    "x": 0.121875,
+                    "y": 0.5510416666666667
+                  },
+                  "label": "Password",
+                  "name": "Password",
+                  "placeholder": null,
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {},
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByRole('textbox', { name: 'Password', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Password",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Password', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Password"
+                      }
+                    ],
+                    "rung": "L3"
+                  },
+                  {
+                    "display": "locator('input[name=\"password\"]')",
+                    "expr": [
+                      {
+                        "m": "locator",
+                        "selector": "input[name=\"password\"]"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Password",
+                "role": "textbox"
+              }
+            ],
+            "tool": "fill_form"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Submit login",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "submit"
+                },
+                "box": {
+                  "h": 0.08194444444444444,
+                  "w": 0.127880859375,
+                  "x": 0.121875,
+                  "y": 0.6154513888888888
+                },
+                "label": null,
+                "name": " Login",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Login"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: ' Login', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": " Login",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": " Login",
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Log in as tomsmith",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://the-internet.herokuapp.com/secure"
+        },
+        "pre": {
+          "urlPattern": "https://the-internet.herokuapp.com/login"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:34:20.412Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "The Internet: journeys > sort a table, then read it": {
+      "33dc9b7f776a3b9b": {
+        "instruction": "the last names in the first table, in order",
+        "kind": "extract",
+        "recordedWith": {
+          "at": "2026-11-02T17:30:33.043Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "sources": [
+          {
+            "path": "0",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.08406982421875,
+                  "x": 0.12265625,
+                  "y": 0.5292100694444445
+                },
+                "label": null,
+                "name": "Bach",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 0,
+                "tag": "td",
+                "testIds": {},
+                "text": "Bach"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').getByRole('cell').first()",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "cell"
+                    },
+                    {
+                      "index": 0,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "Bach",
+              "role": "cell"
+            }
+          },
+          {
+            "path": "1",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.08406982421875,
+                  "x": 0.12265625,
+                  "y": 0.5729600694444444
+                },
+                "label": null,
+                "name": "Conway",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 0,
+                "tag": "td",
+                "testIds": {},
+                "text": "Conway"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').getByRole('cell').nth(6)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "cell"
+                    },
+                    {
+                      "index": 6,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "Conway",
+              "role": "cell"
+            }
+          },
+          {
+            "path": "2",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.08406982421875,
+                  "x": 0.12265625,
+                  "y": 0.6167100694444444
+                },
+                "label": null,
+                "name": "Doe",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 0,
+                "tag": "td",
+                "testIds": {},
+                "text": "Doe"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').locator('td').nth(12)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "td"
+                    },
+                    {
+                      "index": 12,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "Doe",
+              "role": "cell"
+            }
+          },
+          {
+            "path": "3",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.08406982421875,
+                  "x": 0.12265625,
+                  "y": 0.6604600694444445
+                },
+                "label": null,
+                "name": "Smith",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 0,
+                "tag": "td",
+                "testIds": {},
+                "text": "Smith"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').locator('td').nth(18)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "td"
+                    },
+                    {
+                      "index": 18,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "Smith",
+              "role": "cell"
+            }
+          }
+        ],
+        "stats": {
+          "heals": 0
+        }
+      },
+      "841ccef815952408": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Sort first table by Due ascending",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.0552490234375,
+                  "x": 0.41307373046875,
+                  "y": 0.4854600694444444
+                },
+                "label": null,
+                "name": "Due",
+                "placeholder": null,
+                "role": "columnheader",
+                "siblingIndex": 3,
+                "tag": "th",
+                "testIds": {},
+                "text": "Due"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').getByRole('columnheader').nth(3)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "columnheader"
+                    },
+                    {
+                      "index": 3,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "Due",
+              "role": "columnheader"
+            },
+            "tool": "click"
+          }
+        ],
+        "history": [
+          {
+            "actions": [
+              {
+                "args": {
+                  "button": "left",
+                  "clickCount": 1,
+                  "modifiers": null
+                },
+                "intent": "Sort first table by Due ascending",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [
+                      {
+                        "name": null,
+                        "role": "row"
+                      },
+                      {
+                        "name": null,
+                        "role": "table"
+                      }
+                    ],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": null
+                    },
+                    "box": {
+                      "h": 0.04375,
+                      "w": 0.0552490234375,
+                      "x": 0.41307373046875,
+                      "y": 0.4854600694444444
+                    },
+                    "label": null,
+                    "name": "Due",
+                    "placeholder": null,
+                    "role": "columnheader",
+                    "siblingIndex": 3,
+                    "tag": "th",
+                    "testIds": {},
+                    "text": "Due"
+                  },
+                  "locators": [],
+                  "name": "Due",
+                  "role": "columnheader"
+                },
+                "tool": "click"
+              }
+            ],
+            "instruction": "Sort the first table by the Due column, smallest first",
+            "kind": "act",
+            "post": {
+              "urlPattern": "https://the-internet.herokuapp.com/tables"
+            },
+            "pre": {
+              "urlPattern": "https://the-internet.herokuapp.com/tables"
+            },
+            "recordedWith": {
+              "at": "2026-11-02T16:59:25.204Z",
+              "model": "claude-sonnet-5-5",
+              "provider": "claude-code"
+            },
+            "stats": {
+              "heals": 0
+            }
+          }
+        ],
+        "instruction": "Sort the first table by the Due column, smallest first",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://the-internet.herokuapp.com/tables"
+        },
+        "pre": {
+          "urlPattern": "https://the-internet.herokuapp.com/tables"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:30:07.671Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "d52ea444c644a974": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Sort first table by Last Name",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.08406982421875,
+                  "x": 0.12265625,
+                  "y": 0.4854600694444444
+                },
+                "label": null,
+                "name": "Last Name",
+                "placeholder": null,
+                "role": "columnheader",
+                "siblingIndex": 0,
+                "tag": "th",
+                "testIds": {},
+                "text": "Last Name"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').getByRole('columnheader').first()",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "columnheader"
+                    },
+                    {
+                      "index": 0,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "Last Name",
+              "role": "columnheader"
+            },
+            "tool": "click"
+          }
+        ],
+        "history": [
+          {
+            "actions": [
+              {
+                "args": {
+                  "button": "left",
+                  "clickCount": 1,
+                  "modifiers": null
+                },
+                "intent": "Sort first table by Last Name",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [
+                      {
+                        "name": null,
+                        "role": "row"
+                      },
+                      {
+                        "name": null,
+                        "role": "table"
+                      }
+                    ],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": null
+                    },
+                    "box": {
+                      "h": 0.04375,
+                      "w": 0.08406982421875,
+                      "x": 0.12265625,
+                      "y": 0.4854600694444444
+                    },
+                    "label": null,
+                    "name": "Last Name",
+                    "placeholder": null,
+                    "role": "columnheader",
+                    "siblingIndex": 0,
+                    "tag": "th",
+                    "testIds": {},
+                    "text": "Last Name"
+                  },
+                  "locators": [],
+                  "name": "Last Name",
+                  "role": "columnheader"
+                },
+                "tool": "click"
+              }
+            ],
+            "instruction": "Now sort the first table by last name",
+            "kind": "act",
+            "post": {
+              "urlPattern": "https://the-internet.herokuapp.com/tables"
+            },
+            "pre": {
+              "urlPattern": "https://the-internet.herokuapp.com/tables"
+            },
+            "recordedWith": {
+              "at": "2026-11-02T16:59:39.816Z",
+              "model": "claude-sonnet-5-5",
+              "provider": "claude-code"
+            },
+            "stats": {
+              "heals": 0
+            }
+          }
+        ],
+        "instruction": "Now sort the first table by last name",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://the-internet.herokuapp.com/tables"
+        },
+        "pre": {
+          "urlPattern": "https://the-internet.herokuapp.com/tables"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:30:26.070Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "ed93a1cc740cb2a9": {
+        "instruction": "the amount due in each row of the first table, in order, as numbers",
+        "kind": "extract",
+        "recordedWith": {
+          "at": "2026-11-02T17:30:13.313Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "sources": [
+          {
+            "path": "0",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.0552490234375,
+                  "x": 0.41307373046875,
+                  "y": 0.5292100694444445
+                },
+                "label": null,
+                "name": "$50.00",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 3,
+                "tag": "td",
+                "testIds": {},
+                "text": "$50.00"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').getByRole('cell').nth(3)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "cell"
+                    },
+                    {
+                      "index": 3,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "$50.00",
+              "role": "cell"
+            }
+          },
+          {
+            "path": "1",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.0552490234375,
+                  "x": 0.41307373046875,
+                  "y": 0.5729600694444444
+                },
+                "label": null,
+                "name": "$50.00",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 3,
+                "tag": "td",
+                "testIds": {},
+                "text": "$50.00"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').getByRole('cell').nth(9)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "cell"
+                    },
+                    {
+                      "index": 9,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "$50.00",
+              "role": "cell"
+            }
+          },
+          {
+            "path": "2",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.0552490234375,
+                  "x": 0.41307373046875,
+                  "y": 0.6167100694444444
+                },
+                "label": null,
+                "name": "$51.00",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 3,
+                "tag": "td",
+                "testIds": {},
+                "text": "$51.00"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').locator('td').nth(15)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "td"
+                    },
+                    {
+                      "index": 15,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "$51.00",
+              "role": "cell"
+            }
+          },
+          {
+            "path": "3",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.0552490234375,
+                  "x": 0.41307373046875,
+                  "y": 0.6604600694444445
+                },
+                "label": null,
+                "name": "$100.00",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 3,
+                "tag": "td",
+                "testIds": {},
+                "text": "$100.00"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').locator('td').nth(21)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "td"
+                    },
+                    {
+                      "index": 21,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "$100.00",
+              "role": "cell"
+            }
+          }
+        ],
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "The Internet: short tasks > JavaScript prompt": {
+      "4027f8ced12aba8e": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open JS prompt",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.15328369140625,
+                  "x": 0.121875,
+                  "y": 0.5134114583333333
+                },
+                "label": null,
+                "name": "Click for JS Prompt",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Click for JS Prompt"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Click for JS Prompt', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Click for JS Prompt",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Click for JS Prompt', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Click for JS Prompt"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Click for JS Prompt",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "accept": true,
+              "promptText": "aipw was here"
+            },
+            "intent": "Answer prompt and accept",
+            "tool": "handle_dialog"
+          }
+        ],
+        "instruction": "Click the button for a JS prompt, answer it with \"aipw was here\" and accept",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://the-internet.herokuapp.com/javascript_alerts"
+        },
+        "pre": {
+          "urlPattern": "https://the-internet.herokuapp.com/javascript_alerts"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:12:21.040Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "c1b99ae4e5019957": {
+        "compiled": [
+          {
+            "args": [
+              "You entered: aipw was here"
+            ],
+            "expect": "toHaveText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": "result",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.035546875,
+                  "w": 0.75625,
+                  "x": 0.121875,
+                  "y": 0.6963107638888889
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "paragraph",
+                "siblingIndex": 1,
+                "tag": "p",
+                "testIds": {},
+                "text": "You entered: aipw was here"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"result\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"result\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                },
+                {
+                  "display": "getByText('You entered: aipw was here', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "You entered: aipw was here"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "paragraph"
+            }
+          }
+        ],
+        "instruction": "The result says I entered \"aipw was here\"",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-11-02T17:12:26.616Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
     "The Internet: short tasks > checkboxes": {
       "32cdc9a2b8ca4b4a": {
         "actions": [
@@ -24,8 +3385,8 @@
                 "box": {
                   "h": 0.018055555555555554,
                   "w": 0.01015625,
-                  "x": 0.009375,
-                  "y": 0.08671875
+                  "x": 0.121875,
+                  "y": 0.26119791666666664
                 },
                 "label": null,
                 "name": null,
@@ -36,7 +3397,26 @@
                 "testIds": {},
                 "text": ""
               },
-              "locators": [],
+              "locators": [
+                {
+                  "display": "locator('[id=\"checkboxes\"]').getByRole('checkbox').first()",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"checkboxes\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "checkbox"
+                    },
+                    {
+                      "index": 0,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
               "role": "checkbox"
             },
             "tool": "set_checked"
@@ -62,8 +3442,8 @@
                 "box": {
                   "h": 0.018055555555555554,
                   "w": 0.01015625,
-                  "x": 0.009375,
-                  "y": 0.11449652777777777
+                  "x": 0.121875,
+                  "y": 0.30147569444444444
                 },
                 "label": null,
                 "name": null,
@@ -74,10 +3454,224 @@
                 "testIds": {},
                 "text": ""
               },
-              "locators": [],
+              "locators": [
+                {
+                  "display": "locator('[id=\"checkboxes\"]').getByRole('checkbox').nth(1)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"checkboxes\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "checkbox"
+                    },
+                    {
+                      "index": 1,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
               "role": "checkbox"
             },
             "tool": "set_checked"
+          }
+        ],
+        "history": [
+          {
+            "actions": [
+              {
+                "args": {
+                  "checked": true
+                },
+                "intent": "Tick checkbox 1",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [
+                      {
+                        "name": null,
+                        "role": "form"
+                      }
+                    ],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": "checkbox"
+                    },
+                    "box": {
+                      "h": 0.018055555555555554,
+                      "w": 0.01015625,
+                      "x": 0.121875,
+                      "y": 0.26119791666666664
+                    },
+                    "label": null,
+                    "name": null,
+                    "placeholder": null,
+                    "role": "checkbox",
+                    "siblingIndex": 0,
+                    "tag": "input",
+                    "testIds": {},
+                    "text": ""
+                  },
+                  "locators": [],
+                  "role": "checkbox"
+                },
+                "tool": "set_checked"
+              },
+              {
+                "args": {
+                  "checked": false
+                },
+                "intent": "Untick checkbox 2",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [
+                      {
+                        "name": null,
+                        "role": "form"
+                      }
+                    ],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": "checkbox"
+                    },
+                    "box": {
+                      "h": 0.018055555555555554,
+                      "w": 0.01015625,
+                      "x": 0.121875,
+                      "y": 0.30147569444444444
+                    },
+                    "label": null,
+                    "name": null,
+                    "placeholder": null,
+                    "role": "checkbox",
+                    "siblingIndex": 1,
+                    "tag": "input",
+                    "testIds": {},
+                    "text": ""
+                  },
+                  "locators": [],
+                  "role": "checkbox"
+                },
+                "tool": "set_checked"
+              }
+            ],
+            "instruction": "Tick checkbox 1 and untick checkbox 2",
+            "kind": "act",
+            "post": {
+              "urlPattern": "https://the-internet.herokuapp.com/checkboxes"
+            },
+            "pre": {
+              "urlPattern": "https://the-internet.herokuapp.com/checkboxes"
+            },
+            "recordedWith": {
+              "at": "2026-11-02T16:53:10.994Z",
+              "model": "claude-sonnet-5-5",
+              "provider": "claude-code"
+            },
+            "stats": {
+              "heals": 1,
+              "lastHealAt": "2026-11-02T16:53:10.994Z"
+            }
+          },
+          {
+            "actions": [
+              {
+                "args": {
+                  "checked": true
+                },
+                "intent": "Tick checkbox 1",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [
+                      {
+                        "name": null,
+                        "role": "form"
+                      }
+                    ],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": "checkbox"
+                    },
+                    "box": {
+                      "h": 0.018055555555555554,
+                      "w": 0.01015625,
+                      "x": 0.009375,
+                      "y": 0.08671875
+                    },
+                    "label": null,
+                    "name": null,
+                    "placeholder": null,
+                    "role": "checkbox",
+                    "siblingIndex": 0,
+                    "tag": "input",
+                    "testIds": {},
+                    "text": ""
+                  },
+                  "locators": [],
+                  "role": "checkbox"
+                },
+                "tool": "set_checked"
+              },
+              {
+                "args": {
+                  "checked": false
+                },
+                "intent": "Untick checkbox 2",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [
+                      {
+                        "name": null,
+                        "role": "form"
+                      }
+                    ],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": "checkbox"
+                    },
+                    "box": {
+                      "h": 0.018055555555555554,
+                      "w": 0.01015625,
+                      "x": 0.009375,
+                      "y": 0.11449652777777777
+                    },
+                    "label": null,
+                    "name": null,
+                    "placeholder": null,
+                    "role": "checkbox",
+                    "siblingIndex": 1,
+                    "tag": "input",
+                    "testIds": {},
+                    "text": ""
+                  },
+                  "locators": [],
+                  "role": "checkbox"
+                },
+                "tool": "set_checked"
+              }
+            ],
+            "instruction": "Tick checkbox 1 and untick checkbox 2",
+            "kind": "act",
+            "post": {
+              "urlPattern": "https://the-internet.herokuapp.com/checkboxes"
+            },
+            "pre": {
+              "urlPattern": "https://the-internet.herokuapp.com/checkboxes"
+            },
+            "recordedWith": {
+              "at": "2026-10-12T15:29:16.162Z",
+              "model": "claude-sonnet-5-5",
+              "provider": "claude-code"
+            },
+            "stats": {
+              "heals": 0
+            }
           }
         ],
         "instruction": "Tick checkbox 1 and untick checkbox 2",
@@ -89,7 +3683,7 @@
           "urlPattern": "https://the-internet.herokuapp.com/checkboxes"
         },
         "recordedWith": {
-          "at": "2026-10-12T15:29:16.162Z",
+          "at": "2026-11-02T17:10:39.564Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -117,10 +3711,10 @@
                   "type": null
                 },
                 "box": {
-                  "h": 0.029166666666666667,
-                  "w": 0.7578125,
-                  "x": 0.12109375,
-                  "y": 0.12317708333333334
+                  "h": 0.034722222222222224,
+                  "w": 0.75625,
+                  "x": 0.121875,
+                  "y": 0.26119791666666664
                 },
                 "label": null,
                 "name": null,
@@ -157,7 +3751,1498 @@
           "urlPattern": "https://the-internet.herokuapp.com/dropdown"
         },
         "recordedWith": {
-          "at": "2026-10-12T15:29:59.515Z",
+          "at": "2026-11-02T17:10:55.803Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "The Internet: short tasks > hover to reveal a hidden link": {
+      "bacbbc375e225a87": {
+        "actions": [
+          {
+            "args": {},
+            "intent": "Hover second user avatar",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.2222222222222222,
+                  "w": 0.125,
+                  "x": 0.2625,
+                  "y": 0.32452256944444446
+                },
+                "label": null,
+                "name": "User Avatar",
+                "placeholder": null,
+                "role": "img",
+                "siblingIndex": 0,
+                "tag": "img",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"content\"]').getByRole('img').nth(1)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"content\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "img"
+                    },
+                    {
+                      "index": 1,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "User Avatar",
+              "role": "img"
+            },
+            "tool": "hover"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open user2 profile",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.029166666666666667,
+                  "w": 0.0645751953125,
+                  "x": 0.2625,
+                  "y": 0.5950520833333334
+                },
+                "label": null,
+                "name": "View profile",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "View profile"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('link', { name: 'View profile', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "View profile",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "View profile",
+              "role": "link"
+            },
+            "tool": "click"
+          }
+        ],
+        "history": [
+          {
+            "actions": [
+              {
+                "args": {},
+                "intent": "Hover second avatar",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": null
+                    },
+                    "box": {
+                      "h": 0.2222222222222222,
+                      "w": 0.125,
+                      "x": 0.2625,
+                      "y": 0.32452256944444446
+                    },
+                    "label": null,
+                    "name": "User Avatar",
+                    "placeholder": null,
+                    "role": "img",
+                    "siblingIndex": 0,
+                    "tag": "img",
+                    "testIds": {},
+                    "text": ""
+                  },
+                  "locators": [],
+                  "name": "User Avatar",
+                  "role": "img"
+                },
+                "tool": "hover"
+              },
+              {
+                "args": {
+                  "button": "left",
+                  "clickCount": 1,
+                  "modifiers": null
+                },
+                "intent": "Open user2 profile",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": null
+                    },
+                    "box": {
+                      "h": 0.029166666666666667,
+                      "w": 0.0645751953125,
+                      "x": 0.2625,
+                      "y": 0.5950520833333334
+                    },
+                    "label": null,
+                    "name": "View profile",
+                    "placeholder": null,
+                    "role": "link",
+                    "siblingIndex": 0,
+                    "tag": "a",
+                    "testIds": {},
+                    "text": "View profile"
+                  },
+                  "locators": [
+                    {
+                      "display": "getByRole('link', { name: 'View profile', exact: true })",
+                      "expr": [
+                        {
+                          "exact": true,
+                          "m": "getByRole",
+                          "name": "View profile",
+                          "role": "link"
+                        }
+                      ],
+                      "rung": "L2"
+                    }
+                  ],
+                  "name": "View profile",
+                  "role": "link"
+                },
+                "tool": "click"
+              }
+            ],
+            "instruction": "Hover over the second user's picture and open that user's profile",
+            "kind": "act",
+            "post": {
+              "urlPattern": "https://the-internet.herokuapp.com/users/*"
+            },
+            "pre": {
+              "urlPattern": "https://the-internet.herokuapp.com/hovers"
+            },
+            "recordedWith": {
+              "at": "2026-11-02T16:53:31.861Z",
+              "model": "claude-sonnet-5-5",
+              "provider": "claude-code"
+            },
+            "stats": {
+              "heals": 0
+            }
+          }
+        ],
+        "instruction": "Hover over the second user's picture and open that user's profile",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://the-internet.herokuapp.com/users/*"
+        },
+        "pre": {
+          "urlPattern": "https://the-internet.herokuapp.com/hovers"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:11:16.279Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "The Internet: short tasks > number input and arrow keys": {
+      "48e062d4b99e2351": {
+        "actions": [
+          {
+            "args": {
+              "submit": false,
+              "text": "42"
+            },
+            "intent": "Type 42 into number field",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "number"
+                },
+                "box": {
+                  "h": 0.04496527777777778,
+                  "w": 0.36640625,
+                  "x": 0.316796875,
+                  "y": 0.32452256944444446
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "spinbutton",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"content\"]').getByRole('spinbutton').first()",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"content\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "spinbutton"
+                    },
+                    {
+                      "index": 0,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "spinbutton"
+            },
+            "tool": "type"
+          },
+          {
+            "args": {
+              "key": "ArrowUp"
+            },
+            "intent": "Press Up arrow first time",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "number"
+                },
+                "box": {
+                  "h": 0.04496527777777778,
+                  "w": 0.36640625,
+                  "x": 0.316796875,
+                  "y": 0.32452256944444446
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "spinbutton",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"content\"]').getByRole('spinbutton').first()",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"content\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "spinbutton"
+                    },
+                    {
+                      "index": 0,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "spinbutton"
+            },
+            "tool": "press"
+          },
+          {
+            "args": {
+              "key": "ArrowUp"
+            },
+            "intent": "Press Up arrow second time",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "number"
+                },
+                "box": {
+                  "h": 0.04496527777777778,
+                  "w": 0.36640625,
+                  "x": 0.316796875,
+                  "y": 0.32452256944444446
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "spinbutton",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"content\"]').getByRole('spinbutton').first()",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"content\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "spinbutton"
+                    },
+                    {
+                      "index": 0,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "spinbutton"
+            },
+            "tool": "press"
+          }
+        ],
+        "history": [
+          {
+            "actions": [
+              {
+                "args": {
+                  "submit": false,
+                  "text": "42"
+                },
+                "intent": "Type 42 into number field",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": "number"
+                    },
+                    "box": {
+                      "h": 0.04496527777777778,
+                      "w": 0.36640625,
+                      "x": 0.316796875,
+                      "y": 0.32452256944444446
+                    },
+                    "label": null,
+                    "name": null,
+                    "placeholder": null,
+                    "role": "spinbutton",
+                    "siblingIndex": 0,
+                    "tag": "input",
+                    "testIds": {},
+                    "text": ""
+                  },
+                  "locators": [],
+                  "role": "spinbutton"
+                },
+                "tool": "type"
+              },
+              {
+                "args": {
+                  "key": "ArrowUp"
+                },
+                "intent": "Press Up arrow first time",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": "number"
+                    },
+                    "box": {
+                      "h": 0.04496527777777778,
+                      "w": 0.36640625,
+                      "x": 0.316796875,
+                      "y": 0.32452256944444446
+                    },
+                    "label": null,
+                    "name": null,
+                    "placeholder": null,
+                    "role": "spinbutton",
+                    "siblingIndex": 0,
+                    "tag": "input",
+                    "testIds": {},
+                    "text": ""
+                  },
+                  "locators": [],
+                  "role": "spinbutton"
+                },
+                "tool": "press"
+              },
+              {
+                "args": {
+                  "key": "ArrowUp"
+                },
+                "intent": "Press Up arrow second time",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": "number"
+                    },
+                    "box": {
+                      "h": 0.04496527777777778,
+                      "w": 0.36640625,
+                      "x": 0.316796875,
+                      "y": 0.32452256944444446
+                    },
+                    "label": null,
+                    "name": null,
+                    "placeholder": null,
+                    "role": "spinbutton",
+                    "siblingIndex": 0,
+                    "tag": "input",
+                    "testIds": {},
+                    "text": ""
+                  },
+                  "locators": [],
+                  "role": "spinbutton"
+                },
+                "tool": "press"
+              }
+            ],
+            "instruction": "Type 42 into the number field, then press the Up arrow key twice",
+            "kind": "act",
+            "post": {
+              "urlPattern": "https://the-internet.herokuapp.com/inputs"
+            },
+            "pre": {
+              "urlPattern": "https://the-internet.herokuapp.com/inputs"
+            },
+            "recordedWith": {
+              "at": "2026-11-02T16:54:26.001Z",
+              "model": "claude-sonnet-5-5",
+              "provider": "claude-code"
+            },
+            "stats": {
+              "heals": 0
+            }
+          }
+        ],
+        "instruction": "Type 42 into the number field, then press the Up arrow key twice",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://the-internet.herokuapp.com/inputs"
+        },
+        "pre": {
+          "urlPattern": "https://the-internet.herokuapp.com/inputs"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:11:58.670Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "The Internet: short tasks > read a table and find the largest amount due": {
+      "11d4b408f5ebcffe": {
+        "instruction": "every row of the first table: first name, last name and the amount due as a number",
+        "kind": "extract",
+        "recordedWith": {
+          "at": "2026-11-02T17:25:51.669Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "sources": [
+          {
+            "path": "0.firstName",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.08564453125,
+                  "x": 0.20672607421875,
+                  "y": 0.5292100694444445
+                },
+                "label": null,
+                "name": "John",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 1,
+                "tag": "td",
+                "testIds": {},
+                "text": "John"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').getByRole('cell').nth(1)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "cell"
+                    },
+                    {
+                      "index": 1,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "John",
+              "role": "cell"
+            }
+          },
+          {
+            "path": "0.lastName",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.08406982421875,
+                  "x": 0.12265625,
+                  "y": 0.5292100694444445
+                },
+                "label": null,
+                "name": "Smith",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 0,
+                "tag": "td",
+                "testIds": {},
+                "text": "Smith"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').getByRole('cell').first()",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "cell"
+                    },
+                    {
+                      "index": 0,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "Smith",
+              "role": "cell"
+            }
+          },
+          {
+            "path": "0.due",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.0552490234375,
+                  "x": 0.41307373046875,
+                  "y": 0.5292100694444445
+                },
+                "label": null,
+                "name": "$50.00",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 3,
+                "tag": "td",
+                "testIds": {},
+                "text": "$50.00"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').getByRole('cell').nth(3)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "cell"
+                    },
+                    {
+                      "index": 3,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "$50.00",
+              "role": "cell"
+            }
+          },
+          {
+            "path": "1.firstName",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.08564453125,
+                  "x": 0.20672607421875,
+                  "y": 0.5729600694444444
+                },
+                "label": null,
+                "name": "Frank",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 1,
+                "tag": "td",
+                "testIds": {},
+                "text": "Frank"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').getByRole('cell').nth(7)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "cell"
+                    },
+                    {
+                      "index": 7,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "Frank",
+              "role": "cell"
+            }
+          },
+          {
+            "path": "1.lastName",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.08406982421875,
+                  "x": 0.12265625,
+                  "y": 0.5729600694444444
+                },
+                "label": null,
+                "name": "Bach",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 0,
+                "tag": "td",
+                "testIds": {},
+                "text": "Bach"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').getByRole('cell').nth(6)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "cell"
+                    },
+                    {
+                      "index": 6,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "Bach",
+              "role": "cell"
+            }
+          },
+          {
+            "path": "1.due",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.0552490234375,
+                  "x": 0.41307373046875,
+                  "y": 0.5729600694444444
+                },
+                "label": null,
+                "name": "$51.00",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 3,
+                "tag": "td",
+                "testIds": {},
+                "text": "$51.00"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').getByRole('cell').nth(9)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "cell"
+                    },
+                    {
+                      "index": 9,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "$51.00",
+              "role": "cell"
+            }
+          },
+          {
+            "path": "2.firstName",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.08564453125,
+                  "x": 0.20672607421875,
+                  "y": 0.6167100694444444
+                },
+                "label": null,
+                "name": "Jason",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 1,
+                "tag": "td",
+                "testIds": {},
+                "text": "Jason"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').locator('td').nth(13)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "td"
+                    },
+                    {
+                      "index": 13,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "Jason",
+              "role": "cell"
+            }
+          },
+          {
+            "path": "2.lastName",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.08406982421875,
+                  "x": 0.12265625,
+                  "y": 0.6167100694444444
+                },
+                "label": null,
+                "name": "Doe",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 0,
+                "tag": "td",
+                "testIds": {},
+                "text": "Doe"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').locator('td').nth(12)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "td"
+                    },
+                    {
+                      "index": 12,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "Doe",
+              "role": "cell"
+            }
+          },
+          {
+            "path": "2.due",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.0552490234375,
+                  "x": 0.41307373046875,
+                  "y": 0.6167100694444444
+                },
+                "label": null,
+                "name": "$100.00",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 3,
+                "tag": "td",
+                "testIds": {},
+                "text": "$100.00"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').locator('td').nth(15)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "td"
+                    },
+                    {
+                      "index": 15,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "$100.00",
+              "role": "cell"
+            }
+          },
+          {
+            "path": "3.firstName",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.08564453125,
+                  "x": 0.20672607421875,
+                  "y": 0.6604600694444445
+                },
+                "label": null,
+                "name": "Tim",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 1,
+                "tag": "td",
+                "testIds": {},
+                "text": "Tim"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').locator('td').nth(19)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "td"
+                    },
+                    {
+                      "index": 19,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "Tim",
+              "role": "cell"
+            }
+          },
+          {
+            "path": "3.lastName",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.08406982421875,
+                  "x": 0.12265625,
+                  "y": 0.6604600694444445
+                },
+                "label": null,
+                "name": "Conway",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 0,
+                "tag": "td",
+                "testIds": {},
+                "text": "Conway"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').locator('td').nth(18)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "td"
+                    },
+                    {
+                      "index": 18,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "Conway",
+              "role": "cell"
+            }
+          },
+          {
+            "path": "3.due",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04375,
+                  "w": 0.0552490234375,
+                  "x": 0.41307373046875,
+                  "y": 0.6604600694444445
+                },
+                "label": null,
+                "name": "$50.00",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 3,
+                "tag": "td",
+                "testIds": {},
+                "text": "$50.00"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"table1\"]').locator('td').nth(21)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table1\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "td"
+                    },
+                    {
+                      "index": 21,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "$50.00",
+              "role": "cell"
+            }
+          }
+        ],
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "The Internet: short tasks > wait for content that loads late": {
+      "1e6ba9565e3ae79e": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Click Start",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.0678466796875,
+                  "x": 0.121875,
+                  "y": 0.3440972222222222
+                },
+                "label": null,
+                "name": "Start",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Start"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Start', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Start",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Start', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Start"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Start",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "ms": null,
+              "state": null,
+              "text": "Hello World!"
+            },
+            "intent": "Wait for loading to finish",
+            "tool": "wait_for"
+          }
+        ],
+        "history": [
+          {
+            "actions": [
+              {
+                "args": {
+                  "button": "left",
+                  "clickCount": 1,
+                  "modifiers": null
+                },
+                "intent": "Click Start",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": null
+                    },
+                    "box": {
+                      "h": 0.06666666666666667,
+                      "w": 0.0678466796875,
+                      "x": 0.121875,
+                      "y": 0.3440972222222222
+                    },
+                    "label": null,
+                    "name": "Start",
+                    "placeholder": null,
+                    "role": "button",
+                    "siblingIndex": 0,
+                    "tag": "button",
+                    "testIds": {},
+                    "text": "Start"
+                  },
+                  "locators": [
+                    {
+                      "display": "getByRole('button', { name: 'Start', exact: true })",
+                      "expr": [
+                        {
+                          "exact": true,
+                          "m": "getByRole",
+                          "name": "Start",
+                          "role": "button"
+                        }
+                      ],
+                      "rung": "L2"
+                    },
+                    {
+                      "display": "getByText('Start', { exact: true })",
+                      "expr": [
+                        {
+                          "exact": true,
+                          "m": "getByText",
+                          "text": "Start"
+                        }
+                      ],
+                      "rung": "L6"
+                    }
+                  ],
+                  "name": "Start",
+                  "role": "button"
+                },
+                "tool": "click"
+              },
+              {
+                "args": {
+                  "ms": null,
+                  "state": null,
+                  "text": "Hello World!"
+                },
+                "intent": "Wait for loading to finish",
+                "tool": "wait_for"
+              }
+            ],
+            "instruction": "Click Start and wait until the loading has finished",
+            "kind": "act",
+            "post": {
+              "urlPattern": "https://the-internet.herokuapp.com/dynamic_loading/*"
+            },
+            "pre": {
+              "urlPattern": "https://the-internet.herokuapp.com/dynamic_loading/*"
+            },
+            "recordedWith": {
+              "at": "2026-11-02T16:53:49.624Z",
+              "model": "claude-sonnet-5-5",
+              "provider": "claude-code"
+            },
+            "stats": {
+              "heals": 0
+            }
+          }
+        ],
+        "instruction": "Click Start and wait until the loading has finished",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://the-internet.herokuapp.com/dynamic_loading/*"
+        },
+        "pre": {
+          "urlPattern": "https://the-internet.herokuapp.com/dynamic_loading/*"
+        },
+        "recordedWith": {
+          "at": "2026-11-02T17:11:35.023Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "d0fea760045735b2": {
+        "compiled": [
+          {
+            "args": [
+              "Hello World!"
+            ],
+            "expect": "toHaveText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04470486111111111,
+                  "w": 0.75625,
+                  "x": 0.121875,
+                  "y": 0.3504774305555556
+                },
+                "label": null,
+                "name": "Hello World!",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h4",
+                "testIds": {},
+                "text": "Hello World!"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Hello World!', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Hello World!",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Hello World!', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Hello World!"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Hello World!",
+              "role": "heading"
+            }
+          }
+        ],
+        "instruction": "The page says \"Hello World!\"",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-11-02T17:11:39.326Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },

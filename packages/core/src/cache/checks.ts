@@ -36,6 +36,12 @@ async function evaluateOnce(page: Page, check: CompiledCheck): Promise<boolean> 
       return (await loc.isVisible()) && norm(await loc.innerText()) === norm(String(arg));
     case 'toHaveValue':
       return (await loc.inputValue()) === String(arg);
+    case 'toBeChecked':
+      return loc.isChecked();
+    case 'toBeEnabled':
+      return loc.isEnabled();
+    case 'toBeDisabled':
+      return loc.isDisabled();
   }
 }
 

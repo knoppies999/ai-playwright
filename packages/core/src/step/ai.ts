@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { ActionExecutor } from '../actions/executor.js';
 import { actTools, TOOL_SCHEMAS, type CodeTool } from '../actions/schemas.js';
 import { OrdinalCounter, stepKey } from '../cache/keys.js';
-import type { CompiledCheck, PlanTarget, StepPlan } from '../cache/plan.js';
+import { CHECK_EXPECTS, type CompiledCheck, type PlanAction, type PlanTarget, type StepPlan } from '../cache/plan.js';
 import { planFromAct } from '../cache/record.js';
 import { describeCheck, runCompiledCheck } from '../cache/checks.js';
 import { rebuildValue } from '../cache/extract.js';
@@ -44,7 +44,7 @@ import { buildObservation, SYSTEM_PROMPTS } from '../loop/prompt.js';
 import { BudgetGuard, withBudget } from '../llm/budget.js';
 import { withRetry } from '../llm/retry.js';
 import { addUsage, emptyUsage, type LlmProvider, type Usage } from '../llm/provider.js';
-import { buildLocator } from '../locators/expr.js';
+import { buildLocator, type LocatorExpr } from '../locators/expr.js';
 import { fingerprintOf } from '../locators/fingerprint.js';
 import { synthesizeLocators, type LocatorCandidate, type Rung } from '../locators/synth.js';
 import type { Observation } from '../observe/observer.js';
@@ -102,13 +102,19 @@ export interface Verdict {
   pass: boolean;
   reason: string;
   evidence: string[];
-  /** The model's proposed compiled check (see docs/06 §5); null when it can't be expressed. */
-  check?: {
-    expect: CompiledCheck['expect'];
-    ref: string | null;
-    args: string[];
-    not: boolean;
-  } | null;
+  /**
+   * The model's proposed compiled checks (docs/06 §5), one per clause of the assertion; all must hold.
+   * Empty when the assertion can't be expressed as deterministic checks.
+   */
+  checks: ProposedCheck[];
+}
+
+/** A check as the model proposes it, before it is compiled to durable locators. */
+export interface ProposedCheck {
+  expect: CompiledCheck['expect'];
+  ref: string | null;
+  args: string[];
+  not: boolean;
 }
 
 export interface AssertOptions {
@@ -126,24 +132,24 @@ const VerdictSchema = z.strictObject({
   pass: z.boolean(),
   reason: z.string(),
   evidence: z.array(z.string()),
-  check: z
-    .strictObject({
-      expect: z.enum([
-        'toBeVisible',
-        'toBeHidden',
-        'toContainText',
-        'toHaveText',
-        'toHaveCount',
-        'toHaveURL',
-        'toHaveValue',
-      ]),
-      ref: z.string().nullable().describe('The element the check is about; null for toHaveURL'),
-      args: z.array(z.string()).describe('Expected text, count or URL fragment; [] for toBeVisible/toBeHidden'),
-      not: z.boolean(),
-    })
-    .nullable()
+  checks: z
+    .array(
+      z.strictObject({
+        expect: z.enum(CHECK_EXPECTS),
+        ref: z
+          .string()
+          .nullable()
+          .describe(
+            'The ref id from the snapshot (e.g. "e12") of the element the check is about; null for toHaveURL, or for toContainText on text that has no ref',
+          ),
+        args: z
+          .array(z.string())
+          .describe('Expected text, count, value or URL fragment; [] for visibility and state checks'),
+        not: z.boolean(),
+      }),
+    )
     .describe(
-      'When pass is true: a deterministic Playwright check that confirms this next time without you; null if none fits',
+      'When pass is true: deterministic Playwright checks, one per clause, that together confirm this next time without you; [] if none fits',
     ),
 });
 
@@ -151,6 +157,59 @@ const LocateSchema = z.strictObject({
   ref: z.string().nullable(),
   reason: z.string(),
 });
+
+/** Roles whose visibility says nothing about their state (checked, enabled, value…). */
+const CONTROL_ROLES = new Set([
+  'checkbox',
+  'radio',
+  'switch',
+  'textbox',
+  'searchbox',
+  'combobox',
+  'spinbutton',
+  'slider',
+]);
+const STATE_WORDS =
+  /\b(un)?(checked|ticked|selected|completed?|done|enabled|disabled|active|inactive|toggled|on|off|empty|filled)\b/i;
+/** Roles of repeated items that toHaveCount counts. */
+const ITEM_ROLES = new Set([
+  'listitem',
+  'row',
+  'option',
+  'treeitem',
+  'menuitem',
+  'article',
+  'tab',
+  'cell',
+  'img',
+  'link',
+  'button',
+  'checkbox',
+  'heading',
+]);
+const NO_ROLE_COUNT = new Set(['generic', 'group', 'text', 'none', 'presentation', 'paragraph']);
+/**
+ * Runs in the page: the text an extract source holds. Form controls hold it in their state, not their text.
+ * Must stay self-contained (it is serialised).
+ */
+/**
+ * The snapshot ref a model meant: models sometimes wrap it ("[ref=e12]") or describe the element and
+ * mention the ref in passing. Returns undefined unless exactly one known ref is named.
+ */
+function refIn(obs: Observation, ref: string | null | undefined): string | undefined {
+  if (!ref) return undefined;
+  if (obs.refs.has(ref)) return ref;
+  const named = [...new Set(ref.match(/\b[a-z]?\d*e\d+\b/g) ?? [])].filter((r) => obs.refs.has(r));
+  return named.length === 1 ? named[0] : undefined;
+}
+
+function leafText(el: Element): string {
+  const input = el as HTMLInputElement;
+  if (input.type === 'checkbox' || input.type === 'radio') return input.checked ? 'checked' : 'unchecked';
+  if (el.getAttribute('aria-checked')) return el.getAttribute('aria-checked') === 'true' ? 'checked' : 'unchecked';
+  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName)) return input.value;
+  return (el as HTMLElement).innerText ?? el.textContent ?? '';
+}
 
 const ASSERT_VERBS = /^(verify|check|assert|expect|ensure)\b[:\s]*/i;
 const EXTRACT_LINE = /^(?:extract|read|get)\s+(.+?)\s+as\s+([A-Za-z_]\w*)\s*$/i;
@@ -421,6 +480,8 @@ export class Ai {
         usage: emptyUsage(),
       };
     }
+    // The instruction as written in the spec: remedies for a correction are offered against it.
+    const written = instruction;
     ({ instruction, options } = nudged);
     return this.step(
       'act',
@@ -460,7 +521,8 @@ export class Ai {
           const mode = this.cacheMode(options);
           const key = this.stepKeyFor('act', instruction, options);
           const startUrl = this._page.url();
-          let healing: { plan: StepPlan; reason: string } | undefined;
+          /** A broken replay: the plan, why it broke, and the actions that replayed before it broke. */
+          let healing: { plan: StepPlan; reason: string; done: PlanAction[] } | undefined;
           if (cache && (mode === 'auto' || mode === 'replay-only')) {
             const plan = cache.store.get(cache.testTitle, key);
             if (plan) {
@@ -517,7 +579,9 @@ export class Ai {
                   { stepId: ctx.id, callsite: ctx.callsite },
                 );
               }
-              healing = { plan, reason: replay.reason };
+              // Actions before the failure already ran: they stay in the healed plan, ahead of the AI's.
+              const done = (applyHeals(plan, replay.healed).actions ?? []).slice(0, replay.failedAt);
+              healing = { plan, reason: replay.reason, done };
             } else if (mode === 'replay-only') {
               throw new AiCacheReplayOnlyMiss(instruction, { stepId: ctx.id, callsite: ctx.callsite });
             } else {
@@ -527,7 +591,10 @@ export class Ai {
           const healingHint = healing
             ? [
                 `HEALING: a previously recorded plan for this step no longer works. Recorded plan: ${describePlan(healing.plan)}. ` +
-                  `Failure: ${healing.reason} Some of the plan may already have run. Complete the step on the current page; the UI may have changed.`,
+                  (healing.done.length
+                    ? `Already done by the replay: ${describePlan({ ...healing.plan, actions: healing.done })}. `
+                    : 'Nothing from it has run. ') +
+                  `Failure: ${healing.reason} Complete the rest of the step on the current page; the UI may have changed.`,
               ]
             : [];
           const outcome = await runAgentLoop(ctx, {
@@ -563,6 +630,7 @@ export class Ai {
               startUrl,
               endUrl: session.page.url(),
             });
+            if (healing) plan.actions = [...healing.done, ...(plan.actions ?? [])];
             if (!healing) {
               await cache.store.put(cache.testTitle, key, plan);
               this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'stored', key });
@@ -580,7 +648,9 @@ export class Ai {
               await this.storeHealed(cache, key, healing.plan, plan, instruction, ctx);
             }
           }
-          if (this.deps.nudge && outcome.human?.length) await this.offerRemedies(instruction, outcome, startUrl);
+          // A hint or edit given before the step is a correction too (docs/07 §6).
+          const human = [...(nudged.correction ? [nudged.correction] : []), ...(outcome.human ?? [])];
+          if (this.deps.nudge && human.length) await this.offerRemedies(written, { ...outcome, human }, startUrl);
           return {
             summary: outcome.summary,
             evidence: outcome.evidence,
@@ -598,14 +668,28 @@ export class Ai {
   }
 
   /** A durable target (verified locators + fingerprint) for a ref the model named. */
-  private async targetFor(obs: Observation, ref: string | null | undefined): Promise<PlanTarget | undefined> {
-    if (!ref || !obs.refs.has(ref)) return undefined;
+  private async targetFor(
+    obs: Observation,
+    ref: string | null | undefined,
+    assertedText?: string,
+  ): Promise<PlanTarget | undefined> {
+    ref = refIn(obs, ref);
+    if (!ref) return undefined;
     const node = findByRef(obs.tree, ref)?.node;
-    const loc = this._page.locator(`aria-ref=${ref}`);
+    return this.targetForLocator(this._page.locator(`aria-ref=${ref}`), node, assertedText);
+  }
+
+  /** Like targetFor, for any element (e.g. the DOM parent of an element the model named). */
+  private async targetForLocator(
+    loc: Locator,
+    node?: { role: string; name?: string },
+    assertedText?: string,
+  ): Promise<PlanTarget | undefined> {
     const candidates = await synthesizeLocators(this._page, loc, {
       ...this.synthOptions(),
       role: node?.role,
       name: node?.name,
+      ...(assertedText && { assertedText }),
     }).catch(() => []);
     if (!candidates.length) return undefined;
     const fingerprint = await fingerprintOf(loc, node?.role, node?.name);
@@ -640,27 +724,170 @@ export class Ai {
     return { cache, mode, key, plan };
   }
 
-  /** Turns the model's proposed check into a validated compiled check, or null if it doesn't hold now. */
-  private async compileCheck(obs: Observation, check: Verdict['check'], page: Page): Promise<CompiledCheck | null> {
-    if (!check) return null;
-    let target = check.expect === 'toHaveURL' ? undefined : await this.targetFor(obs, check.ref);
+  /**
+   * Turns the model's proposed checks into validated compiled checks, or null if any of them can't be
+   * compiled or doesn't hold now. All or nothing: a partial set would replay as a weaker assertion.
+   */
+  private async compileChecks(
+    obs: Observation,
+    condition: string,
+    proposed: readonly ProposedCheck[],
+    page: Page,
+  ): Promise<{ compiled: CompiledCheck[] | null; note?: string }> {
+    if (!proposed.length) return { compiled: null, note: 'the model proposed no deterministic check' };
+    const compiled: CompiledCheck[] = [];
+    for (const [i, check] of proposed.entries()) {
+      const what = `check ${i + 1} (${check.not ? 'not.' : ''}${check.expect}${check.args.length ? ` ${JSON.stringify(check.args)}` : ''})`;
+      const c = await this.compileCheck(obs, condition, check);
+      if (typeof c === 'string') return { compiled: null, note: `${what}: ${c}` };
+      if (!(await runCompiledCheck(page, c, 1000)))
+        return { compiled: null, note: `${what}: does not hold on the page` };
+      compiled.push(c);
+    }
+    return { compiled };
+  }
+
+  /** A compiled check, or why the proposed one can't be compiled. */
+  private async compileCheck(
+    obs: Observation,
+    condition: string,
+    check: ProposedCheck,
+  ): Promise<CompiledCheck | string> {
+    const base = { args: check.args, ...(check.not && { not: true as const }) };
+    if (check.expect === 'toHaveURL') return { expect: 'toHaveURL', ...base };
+    const ref = refIn(obs, check.ref);
+    // Plain text has no ref in the snapshot (a message in a <div>): find the element that shows it.
+    if (!ref && check.ref === null && check.expect === 'toContainText' && !check.not && check.args[0]) {
+      return this.compileTextOnPage(check.args[0], base);
+    }
+    if (!ref) return `ref ${JSON.stringify(check.ref)} is not in the snapshot`;
+    if (check.expect === 'toHaveCount') {
+      const target = await this.collectionFor(obs, ref, Number(check.args[0]));
+      return target
+        ? { expect: 'toHaveCount', target, ...base }
+        : `no locator matches exactly ${check.args[0]} elements like ${ref}`;
+    }
+    let expect = check.expect;
+    const isText = expect === 'toContainText' || expect === 'toHaveText' || expect === 'toHaveValue';
+    const assertedText = isText && !check.not ? check.args[0] : undefined;
+    let target = await this.targetFor(obs, ref, assertedText);
+    const found = findByRef(obs.tree, ref);
     // A container without a durable locator (e.g. a plain list): for visibility, its first descendant
     // that has one is visible exactly when the container is.
-    if (!target && check.ref && (check.expect === 'toBeVisible' || check.expect === 'toBeHidden')) {
-      const queue = [...(findByRef(obs.tree, check.ref)?.node.children ?? [])];
+    if (!target && (expect === 'toBeVisible' || expect === 'toBeHidden')) {
+      const queue = [...(found?.node.children ?? [])];
       for (let n = queue.shift(); n && !target; n = queue.shift()) {
         if (n.ref) target = await this.targetFor(obs, n.ref);
         queue.push(...n.children);
       }
     }
-    if (check.expect !== 'toHaveURL' && !target) return null;
-    const compiled: CompiledCheck = {
-      expect: check.expect,
-      args: check.args,
-      ...(target && { target }),
-      ...(check.not && { not: true }),
-    };
-    return (await runCompiledCheck(page, compiled, 1000)) ? compiled : null;
+    // Text in an element without a durable locator (e.g. <strong>3</strong> items left), or only a positional
+    // one: the nearest ancestor with a better locator contains the same text. The snapshot flattens plain
+    // wrappers, so climb the DOM.
+    if ((!target || target.locators[0]?.rung === 'L7') && (expect === 'toContainText' || expect === 'toHaveText')) {
+      let el = this._page.locator(`aria-ref=${ref}`);
+      let lifted: PlanTarget | undefined;
+      for (let depth = 0; depth < 3 && !lifted; depth++) {
+        el = el.locator('xpath=..');
+        const t = await this.targetForLocator(el, undefined, assertedText);
+        if (t && t.locators[0]?.rung !== 'L7') lifted = t;
+      }
+      if (lifted) {
+        target = lifted;
+        expect = 'toContainText';
+      }
+    }
+    if (!target) {
+      const node = found?.node;
+      return `no durable locator for ${node ? `${node.role}${node.name ? ` "${node.name}"` : ''}` : ref}`;
+    }
+    // Risk R6: "the checkbox is visible" can't tell checked from unchecked. A visibility check on a form
+    // control proves nothing when the assertion is about its state, so the step stays AI-judged.
+    if (expect === 'toBeVisible' && !check.not && CONTROL_ROLES.has(target.role ?? '') && STATE_WORDS.test(condition)) {
+      return `a visible ${target.role} says nothing about its state`;
+    }
+    return { expect, target, ...base };
+  }
+
+  /** toContainText for text without a ref: the one visible element that shows it, with a durable locator. */
+  private async compileTextOnPage(
+    text: string,
+    base: Pick<CompiledCheck, 'args' | 'not'>,
+  ): Promise<CompiledCheck | string> {
+    const matches = this._page.getByText(text);
+    const visible: Locator[] = [];
+    for (const m of await matches.all().catch(() => [])) if (await m.isVisible().catch(() => false)) visible.push(m);
+    if (visible.length !== 1) return `${visible.length} visible elements show ${JSON.stringify(text)}, not one`;
+    let el = visible[0]!;
+    for (let depth = 0; depth < 3; depth++) {
+      const target = await this.targetForLocator(el, undefined, text);
+      if (target && target.locators[0]?.rung !== 'L7') return { expect: 'toContainText', target, ...base };
+      el = el.locator('xpath=..');
+    }
+    return `no durable locator for the element that shows ${JSON.stringify(text)}`;
+  }
+
+  /**
+   * toHaveCount: a locator that matches every counted element. The model names one of them (or their
+   * container); candidates are the item's test id, its role inside the nearest locatable ancestor, and
+   * its role on the page. The first whose count matches now wins.
+   */
+  private async collectionFor(obs: Observation, ref: string, count: number): Promise<PlanTarget | undefined> {
+    if (!Number.isInteger(count) || count < 0) return undefined;
+    let found = findByRef(obs.tree, ref);
+    if (found && !ITEM_ROLES.has(found.node.role)) {
+      // The container was named: count its items instead.
+      const queue = [...found.node.children];
+      for (let n = queue.shift(); n; n = queue.shift()) {
+        if (n.ref && ITEM_ROLES.has(n.role)) {
+          found = findByRef(obs.tree, n.ref);
+          break;
+        }
+        queue.push(...n.children);
+      }
+    }
+    if (!found?.node.ref) return undefined;
+    const { node } = found;
+    const candidates: { rung: Rung; expr: LocatorExpr }[] = [];
+    const fingerprint = await fingerprintOf(this._page.locator(`aria-ref=${node.ref}`), node.role, node.name);
+    const pwAttrs = this.synthOptions()
+      .playwrightTestIdAttribute.split(',')
+      .map((a) => a.trim().toLowerCase());
+    for (const [attr, value] of Object.entries(fingerprint?.testIds ?? {})) {
+      candidates.push({
+        rung: 'L1',
+        expr: pwAttrs.includes(attr.toLowerCase())
+          ? [{ m: 'getByTestId', id: value }]
+          : [{ m: 'locator', selector: `[${attr}="${value.replace(/["\\]/g, '\\$&')}"]` }],
+      });
+    }
+    if (!NO_ROLE_COUNT.has(node.role)) {
+      // Same role and name first ("Delete" buttons, not every button), then the role alone.
+      const kinds: LocatorExpr[] = [
+        ...(node.name ? [[{ m: 'getByRole', role: node.role, name: node.name, exact: true }] as LocatorExpr] : []),
+        [{ m: 'getByRole', role: node.role }],
+      ];
+      // Scoped to the nearest ancestor with a durable locator. The snapshot flattens plain wrappers
+      // (<div id="elements">), so climb the DOM, not the snapshot.
+      const scopes: LocatorExpr[] = [];
+      let el = this._page.locator(`aria-ref=${node.ref}`);
+      for (let depth = 0; depth < 3; depth++) {
+        el = el.locator('xpath=..');
+        const t = await this.targetForLocator(el);
+        if (t?.locators[0] && t.locators[0].rung !== 'L7') scopes.push(t.locators[0].expr);
+      }
+      for (const kind of kinds) {
+        for (const scope of scopes) candidates.push({ rung: 'L5', expr: [...scope, ...kind] });
+        candidates.push({ rung: 'L2', expr: kind });
+      }
+    }
+    for (const c of candidates) {
+      const loc = buildLocator(this._page, c.expr);
+      if ((await loc.count().catch(() => -1)) === count) {
+        return { role: node.role, locators: [{ rung: c.rung, expr: c.expr, display: loc.toString() }] };
+      }
+    }
+    return undefined;
   }
 
   private async judge(
@@ -668,7 +895,7 @@ export class Ai {
     options: AssertOptions,
     ctx: StepContext,
     timeout: number,
-  ): Promise<{ verdict: Verdict; compiled: CompiledCheck | null }> {
+  ): Promise<{ verdict: Verdict; compiled: CompiledCheck[] | null; note?: string }> {
     const session = await this.openSession();
     try {
       const deadline = Date.now() + timeout;
@@ -694,10 +921,12 @@ export class Ai {
             pass: value.pass,
             reason: value.reason,
             evidence: value.evidence,
-            check: value.check ?? null,
+            checks: value.checks,
             usage,
           });
-          if (value.pass) return { verdict: value, compiled: await this.compileCheck(obs, value.check, session.page) };
+          if (value.pass) {
+            return { verdict: value, ...(await this.compileChecks(obs, condition, value.checks, session.page)) };
+          }
         }
         if (Date.now() >= deadline) return { verdict: verdict!, compiled: null };
         await new Promise((r) => setTimeout(r, 500));
@@ -725,7 +954,7 @@ export class Ai {
           pass: true,
           reason: 'The cached compiled check passed.',
           evidence: checks.map(describeCheck),
-          check: null,
+          checks: [],
         };
       }
       this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'broken', key, reason: 'compiled check failed' });
@@ -734,7 +963,7 @@ export class Ai {
           pass: false,
           reason: `Compiled check failed: ${checks.map(describeCheck).join('; ')}`,
           evidence: [],
-          check: null,
+          checks: [],
         };
       }
     } else if (plan && mode === 'replay-only') {
@@ -744,12 +973,12 @@ export class Ai {
         { stepId: ctx.id, callsite: ctx.callsite },
       );
     }
-    const { verdict, compiled } = await this.judge(condition, options, ctx, timeout);
+    const { verdict, compiled, note } = await this.judge(condition, options, ctx, timeout);
     if (cache && mode !== 'ai-only' && verdict.pass) {
-      const next = this.newPlan('assert', condition, { compiled: compiled ? [compiled] : null });
+      const next = this.newPlan('assert', condition, { compiled, ...(!compiled && note && { note }) });
       if (plan?.compiled?.length) {
         const before = plan.compiled.map(describeCheck).join('; ');
-        const after = compiled ? describeCheck(compiled) : 'AI judgement only';
+        const after = compiled ? compiled.map(describeCheck).join('; ') : 'AI judgement only';
         this.events.emit({
           type: 'heal',
           stepId: ctx.id,
@@ -761,7 +990,8 @@ export class Ai {
           reason: 'compiled check failed; the AI says the assertion holds',
         });
         await this.storeHealed(cache, key, plan, next, condition, ctx);
-      } else if (!plan || mode === 'refresh') {
+      } else if (!plan || compiled || mode === 'refresh') {
+        // New, refreshed, or an AI-judged assertion that now compiles.
         await cache.store.put(cache.testTitle, key, next);
         this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'stored', key });
       }
@@ -772,7 +1002,7 @@ export class Ai {
   /** Asserts a condition about the page, retrying until the timeout (docs/03 §3). */
   async assert(condition: string, options: AssertOptions = {}): Promise<Verdict> {
     const nudged = await this.nudgeBeforeStep('assert', condition, options);
-    if (nudged.skip) return { pass: true, reason: 'Skipped in nudge mode', evidence: [], check: null };
+    if (nudged.skip) return { pass: true, reason: 'Skipped in nudge mode', evidence: [], checks: [] };
     ({ instruction: condition, options } = nudged);
     return this.step('assert', condition, async (ctx) => {
       const verdict = await this.assertStep(
@@ -799,7 +1029,7 @@ export class Ai {
     kind: StepKind,
     instruction: string,
     options: O,
-  ): Promise<{ instruction: string; options: O; skip: boolean }> {
+  ): Promise<{ instruction: string; options: O; skip: boolean; correction?: string }> {
     const nudge = this.deps.nudge;
     if (!nudge) return { instruction, options, skip: false };
     const cache = this.deps.cache;
@@ -822,9 +1052,19 @@ export class Ai {
       case 'skip':
         return { instruction, options, skip: kind === 'act' || kind === 'assert' };
       case 'hint':
-        return { instruction, options: { ...options, hints: [...(options.hints ?? []), cmd.text] }, skip: false };
+        return {
+          instruction,
+          options: { ...options, hints: [...(options.hints ?? []), cmd.text] },
+          skip: false,
+          correction: `hint: ${cmd.text}`,
+        };
       case 'edit':
-        return { instruction: cmd.instruction, options, skip: false };
+        return {
+          instruction: cmd.instruction,
+          options,
+          skip: false,
+          correction: `changed the instruction to: ${cmd.instruction}`,
+        };
       default:
         return { instruction, options, skip: false };
     }
@@ -950,7 +1190,7 @@ export class Ai {
     for (const { path, target } of plan.sources) {
       try {
         const loc = await resolveTarget(this._page, target, this.config.settle.maxMs);
-        leaves.push({ path, text: await loc.innerText() });
+        leaves.push({ path, text: await loc.evaluate(leafText) });
       } catch {
         return undefined;
       }
@@ -965,7 +1205,8 @@ export class Ai {
   async extract<T>(what: string, schema: z.ZodType<T>, options: AssertOptions = {}): Promise<T> {
     return this.step('extract', what, async (ctx) => {
       const { cache, mode, key, plan } = this.cachedPlan('extract', what, options, ctx);
-      if (plan) {
+      // A plan without sources was judged not replayable when recorded: ask the AI, without calling it broken.
+      if (plan?.sources?.length) {
         const replayed = await this.replayExtract(plan, schema);
         if (replayed !== undefined) {
           this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'hit', key });
@@ -985,6 +1226,15 @@ export class Ai {
             { stepId: ctx.id, callsite: ctx.callsite },
           );
         }
+      } else if (plan && mode === 'replay-only') {
+        throw new AiExtractError(
+          what,
+          'This extract has no replayable sources, so it needs the AI, and the cache is replay-only.',
+          {
+            stepId: ctx.id,
+            callsite: ctx.callsite,
+          },
+        );
       }
       const session = await this.openSession();
       try {
@@ -1007,19 +1257,31 @@ export class Ai {
         if (cache && mode !== 'ai-only') {
           // Keep sources only if they rebuild exactly the value the model returned.
           const sources: NonNullable<StepPlan['sources']> = [];
+          let note = value.sources.length ? undefined : 'the model gave no sources';
           for (const s of value.sources) {
             const target = await this.targetFor(obs, s.ref);
             if (!target) {
               sources.length = 0;
+              note = `no durable locator for the source of "${s.path}" (${s.ref})`;
               break;
             }
             sources.push({ path: s.path, target });
           }
           const next = this.newPlan('extract', what, { sources });
           const check = sources.length ? await this.replayExtract(next, schema) : undefined;
-          if (JSON.stringify(check) !== JSON.stringify(value.value)) next.sources = [];
-          if (plan) await this.storeHealed(cache, key, plan, next, what, ctx);
-          else await cache.store.put(cache.testTitle, key, next);
+          if (sources.length && JSON.stringify(check) !== JSON.stringify(value.value)) {
+            note = `the sources read back ${JSON.stringify(check ?? null).slice(0, 120)}, not the value the model gave`;
+          }
+          if (note) {
+            next.sources = [];
+            next.note = note;
+          }
+          if (plan?.sources?.length) await this.storeHealed(cache, key, plan, next, what, ctx);
+          // An AI-only plan is rewritten only when it becomes replayable, so plan files don't churn.
+          else if (!plan || next.sources?.length || mode === 'refresh') {
+            await cache.store.put(cache.testTitle, key, next);
+            this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'stored', key });
+          }
         }
         return value.value as T;
       } catch (error) {

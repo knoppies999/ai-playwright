@@ -105,7 +105,7 @@ Plans store up to 3 verified candidates, in order. Replay tries them in that ord
 | L4 | Stable `id` | `locator('#user-email')` | Only if the id passes the generated-id filter (§5) |
 | L5 | Anchored / relative | `getByRole('row').filter({ hasText: 'thandi@example.com' }).getByRole('button', { name: 'Edit' })` | For repeated controls in lists and tables. The anchor text comes from `data` placeholders where possible, so it follows the test's data |
 | L6 | Exact text | `getByText('Forgot password?', { exact: true })` | Static text only. Rejected if the text contains data values or numbers |
-| L7 | Structural CSS from the nearest stable ancestor | `locator('[data-test-id="user-form"] > div:nth-child(3) button')` | Last resort. Stored with `fragile: true` and flagged in reports |
+| L7 | Position inside the nearest stable ancestor | `locator('[id="checkboxes"]').getByRole('checkbox').nth(1)`, `locator('[id="table1"]').locator('td').nth(21)` | Last resort, only when L1–L6 find nothing. The rung (`L7`) marks it; `aipw cache stats` counts positional targets |
 | L8 | **Fingerprint match (no AI)** | n/a | Used only when L1–L7 all fail during replay (§6) |
 | L9 | **AI heal** | n/a | When the fingerprint match isn't confident ([06](06-caching-and-replay.md) §6) |
 
@@ -178,9 +178,14 @@ Ids and classes that change between builds or page loads are rejected:
 | GUIDs / long hex | `3f2b9c1e-…`, `a81f9c2d0b` |
 | Long digit runs | `row-200394` |
 | CSS-module / styled-components hashes | `Button_primary__x7Hq2`, `sc-bdVaJa` |
+| Record ids: ULIDs, nanoids, ObjectIds (in ids, test ids and URL path segments) | `product-01M4KFJHJFJBXR3A2RWKK2Z7GK`, `/product/01M4KF…` → `/product/*` |
 | Utility-class soup (Tailwind) | classes are never used for L7 when a utility pattern is detected |
 
 The list is configurable (`locators.rejectIdPatterns`) and unit-tested with real-world samples.
+
+Names that embed a price change with the data too: a product link named `Combination Pliers … $14.15` is located by
+its stable start (`getByRole('link', { name: 'Combination Pliers Compare Combination' })`, not exact). Rand amounts
+(`R 1 299,00`) count as prices.
 
 ## 6. Fingerprint healing (L8): healing without AI
 

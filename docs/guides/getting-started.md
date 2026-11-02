@@ -3,18 +3,32 @@
 aipw adds an `ai` fixture to Playwright Test. You write steps in English (`ai.act`, `ai.assert`, `ai.extract`), the
 model works them out the first time, and later runs replay the recorded locators without the model.
 
-> The packages are not on npm yet. Use them from this repository (an npm workspace), or point your project at the
-> built `packages/*/dist` folders.
+> The packages are not on npm yet. Build tarballs from this repository and install those (below).
 
 ## 1. Install (2 minutes)
+
+Build the packages once:
 
 ```bash
 git clone https://github.com/knoppies999/ai-playwright.git
 cd ai-playwright
 npm ci
-npx playwright install chromium
-npm run build
+npm run pack            # writes dist-packages/aipw-*.tgz
 ```
+
+Then, in your own project (`AIPW` is the path to the clone):
+
+```bash
+npm i -D $AIPW/dist-packages/aipw-core-0.0.0.tgz $AIPW/dist-packages/aipw-test-0.0.0.tgz \
+  $AIPW/dist-packages/aipw-cli-0.0.0.tgz $AIPW/dist-packages/aipw-provider-claude-code-0.0.0.tgz \
+  @playwright/test zod
+npx playwright install chromium
+npx aipw init           # aipw.config.ts, an example spec, playwright.config.ts if you have none, .gitignore
+```
+
+For pipelines, also install `aipw-provider-openai` (Foundry/OpenAI); for the Copilot CLI, `aipw-provider-copilot`.
+`aipw init` never overwrites a file (unless `--force`); for an existing Playwright config it prints the two lines to
+change. Steps 3–5 below show what it sets up.
 
 ## 2. Pick a model (2 minutes)
 

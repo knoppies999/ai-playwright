@@ -4,6 +4,7 @@
 // - replays don't write stats (committed plans would change on every run); only heals do.
 import { z } from 'zod';
 import { LocatorExprSchema } from '../locators/expr.js';
+import { isIdSegment } from '../locators/volatile.js';
 
 export const PLAN_VERSION = 1;
 
@@ -48,17 +49,22 @@ export const PlanActionSchema = z.strictObject({
 });
 export type PlanAction = z.infer<typeof PlanActionSchema>;
 
+/** The Playwright web-first assertions a compiled check can use. */
+export const CHECK_EXPECTS = [
+  'toBeVisible',
+  'toBeHidden',
+  'toContainText',
+  'toHaveText',
+  'toHaveCount',
+  'toHaveURL',
+  'toHaveValue',
+  'toBeChecked',
+  'toBeEnabled',
+  'toBeDisabled',
+] as const;
+
 export const CompiledCheckSchema = z.strictObject({
-  /** Playwright web-first assertion, e.g. toBeVisible, toContainText, toHaveText, toHaveCount, toHaveURL. */
-  expect: z.enum([
-    'toBeVisible',
-    'toBeHidden',
-    'toContainText',
-    'toHaveText',
-    'toHaveCount',
-    'toHaveURL',
-    'toHaveValue',
-  ]),
+  expect: z.enum(CHECK_EXPECTS),
   target: PlanTargetSchema.optional(),
   args: z.array(z.union([z.string(), z.number()])),
   not: z.boolean().optional(),
@@ -81,6 +87,8 @@ const StepPlanBase = z.strictObject({
   sources: z.array(z.strictObject({ path: z.string(), target: PlanTargetSchema })).optional(),
   /** locate */
   target: PlanTargetSchema.optional(),
+  /** assert/extract that can't replay without AI: why, for `aipw cache show`. */
+  note: z.string().optional(),
   stats: z.strictObject({ heals: z.number().int(), lastHealAt: z.string().optional() }),
 });
 
@@ -122,7 +130,7 @@ export function urlPattern(url: string): string {
     const u = new URL(url);
     const path = u.pathname
       .split('/')
-      .map((seg) => (/^\d+$|^[0-9a-f]{8}-[0-9a-f-]{27,}$|^[0-9a-f]{16,}$/i.test(seg) ? '*' : seg))
+      .map((seg) => (isIdSegment(seg) ? '*' : seg))
       .join('/');
     return `${u.origin}${path}`;
   } catch {

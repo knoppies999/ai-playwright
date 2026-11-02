@@ -5,8 +5,9 @@ import type { Frame, Locator, Page } from 'playwright-core';
 import { buildLocator, type LocatorExpr } from './expr.js';
 import { DEFAULT_REJECT_ID_PATTERNS, isGeneratedId, isStableText } from './generated.js';
 import { isConfiguredTestIdAttribute, isRejectedTestIdValue, looksLikeTestIdAttribute } from './test-ids.js';
+import { stableNamePrefix } from './volatile.js';
 
-export type Rung = 'L1' | 'L2' | 'L3' | 'L4' | 'L5' | 'L6';
+export type Rung = 'L1' | 'L2' | 'L3' | 'L4' | 'L5' | 'L6' | 'L7';
 
 export interface LocatorCandidate {
   rung: Rung;
@@ -26,6 +27,12 @@ export interface SynthOptions {
   role?: string;
   name?: string;
   max?: number;
+  /**
+   * Text a check will assert on this element. A locator that finds the element by that same text proves
+   * nothing ("the cell named Active has text Active"), so locators anchored in their row or card by other
+   * text are tried first, and never anchored by this text.
+   */
+  assertedText?: string;
 }
 
 interface Attr {
@@ -44,6 +51,10 @@ interface ElementFacts {
   testIds: Attr[];
   /** Repeated-item ancestors (closest first) with text lines unique to this item. */
   items: { selector: string; anchors: string[] }[];
+  /** The element itself when it is a repeated item (a todo row, a product card), with its unique text lines. */
+  self: { selector: string; anchors: string[] } | null;
+  /** Ancestors (closest first) that could scope a structural L7 locator: their test ids and id. */
+  scopes: { testIds: Attr[]; id: string | null; tagIndex: number }[];
 }
 
 /** Runs in the page. Must stay self-contained (it is serialised). */
@@ -65,8 +76,9 @@ function gatherFacts(el: Element, args: { marker: string; token: string; testIdN
       .filter((l) => l.length >= 2 && l.length <= 60);
 
   const items: ElementFacts['items'] = [];
-  let anc = el.parentElement;
-  for (let depth = 0; anc && depth < 8 && items.length < 3; depth++, anc = anc.parentElement) {
+  let self: ElementFacts['self'] = null;
+  let anc: Element | null = el;
+  for (let depth = 0; anc && depth < 9 && items.length < 3; depth++, anc = anc.parentElement) {
     const tag = anc.tagName.toLowerCase();
     const role = anc.getAttribute('role');
     const tid = testIdsOf(anc)[0];
@@ -82,7 +94,16 @@ function gatherFacts(el: Element, args: { marker: string; token: string; testIdN
     if (!siblings.length) continue; // not a repeated item
     const others = new Set(siblings.flatMap(lines));
     const anchors = lines(anc).filter((l) => !others.has(l));
-    if (anchors.length) items.push({ selector, anchors: anchors.slice(0, 3) });
+    if (!anchors.length) continue;
+    if (anc === el) self = { selector, anchors: anchors.slice(0, 3) };
+    else items.push({ selector, anchors: anchors.slice(0, 3) });
+  }
+
+  const scopes: ElementFacts['scopes'] = [];
+  for (let a = el.parentElement, depth = 0; a && depth < 6 && scopes.length < 3; a = a.parentElement, depth++) {
+    const tagIndex = Array.from(a.querySelectorAll(el.tagName.toLowerCase())).indexOf(el);
+    const scope = { testIds: testIdsOf(a), id: a.getAttribute('id'), tagIndex };
+    if (scope.testIds.length || scope.id) scopes.push(scope);
   }
 
   const input = el as HTMLInputElement;
@@ -107,6 +128,8 @@ function gatherFacts(el: Element, args: { marker: string; token: string; testIdN
     text: ((el as HTMLElement).innerText ?? el.textContent ?? '').trim().replace(/\s+/g, ' ').slice(0, 100),
     testIds: testIdsOf(el),
     items,
+    self,
+    scopes,
   };
 }
 
@@ -169,11 +192,15 @@ export async function synthesizeLocators(page: Page, target: Locator, opts: Synt
         return false;
       }
     };
+    const fold = (s: string) => s.replace(/\s+/g, ' ').trim().toLowerCase();
+    const asserted = opts.assertedText ? fold(opts.assertedText) : '';
+    /** True when the expression finds the element by the text the check will assert. */
+    const circular = (expr: LocatorExpr) => asserted !== '' && fold(JSON.stringify(expr)).includes(asserted);
     const anchored = (expr: LocatorExpr): LocatorExpr[] =>
       facts.items.flatMap((item) =>
-        item.anchors.map(
-          (a) => [{ m: 'locator', selector: item.selector }, { m: 'filter', hasText: a }, ...expr] as LocatorExpr,
-        ),
+        item.anchors
+          .filter((a) => asserted === '' || !fold(a).includes(asserted))
+          .map((a) => [{ m: 'locator', selector: item.selector }, { m: 'filter', hasText: a }, ...expr] as LocatorExpr),
       );
 
     // Ladder rungs in order; each base expression is tried as-is, then anchored inside a repeated item (L5).
@@ -190,8 +217,22 @@ export async function synthesizeLocators(page: Page, target: Locator, opts: Synt
           : [{ m: 'locator', selector: css(t.attr, t.value) }],
       });
     }
-    if (opts.role && !NO_ROLE_LOCATOR.has(opts.role) && opts.name && opts.name.length <= 80) {
+    // A name with a price in it changes with the data: use its stable start instead (not exact).
+    const stableName = opts.name ? stableNamePrefix(opts.name) : undefined;
+    if (opts.role && !NO_ROLE_LOCATOR.has(opts.role) && stableName) {
+      bases.push({ rung: 'L2', expr: [{ m: 'getByRole', role: opts.role, name: stableName }] });
+    } else if (opts.role && !NO_ROLE_LOCATOR.has(opts.role) && opts.name && opts.name.length <= 80) {
       bases.push({ rung: 'L2', expr: [{ m: 'getByRole', role: opts.role, name: opts.name, exact: true }] });
+    }
+    // The target is itself a repeated item (hovering a todo row): the item selector, filtered by its own text.
+    for (const anchor of facts.self?.anchors.slice(0, 2) ?? []) {
+      bases.push({
+        rung: 'L5',
+        expr: [
+          { m: 'locator', selector: facts.self!.selector },
+          { m: 'filter', hasText: anchor },
+        ],
+      });
     }
     if (FORM_TAGS.has(facts.tag)) {
       if (facts.label) bases.push({ rung: 'L3', expr: [{ m: 'getByLabel', text: facts.label, exact: true }] });
@@ -211,10 +252,8 @@ export async function synthesizeLocators(page: Page, target: Locator, opts: Synt
     const seen = new Set<string>();
     for (const base of bases) {
       if (found.length >= max) break;
-      const tries: { rung: Rung; expr: LocatorExpr }[] = [
-        base,
-        ...anchored(base.expr).map((expr) => ({ rung: 'L5' as Rung, expr })),
-      ];
+      const inItem = anchored(base.expr).map((expr) => ({ rung: 'L5' as Rung, expr }));
+      const tries: { rung: Rung; expr: LocatorExpr }[] = circular(base.expr) ? [...inItem, base] : [base, ...inItem];
       for (const t of tries) {
         const key = JSON.stringify(t.expr);
         if (seen.has(key)) continue;
@@ -223,6 +262,52 @@ export async function synthesizeLocators(page: Page, target: Locator, opts: Synt
           const full = [...prefix, ...t.expr];
           found.push({ rung: t.rung, expr: full, display: buildLocator(page, full).toString() });
           break; // one verified variant per base is enough
+        }
+      }
+    }
+    // L7, last resort (docs/12 §3): the n-th element of its role (or tag) inside the nearest stable ancestor.
+    // Positional, so fragile, but it replays; without it the step goes to the AI on every run.
+    if (!found.length) {
+      const scopes = facts.scopes.flatMap((sc) =>
+        [
+          ...sc.testIds
+            .filter((t) => !isRejectedTestIdValue(t.value, opts.rejectTestIdValues))
+            .map((t) => css(t.attr, t.value)),
+          ...(sc.id && !isGeneratedId(sc.id, opts.rejectIdPatterns ?? DEFAULT_REJECT_ID_PATTERNS)
+            ? [css('id', sc.id)]
+            : []),
+        ].map((selector) => ({ selector, tagIndex: sc.tagIndex })),
+      );
+      const byRole = opts.role && !NO_ROLE_LOCATOR.has(opts.role);
+      for (const scope of scopes) {
+        let hit: LocatorExpr | undefined;
+        // Readable first: the n-th of its role. Probed, so only for short lists.
+        if (byRole) {
+          const all: LocatorExpr = [
+            { m: 'locator', selector: scope.selector },
+            { m: 'getByRole', role: opts.role! },
+          ];
+          const n = await buildLocator(page, [...prefix, ...all])
+            .count()
+            .catch(() => 0);
+          for (let i = 0; i < Math.min(n, 12) && !hit; i++) {
+            const expr: LocatorExpr = [...all, { m: 'nth', index: i }];
+            if (await isTarget(expr)) hit = expr;
+          }
+        }
+        // Otherwise the n-th of its tag, with the index computed in the page (a cell deep in a table).
+        if (!hit && scope.tagIndex >= 0) {
+          const expr: LocatorExpr = [
+            { m: 'locator', selector: scope.selector },
+            { m: 'locator', selector: facts.tag },
+            { m: 'nth', index: scope.tagIndex },
+          ];
+          if (await isTarget(expr)) hit = expr;
+        }
+        if (hit) {
+          const full = [...prefix, ...hit];
+          found.push({ rung: 'L7', expr: full, display: buildLocator(page, full).toString() });
+          break;
         }
       }
     }

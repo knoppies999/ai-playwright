@@ -4,6 +4,7 @@ import { runCacheCommand } from './cache.js';
 import { runConformance } from './conformance.js';
 import { runDoctor } from './doctor.js';
 import { runHintsCommand } from './hints.js';
+import { runInit } from './init.js';
 import { VERSION } from './index.js';
 import { runNudge } from './nudge.js';
 import { runSummaryCommand } from './summary.js';
@@ -13,6 +14,7 @@ const HELP = `aipw ${VERSION}
 Usage: aipw <command> [options]
 
 Commands:
+  init         [--provider claude-code|foundry|openai|anthropic|copilot] [--dir tests] [--force]
   nudge        <spec[:line]> [--break step|action|fail|none] [--at N] [--fresh] [--verify all|none]
   cache        stats | show <spec> | prune [--dry-run] | refresh <spec> [--grep x]
   doctor       [--provider x] [--probe]
@@ -31,6 +33,8 @@ if (command === undefined || command === '--help' || command === 'help') {
   console.log(HELP);
 } else if (command === '--version') {
   console.log(VERSION);
+} else if (command === 'init') {
+  process.exitCode = runInit(rest);
 } else if (command === 'nudge') {
   process.exitCode = await runNudge(rest);
 } else if (command === 'cache') {

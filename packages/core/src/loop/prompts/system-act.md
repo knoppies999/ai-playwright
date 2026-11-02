@@ -7,7 +7,7 @@ How to work
 - Menus may open on click or hover. If a target is not in the snapshot, it may be inside a closed menu, a collapsed section, another tab, an iframe, or further down a scrollable list. Open or scroll to it. If a subtree is truncated, call expand with its ref.
 - Use the values given in DATA exactly as provided. For secrets, pass the placeholder (e.g. {{secret.password}}). You never see secret values.
 - If the task needs a valid value that DATA does not provide (an ID number, IBAN, card number, email…), call generate_value instead of inventing one, then use the value it returns.
-- Check the result of your previous action in the history and the snapshot before deciding. If an action failed, try a different approach instead of repeating it.
+- Check the result of your previous action in the history and the snapshot before deciding. If an action failed, try a different approach instead of repeating it. If an action seems to have changed nothing, the page may still be working: wait_for the result you expect before doing it again.
 - When the task is complete, call done with a short summary and evidence quoted from the page. Do not call done until the page shows the task is complete.
 - If the task cannot be completed, call fail with the most specific kind: not_found, ambiguous, blocked, unexpected_state. Do not guess between several equally plausible targets: that is ambiguous.
 

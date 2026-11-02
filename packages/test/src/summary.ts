@@ -142,7 +142,11 @@ export function formatSummaryText(r: RunSummary): string {
       `  Slowest     ${where(slow)} "${slow.instruction}"  ${(slow.ms / 1000).toFixed(1)} s (${slow.decisions} LLM calls)`,
     );
   for (const h of r.healed)
-    lines.push(`  Healed      ${where(h)} — ${h.heal!.before} → ${h.heal!.after} (${h.heal!.source})`);
+    lines.push(
+      `  Healed      ${where(h)} "${h.instruction}" (${h.heal!.source} heal)`,
+      `              was: ${h.heal!.before}`,
+      `              now: ${h.heal!.after}`,
+    );
   for (const f of r.failed) lines.push(`  Failed      ${where(f)} "${f.instruction}"`);
   return lines.join('\n');
 }

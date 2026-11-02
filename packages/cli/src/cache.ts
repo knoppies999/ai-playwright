@@ -1,7 +1,7 @@
 // `aipw cache stats|show|prune|refresh` (docs/06 §8).
-import { readPlanFile, stableStringify, type PlanFile, type StepPlan } from '@aipw/core';
+import { readPlanFile, stableStringify, type PlanFile, type PlanTarget, type StepPlan } from '@aipw/core';
 import { spawnSync } from 'node:child_process';
-import { readdirSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, relative } from 'node:path';
 
 /** Every *.plans.json under a __aipw__ folder, skipping node_modules and dot folders. */
@@ -28,6 +28,20 @@ export interface PlanStats {
   aiOnlyAsserts: number;
   /** Extracts without replayable sources (need the AI on replay). */
   aiOnlyExtracts: number;
+  /** Targets with no stored locator: the step heals (fingerprint or AI) on every replay. */
+  noLocator: number;
+  /** Targets found only by position (L7): replay works, but a reordered page breaks it. */
+  positional: number;
+}
+
+/** Every element target a plan stores: action targets, form fields, checks, extract sources, locate. */
+function targetsOf(step: StepPlan): PlanTarget[] {
+  return [
+    ...(step.actions ?? []).flatMap((a) => [...(a.target ? [a.target] : []), ...(a.targets ?? [])]),
+    ...(step.compiled ?? []).flatMap((c) => (c.target ? [c.target] : [])),
+    ...(step.sources ?? []).map((s) => s.target),
+    ...(step.target ? [step.target] : []),
+  ];
 }
 
 export function planStats(path: string, root: string): PlanStats {
@@ -36,12 +50,18 @@ export function planStats(path: string, root: string): PlanStats {
   let heals = 0;
   let aiOnlyAsserts = 0;
   let aiOnlyExtracts = 0;
+  let noLocator = 0;
+  let positional = 0;
   for (const test of Object.values(file.tests)) {
     for (const step of Object.values(test)) {
       steps[step.kind] = (steps[step.kind] ?? 0) + 1;
       heals += step.stats.heals;
       if (step.kind === 'assert' && !step.compiled?.length) aiOnlyAsserts++;
       if (step.kind === 'extract' && !step.sources?.length) aiOnlyExtracts++;
+      for (const t of targetsOf(step)) {
+        if (!t.locators.length) noLocator++;
+        else if (t.locators[0]!.rung === 'L7') positional++;
+      }
     }
   }
   return {
@@ -51,22 +71,33 @@ export function planStats(path: string, root: string): PlanStats {
     heals,
     aiOnlyAsserts,
     aiOnlyExtracts,
+    noLocator,
+    positional,
   };
 }
 
 function describeStep(step: StepPlan): string[] {
   const lines = [`${step.kind}: ${step.instruction}`];
+  const describeTarget = (t: PlanTarget | undefined) =>
+    t ? ` ${t.role ?? 'element'}${t.name ? ` "${t.name}"` : ''} → ${t.locators[0]?.display ?? 'no locator'}` : '';
   for (const a of step.actions ?? []) {
-    const target = a.target
-      ? ` ${a.target.role ?? 'element'}${a.target.name ? ` "${a.target.name}"` : ''} → ${a.target.locators[0]?.display ?? 'no locator'}`
-      : '';
-    lines.push(`  ${a.tool}${target}`);
+    // What was typed or pressed: data and secrets are stored as placeholders, so this is safe to print.
+    const typed = [a.args.value, a.args.text, a.args.key].find((v) => typeof v === 'string');
+    lines.push(`  ${a.tool}${typed !== undefined ? ` ${JSON.stringify(typed)}` : ''}${describeTarget(a.target)}`);
+    if (a.tool === 'fill_form' && Array.isArray(a.args.fields)) {
+      (a.args.fields as { value?: unknown }[]).forEach((f, i) =>
+        lines.push(`    ${JSON.stringify(f.value)}${describeTarget(a.targets?.[i])}`),
+      );
+    }
   }
   for (const c of step.compiled ?? [])
     lines.push(
       `  check: ${c.not ? 'not.' : ''}${c.expect}(${c.target?.locators[0]?.display ?? 'page'}) ${JSON.stringify(c.args)}`,
     );
-  if (step.kind === 'assert' && !step.compiled?.length) lines.push('  check: none (judged by AI on every run)');
+  if (step.kind === 'assert' && !step.compiled?.length)
+    lines.push(`  check: none (judged by AI on every run)${step.note ? `: ${step.note}` : ''}`);
+  if (step.kind === 'extract' && !step.sources?.length)
+    lines.push(`  sources: none (read by AI on every run)${step.note ? `: ${step.note}` : ''}`);
   for (const s of step.sources ?? [])
     lines.push(`  source ${s.path || '(value)'}: ${s.target.locators[0]?.display ?? 'no locator'}`);
   if (step.target) lines.push(`  → ${step.target.locators[0]?.display ?? 'no locator'}`);
@@ -74,12 +105,24 @@ function describeStep(step: StepPlan): string[] {
   return lines;
 }
 
-export function showPlans(file: PlanFile, grep?: string): string {
+/**
+ * Plans are keyed by hash, so they have no order. Given the spec's source, steps are listed in the order their
+ * instructions appear in it (instructions built with ${…} aren't found and come last).
+ */
+export function showPlans(file: PlanFile, grep?: string, specSource?: string): string {
   const out: string[] = [];
+  // As a string literal, so "Save" isn't found inside "Saved".
+  const position = (step: StepPlan) => {
+    const found = ["'", '"', '`']
+      .map((q) => specSource?.indexOf(`${q}${step.instruction}${q}`) ?? -1)
+      .filter((at) => at >= 0);
+    return found.length ? Math.min(...found) : Number.MAX_SAFE_INTEGER;
+  };
   for (const [title, steps] of Object.entries(file.tests).sort(([a], [b]) => a.localeCompare(b))) {
     if (grep && !title.includes(grep)) continue;
     out.push(title);
-    for (const step of Object.values(steps)) out.push(...describeStep(step).map((l) => `  ${l}`));
+    const ordered = Object.values(steps).sort((a, b) => position(a) - position(b));
+    for (const step of ordered) out.push(...describeStep(step).map((l) => `  ${l}`));
   }
   return out.join('\n');
 }
@@ -127,7 +170,9 @@ export function runCacheCommand(args: string[], root = process.cwd()): number {
           .map(([k, n]) => `${n} ${k}`)
           .join(', ');
         console.log(
-          `${r.file}: ${r.tests} tests, ${steps}; ${r.heals} heals; AI on replay: ${r.aiOnlyAsserts} asserts, ${r.aiOnlyExtracts} extracts`,
+          `${r.file}: ${r.tests} tests, ${steps}; ${r.heals} heals; AI on replay: ${r.aiOnlyAsserts} asserts, ${r.aiOnlyExtracts} extracts` +
+            (r.noLocator ? `; ${r.noLocator} targets without a locator` : '') +
+            (r.positional ? `; ${r.positional} positional (L7)` : ''),
         );
       }
       return 0;
@@ -139,7 +184,8 @@ export function runCacheCommand(args: string[], root = process.cwd()): number {
       }
       const grep = rest[0] === '--grep' ? rest[1] : undefined;
       const path = join(dirname(target), '__aipw__', `${basename(target)}.plans.json`);
-      console.log(showPlans(readPlanFile(path), grep) || 'No plans.');
+      const source = existsSync(target) ? readFileSync(target, 'utf8') : undefined;
+      console.log(showPlans(readPlanFile(path), grep, source) || 'No plans.');
       return 0;
     }
     case 'prune': {

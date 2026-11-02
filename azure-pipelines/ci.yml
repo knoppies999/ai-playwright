@@ -36,6 +36,9 @@ steps:
   - script: npx playwright test --project fixtures --project demo
     displayName: Engine and healing e2e with FakeProvider (no AI, localhost only)
 
+  - script: node scripts/demo.mjs --replay
+    displayName: Showcase replays its committed plans (replay-only, no AI)
+
   - script: node scripts/leak-check.mjs DEMO_INITIAL_PASSWORD
     displayName: Secret leak check (results, reports, plans, unzipped traces)
 
