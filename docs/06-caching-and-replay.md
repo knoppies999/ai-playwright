@@ -120,6 +120,24 @@ Replay runs the compiled check with Playwright's `expect` and the assert timeout
 - Compiled check fails → **re-judge with AI**. AI says *fail* → the test fails (a real regression). AI says *pass* → heal: recompile and flag in the report.
 - Conditions the model can't compile ("the chart trends upward") are stored as `"compiled": null` and always use the AI.
 
+> **As built (polish loop, 2026-11):**
+> - **One check per clause, all or nothing.** "A and B" compiles to a check for A and a check for B; if any clause
+>   can't compile, the whole assertion stays AI-judged (a partial set would replay as a weaker assertion).
+> - Checks: `toBeVisible`, `toBeHidden`, `toContainText`, `toHaveText`, `toHaveValue`, `toHaveCount`, `toHaveURL`,
+>   `toBeChecked`, `toBeEnabled`, `toBeDisabled`, each with `not`.
+> - **Vacuous checks are refused (risk R6).** A `toBeVisible` on a checkbox, textbox or other control proves nothing
+>   when the assertion is about its state ("… is completed"), so it isn't stored.
+> - **Circular checks are avoided.** A text check doesn't find its element by the text it asserts: "Thandi is Active"
+>   compiles to `locator('tr').filter({ hasText: 'Thandi Mokoena' }).getByRole('cell', { name: 'Active' })`, so
+>   swapped statuses fail on replay.
+> - Text in an element without a locator (`<strong>3</strong> items left`) is checked on its nearest locatable DOM
+>   ancestor with `toContainText`. Text with no ref at all (a message in a plain `<div>`) is proposed with `ref: null`
+>   and compiled to the one visible element that shows it.
+> - `toHaveCount` compiles to a locator that matches every counted item: the item's test id, its role and name inside
+>   the nearest locatable ancestor, or its role and name on the page, whichever count matches now.
+> - An AI-judged assertion is re-recorded as soon as a later judgement compiles. When it can't, the plan keeps a
+>   `note` saying why, shown by `aipw cache show`.
+
 ### Extract in the cache
 
 > **As built:** the model reports, for every leaf of the value, its JSON path and the element it read it from
@@ -128,6 +146,9 @@ Replay runs the compiled check with Playwright's `expect` and the assert timeout
 > arrays/objects of them) with **no model call at all**, which keeps `replay-only` at zero calls.
 > Compiled text checks (`toContainText`, `toHaveText`) also require the element to be visible, because `ai.assert` is about
 > what the page shows.
+> Form controls are read by state, not text: a checkbox reads as `checked`/`unchecked` (so `z.boolean()` replays), an
+> input as its value. An extract without replayable sources is asked of the model on every run but its plan is not
+> rewritten each time (no churn in the committed file); its `note` says why it can't replay.
 
 The cache stores the **source locators** (where the data was read from). Replay reads `innerText` from them and:
 - for primitive schemas (`z.number()`, `z.string()`, enums) → deterministic coercion, no LLM.
@@ -143,6 +164,11 @@ Recorded plan: hover button "Settings" → click menuitem "Users"
 Failure: no element matched for action #1 (button "Settings").
 Complete the step on the current page. The UI may have changed.
 ```
+
+> **As built:** when the replay broke part-way, the actions that already ran are listed for the model ("Already done by
+> the replay: fill textbox "Username", then fill textbox "Password".") and stay at the start of the healed plan, ahead of
+> what the model does next. (Before this, a heal after a partial replay stored only the model's actions, so "click
+> Start, then wait" healed to just "wait".)
 
 On success:
 - The plan is replaced (old plan kept in `history[]`, last 3 versions).

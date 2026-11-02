@@ -56,21 +56,79 @@ Guides: [Getting started in 10 minutes](docs/guides/getting-started.md) ·
 
 Implementers (human, Copilot or Claude) start with [AGENTS.md](AGENTS.md).
 
-## Status
-
-**Phases 0–1 are done (two spikes still need other machines). Phase 2, the AI engine, works end to end** on the Claude Code subscription: 12 of 13 SauceDemo scenarios passed on the first live run ([report](examples/targets/saucedemo/usability-report.md)).
-
-- Phase 0 results and the design changes they caused are in [docs/11](docs/11-risks-and-open-questions.md) §3.
-  Two spikes still need another machine: 0.3 (Copilot machine) and
-  0.4 (Foundry). See [spikes/README.md](spikes/README.md).
-- Phase 1 gave us the npm workspaces monorepo, the SauceDemo target profile and scenarios, a plain-Playwright smoke
-  spec, and CI (Azure Pipelines + GitHub Actions).
+## Try it
 
 ```bash
-npm install
+npm ci
 npx playwright install chromium
-cp .env.example .env     # SauceDemo's public demo password
-npm run build && npm test && npm run e2e   # no AI calls
-claude auth login        # once, for the claude-code provider
-npm run e2e:llm          # SauceDemo usability suite: real AI calls on your Claude plan
+npm run demo:replay      # ~1 minute. No AI, no sign-in, no internet: the showcase replays its committed plan
+claude auth login        # once, for the default claude-code provider (runs on your Claude plan)
+npm run demo             # the whole story, narrated
 ```
+
+`npm run demo` runs one admin journey on the local demo app (a hover-only menu, two identical "Save" buttons, a
+server-validated form filled with generated SA ID / IBAN / phone values and a secret password) four times:
+
+| Phase | What happens | From cache | LLM calls | Time |
+|---|---|---|---|---|
+| Record | The model works out every English step; aipw stores durable locators | 0/10 | 21 | ~2 min |
+| Replay | Same UI: plain Playwright, no model | 10/10 | 0 | ~8 s |
+| Redesign | Test ids renamed (healed by fingerprint, free), menu moved and renamed (healed by the model once) | 8/10 | 3 | ~26 s |
+| Replay the redesign | The healed plan, no model | 10/10 | 0 | ~9 s |
+
+Add `--headed` to watch: `npm run demo -- --headed`. The spec is [examples/tests/showcase/admin.spec.ts](examples/tests/showcase/admin.spec.ts).
+
+### See what was recorded
+
+Plans are committed JSON, readable with `aipw cache show`:
+
+```text
+$ npx aipw cache show examples/tests/showcase/admin.spec.ts --grep "reads the table"
+  act: Open the users page from the settings menu
+    click button "Settings" → getByRole('button', { name: 'Settings', exact: true })
+    click link "Users" → getByRole('link', { name: 'Users', exact: true })
+  assert: Thandi Mokoena is Active and Sipho Dlamini is Disabled
+    check: toHaveText(locator('tr').filter({ hasText: 'Thandi Mokoena' }).getByRole('cell', { name: 'Active', exact: true })) ["Active"]
+    check: toHaveText(locator('tr').filter({ hasText: 'Sipho Dlamini' }).getByRole('cell', { name: 'Disabled', exact: true })) ["Disabled"]
+```
+
+Assertions compile to one deterministic check per clause and replay without the model. When one can't, the plan
+says why (`check: none (judged by AI on every run): …`), and `npx aipw cache stats` counts those steps per spec.
+
+### More example suites
+
+| Suite | Run | Shows |
+|---|---|---|
+| Showcase (local demo app) | `npm run demo` | Record, replay, heal; generated data; secrets |
+| TodoMVC | `npm run e2e:todomvc` | Hover-only delete, double-click edit, checkbox state, reload |
+| SauceDemo | `npm run e2e:llm` | Login, cart, checkout, sorting, a 13-scenario usability suite |
+| The Internet | `npm run e2e:the-internet` | Dynamic loading, JS prompts, unlabeled checkboxes, sortable tables |
+| Toolshop | `npm run e2e:toolshop` | A bigger live shop: search, filters, registration, guest checkout |
+
+Prefix any of them with `AIPW_CACHE=replay-only` to prove a suite runs with zero AI calls. The showcase, TodoMVC,
+SauceDemo and The Internet do. Toolshop is a shared public site whose stock and accounts change under you, so expect
+occasional heals there.
+
+## Providers
+
+| Provider | Use it for | Set up |
+|---|---|---|
+| `claude-code` (default) | Local development on your Claude subscription, no API key | `claude auth login` |
+| `foundry` / `openai` | Pipelines (Azure Pipelines, OpenAI models on Microsoft Foundry, keyless via Entra) | [09](docs/09-configuration-reporting-ci.md) §3 |
+| `anthropic` | Claude with an API key | `ANTHROPIC_API_KEY` |
+| `copilot` | GitHub Copilot CLI on a machine that has it | [05](docs/05-llm-providers.md) §5 |
+
+Pick one per run with `AIPW_PROVIDER` and `AIPW_MODEL`; `npx aipw doctor --provider <name> --probe` checks the setup.
+
+## Status
+
+All phases in [docs/10](docs/10-implementation-plan.md) are implemented. What has and hasn't been proven:
+
+- **Proven live on this machine (claude-code, Sonnet 5.5):** the showcase, TodoMVC, SauceDemo and The Internet suites
+  record, replay with zero AI in replay-only mode, and heal.
+- **Contract-tested, not yet run live:** the Foundry/OpenAI, Anthropic API and Copilot CLI providers, and the Azure
+  Pipelines PR-gate and nightly pipelines. These need credentials or machines this one doesn't have
+  ([spikes/README.md](spikes/README.md)).
+- **Not yet tried by a person:** nudge mode (`npx aipw nudge`), which is covered by scripted end-to-end tests.
+
+Development: `npm run check` (lint, typecheck, unit tests) and `npm run e2e` (FakeProvider suites, no AI).
