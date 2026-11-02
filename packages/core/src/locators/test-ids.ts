@@ -1,6 +1,8 @@
 // Test-id attribute handling (docs/12 §4). Apps spell these differently, so matching works on a
 // normalised attribute name: lowercase, with everything that isn't a letter or digit removed.
 
+import { MIXED_ID_TOKEN } from './volatile.js';
+
 export const DEFAULT_TEST_ID_ATTRIBUTES: readonly string[] = [
   'data-testid',
   'data-test-id',
@@ -12,7 +14,13 @@ export const DEFAULT_TEST_ID_ATTRIBUTES: readonly string[] = [
   'data-automation-id',
 ];
 
-export const DEFAULT_REJECT_TEST_ID_VALUES: readonly RegExp[] = [/^[0-9a-f]{8,}$/i, /\d{5,}/];
+/** Hex hashes, long digit runs, GUIDs, and ULID-like record ids ("product-01M4KFJHJFJBXR3A2RWKK2Z7GK"). */
+export const DEFAULT_REJECT_TEST_ID_VALUES: readonly RegExp[] = [
+  /^[0-9a-f]{8,}$/i,
+  /\d{5,}/,
+  /[0-9a-f]{8}-[0-9a-f]{4}-/i,
+  MIXED_ID_TOKEN,
+];
 
 /** Normalised names that count as test-id attributes for auto-detection. */
 const TEST_ID_NAME_PATTERN = /^(data)?(test|qa|cy|pw|e2e|automation)(id)?$/;

@@ -599,7 +599,7 @@
           "urlPattern": "https://demo.playwright.dev/todomvc/"
         },
         "recordedWith": {
-          "at": "2026-11-02T16:27:47.254Z",
+          "at": "2026-11-02T17:39:34.355Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -666,7 +666,7 @@
         "instruction": "3 items are left",
         "kind": "assert",
         "recordedWith": {
-          "at": "2026-11-02T16:31:53.436Z",
+          "at": "2026-11-02T17:39:23.236Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -680,7 +680,7 @@
             "args": {
               "checked": true
             },
-            "intent": "Check gym",
+            "intent": "Mark gym done",
             "target": {
               "fingerprint": {
                 "ancestors": [
@@ -767,7 +767,7 @@
             "args": {
               "checked": true
             },
-            "intent": "Check dentist",
+            "intent": "Mark dentist done",
             "target": {
               "fingerprint": {
                 "ancestors": [
@@ -860,7 +860,7 @@
           "urlPattern": "https://demo.playwright.dev/todomvc/"
         },
         "recordedWith": {
-          "at": "2026-11-02T16:27:21.218Z",
+          "at": "2026-11-02T17:39:15.984Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -1220,7 +1220,7 @@
           "urlPattern": "https://demo.playwright.dev/todomvc/"
         },
         "recordedWith": {
-          "at": "2026-11-02T16:27:09.341Z",
+          "at": "2026-11-02T17:38:59.083Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -1229,11 +1229,252 @@
         }
       },
       "cd3b6e63319839ba": {
-        "compiled": null,
+        "compiled": [
+          {
+            "args": [
+              "3"
+            ],
+            "expect": "toHaveCount",
+            "target": {
+              "locators": [
+                {
+                  "display": "getByTestId('todo-item')",
+                  "expr": [
+                    {
+                      "id": "todo-item",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                }
+              ],
+              "role": "listitem"
+            }
+          },
+          {
+            "args": [
+              "groceries"
+            ],
+            "expect": "toHaveText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.08166232638888889,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.3349826388888889
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 0,
+                "tag": "label",
+                "testIds": {
+                  "data-testid": "todo-title"
+                },
+                "text": "groceries"
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-testid=\"todo-title\"]').filter({ hasText: 'groceries' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-title\"]"
+                    },
+                    {
+                      "hasText": "groceries",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "getByText('groceries', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "groceries"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "generic"
+            }
+          },
+          {
+            "args": [
+              "call the bank"
+            ],
+            "expect": "toHaveText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.08166232638888889,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.41803385416666666
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 0,
+                "tag": "label",
+                "testIds": {
+                  "data-testid": "todo-title"
+                },
+                "text": "call the bank"
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-testid=\"todo-title\"]').filter({ hasText: 'call the bank' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-title\"]"
+                    },
+                    {
+                      "hasText": "call the bank",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "getByText('call the bank', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "call the bank"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "generic"
+            }
+          },
+          {
+            "args": [
+              "fix the bike"
+            ],
+            "expect": "toHaveText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.08166232638888889,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.5010850694444444
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 0,
+                "tag": "label",
+                "testIds": {
+                  "data-testid": "todo-title"
+                },
+                "text": "fix the bike"
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-testid=\"todo-title\"]').filter({ hasText: 'fix the bike' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-title\"]"
+                    },
+                    {
+                      "hasText": "fix the bike",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "getByText('fix the bike', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "fix the bike"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "generic"
+            }
+          }
+        ],
         "instruction": "After the reload the same three todos are still there",
         "kind": "assert",
         "recordedWith": {
-          "at": "2026-11-02T16:27:53.313Z",
+          "at": "2026-11-02T17:39:45.673Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -1276,11 +1517,582 @@
         "instruction": "every todo with whether it is completed, in order, and the number of items left",
         "kind": "extract",
         "recordedWith": {
-          "at": "2026-11-02T16:28:38.855Z",
+          "at": "2026-11-02T17:39:51.852Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
-        "sources": [],
+        "sources": [
+          {
+            "path": "todos.0.title",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.08166232638888889,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.3349826388888889
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 0,
+                "tag": "label",
+                "testIds": {
+                  "data-testid": "todo-title"
+                },
+                "text": "Buy milk"
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-testid=\"todo-item\"]').filter({ hasText: 'Buy milk' }).getByTestId('todo-title')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-item\"]"
+                    },
+                    {
+                      "hasText": "Buy milk",
+                      "m": "filter"
+                    },
+                    {
+                      "id": "todo-title",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "locator('[data-testid=\"todo-title\"]').filter({ hasText: 'Buy milk' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-title\"]"
+                    },
+                    {
+                      "hasText": "Buy milk",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "getByText('Buy milk', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Buy milk"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "generic"
+            }
+          },
+          {
+            "path": "todos.0.completed",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "checkbox"
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.03125,
+                  "x": 0.28515625,
+                  "y": 0.3480251736111111
+                },
+                "label": "Toggle Todo",
+                "name": "Toggle Todo",
+                "placeholder": null,
+                "role": "checkbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-testid=\"todo-item\"]').filter({ hasText: 'Buy milk' }).getByRole('checkbox', { name: 'Toggle Todo', exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-item\"]"
+                    },
+                    {
+                      "hasText": "Buy milk",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Toggle Todo",
+                      "role": "checkbox"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "locator('[data-testid=\"todo-item\"]').filter({ hasText: 'Buy milk' }).getByLabel('Toggle Todo', { exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-item\"]"
+                    },
+                    {
+                      "hasText": "Buy milk",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Toggle Todo"
+                    }
+                  ],
+                  "rung": "L5"
+                }
+              ],
+              "name": "Toggle Todo",
+              "role": "checkbox"
+            }
+          },
+          {
+            "path": "todos.1.title",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.08166232638888889,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.41803385416666666
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 0,
+                "tag": "label",
+                "testIds": {
+                  "data-testid": "todo-title"
+                },
+                "text": "Walk the dog"
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-testid=\"todo-item\"]').filter({ hasText: 'Walk the dog' }).getByTestId('todo-title')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-item\"]"
+                    },
+                    {
+                      "hasText": "Walk the dog",
+                      "m": "filter"
+                    },
+                    {
+                      "id": "todo-title",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "locator('[data-testid=\"todo-title\"]').filter({ hasText: 'Walk the dog' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-title\"]"
+                    },
+                    {
+                      "hasText": "Walk the dog",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "getByText('Walk the dog', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Walk the dog"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "generic"
+            }
+          },
+          {
+            "path": "todos.1.completed",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "checkbox"
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.03125,
+                  "x": 0.28515625,
+                  "y": 0.4310763888888889
+                },
+                "label": "Toggle Todo",
+                "name": "Toggle Todo",
+                "placeholder": null,
+                "role": "checkbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-testid=\"todo-item\"]').filter({ hasText: 'Walk the dog' }).getByRole('checkbox', { name: 'Toggle Todo', exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-item\"]"
+                    },
+                    {
+                      "hasText": "Walk the dog",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Toggle Todo",
+                      "role": "checkbox"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "locator('[data-testid=\"todo-item\"]').filter({ hasText: 'Walk the dog' }).getByLabel('Toggle Todo', { exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-item\"]"
+                    },
+                    {
+                      "hasText": "Walk the dog",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Toggle Todo"
+                    }
+                  ],
+                  "rung": "L5"
+                }
+              ],
+              "name": "Toggle Todo",
+              "role": "checkbox"
+            }
+          },
+          {
+            "path": "todos.2.title",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.08166232638888889,
+                  "w": 0.4296875,
+                  "x": 0.28515625,
+                  "y": 0.5010850694444444
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 0,
+                "tag": "label",
+                "testIds": {
+                  "data-testid": "todo-title"
+                },
+                "text": "Call mum"
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-testid=\"todo-item\"]').filter({ hasText: 'Call mum' }).getByTestId('todo-title')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-item\"]"
+                    },
+                    {
+                      "hasText": "Call mum",
+                      "m": "filter"
+                    },
+                    {
+                      "id": "todo-title",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "locator('[data-testid=\"todo-title\"]').filter({ hasText: 'Call mum' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-title\"]"
+                    },
+                    {
+                      "hasText": "Call mum",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "getByText('Call mum', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Call mum"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "role": "generic"
+            }
+          },
+          {
+            "path": "todos.2.completed",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "checkbox"
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.03125,
+                  "x": 0.28515625,
+                  "y": 0.5141276041666667
+                },
+                "label": "Toggle Todo",
+                "name": "Toggle Todo",
+                "placeholder": null,
+                "role": "checkbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-testid=\"todo-item\"]').filter({ hasText: 'Call mum' }).getByRole('checkbox', { name: 'Toggle Todo', exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-item\"]"
+                    },
+                    {
+                      "hasText": "Call mum",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Toggle Todo",
+                      "role": "checkbox"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "locator('[data-testid=\"todo-item\"]').filter({ hasText: 'Call mum' }).getByLabel('Toggle Todo', { exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-item\"]"
+                    },
+                    {
+                      "hasText": "Call mum",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Toggle Todo"
+                    }
+                  ],
+                  "rung": "L5"
+                }
+              ],
+              "name": "Toggle Todo",
+              "role": "checkbox"
+            }
+          },
+          {
+            "path": "itemsLeft",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "contentinfo"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.022222222222222223,
+                  "w": 0.00609130859375,
+                  "x": 0.296875,
+                  "y": 0.5994140625
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "strong",
+                "siblingIndex": 0,
+                "tag": "strong",
+                "testIds": {},
+                "text": "2"
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-testid=\"todo-count\"]').getByRole('strong').first()",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"todo-count\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "strong"
+                    },
+                    {
+                      "index": 0,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "strong"
+            }
+          }
+        ],
         "stats": {
           "heals": 0
         }

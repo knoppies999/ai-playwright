@@ -5,6 +5,7 @@ import type { Frame, Locator, Page } from 'playwright-core';
 import { buildLocator, type LocatorExpr } from './expr.js';
 import { DEFAULT_REJECT_ID_PATTERNS, isGeneratedId, isStableText } from './generated.js';
 import { isConfiguredTestIdAttribute, isRejectedTestIdValue, looksLikeTestIdAttribute } from './test-ids.js';
+import { stableNamePrefix } from './volatile.js';
 
 export type Rung = 'L1' | 'L2' | 'L3' | 'L4' | 'L5' | 'L6' | 'L7';
 
@@ -216,7 +217,11 @@ export async function synthesizeLocators(page: Page, target: Locator, opts: Synt
           : [{ m: 'locator', selector: css(t.attr, t.value) }],
       });
     }
-    if (opts.role && !NO_ROLE_LOCATOR.has(opts.role) && opts.name && opts.name.length <= 80) {
+    // A name with a price in it changes with the data: use its stable start instead (not exact).
+    const stableName = opts.name ? stableNamePrefix(opts.name) : undefined;
+    if (opts.role && !NO_ROLE_LOCATOR.has(opts.role) && stableName) {
+      bases.push({ rung: 'L2', expr: [{ m: 'getByRole', role: opts.role, name: stableName }] });
+    } else if (opts.role && !NO_ROLE_LOCATOR.has(opts.role) && opts.name && opts.name.length <= 80) {
       bases.push({ rung: 'L2', expr: [{ m: 'getByRole', role: opts.role, name: opts.name, exact: true }] });
     }
     // The target is itself a repeated item (hovering a todo row): the item selector, filtered by its own text.

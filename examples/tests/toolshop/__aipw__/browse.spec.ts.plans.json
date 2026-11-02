@@ -262,52 +262,472 @@
                   "y": 0.04429253472222222
                 },
                 "label": null,
-                "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+                "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E Out of stock $14.15",
                 "placeholder": null,
                 "role": "'link",
                 "siblingIndex": 0,
                 "tag": "a",
                 "testIds": {
-                  "data-test": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK"
+                  "data-test": "product-01M6EK947M8Y1DYSM2T19Q72W2"
                 },
-                "text": "Combination Pliers A B C D E $14.15"
+                "text": "Combination Pliers A B C D E Out of stock $14.15"
               },
               "locators": [
                 {
-                  "display": "getByTestId('product-01M4KFJHJFJBXR3A2RWKK2Z7GK')",
+                  "display": "locator('[data-test=\"search_completed\"]').locator('a').first()",
                   "expr": [
                     {
-                      "id": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK",
-                      "m": "getByTestId"
+                      "m": "locator",
+                      "selector": "[data-test=\"search_completed\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "a"
+                    },
+                    {
+                      "index": 0,
+                      "m": "nth"
                     }
                   ],
-                  "rung": "L1"
+                  "rung": "L7"
                 }
               ],
-              "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+              "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E Out of stock $14.15",
               "role": "'link"
+            }
+          },
+          {
+            "args": [],
+            "expect": "toBeVisible",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.5219618055555556,
+                  "w": 0.20234375,
+                  "x": 0.51015625,
+                  "y": 0.04429253472222222
+                },
+                "label": null,
+                "name": "Pliers Compare Pliers CO₂: A B C D E $12.01",
+                "placeholder": null,
+                "role": "'link",
+                "siblingIndex": 1,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "product-01M6EK947YRXZY9YD4TAK1D73W"
+                },
+                "text": "Pliers A B C D E $12.01"
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-test=\"search_completed\"]').locator('a').nth(1)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"search_completed\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "a"
+                    },
+                    {
+                      "index": 1,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "Pliers Compare Pliers CO₂: A B C D E $12.01",
+              "role": "'link"
+            }
+          },
+          {
+            "args": [],
+            "expect": "toBeVisible",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.5219618055555556,
+                  "w": 0.20234375,
+                  "x": 0.72421875,
+                  "y": 1.1632161458333334
+                },
+                "label": null,
+                "name": "Thor Hammer Compare Thor Hammer CO₂: A B C D E $11.14",
+                "placeholder": null,
+                "role": "'link",
+                "siblingIndex": 8,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "product-01M6EK949CJCA4EVVNHEHEDA5X"
+                },
+                "text": "Thor Hammer A B C D E $11.14"
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-test=\"search_completed\"]').locator('a').nth(8)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"search_completed\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "a"
+                    },
+                    {
+                      "index": 8,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "Thor Hammer Compare Thor Hammer CO₂: A B C D E $11.14",
+              "role": "'link"
+            }
+          }
+        ],
+        "history": [
+          {
+            "compiled": [
+              {
+                "args": [],
+                "expect": "toBeVisible",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": null
+                    },
+                    "box": {
+                      "h": 0.5219618055555556,
+                      "w": 0.20234375,
+                      "x": 0.29609375,
+                      "y": 0.04429253472222222
+                    },
+                    "label": null,
+                    "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+                    "placeholder": null,
+                    "role": "'link",
+                    "siblingIndex": 0,
+                    "tag": "a",
+                    "testIds": {
+                      "data-test": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK"
+                    },
+                    "text": "Combination Pliers A B C D E $14.15"
+                  },
+                  "locators": [
+                    {
+                      "display": "getByTestId('product-01M4KFJHJFJBXR3A2RWKK2Z7GK')",
+                      "expr": [
+                        {
+                          "id": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK",
+                          "m": "getByTestId"
+                        }
+                      ],
+                      "rung": "L1"
+                    }
+                  ],
+                  "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+                  "role": "'link"
+                }
+              }
+            ],
+            "instruction": "Products are listed again",
+            "kind": "assert",
+            "recordedWith": {
+              "at": "2026-10-10T18:27:55.944Z",
+              "model": "claude-sonnet-5-5",
+              "provider": "claude-code"
+            },
+            "stats": {
+              "heals": 0
             }
           }
         ],
         "instruction": "Products are listed again",
         "kind": "assert",
         "recordedWith": {
-          "at": "2026-10-10T18:27:55.944Z",
+          "at": "2026-11-02T17:48:45.147Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
         "stats": {
-          "heals": 0
+          "heals": 1,
+          "lastHealAt": "2026-11-02T17:48:45.147Z"
         }
       }
     },
     "Toolshop browsing > filter by category": {
       "0da2f45922bd36d9": {
-        "compiled": null,
+        "compiled": [
+          {
+            "args": [],
+            "expect": "toBeChecked",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "list"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": "category_id",
+                  "type": "checkbox"
+                },
+                "box": {
+                  "h": 0.018055555555555554,
+                  "w": 0.01015625,
+                  "x": 0.0890625,
+                  "y": 0.49149305555555556
+                },
+                "label": "Hammer",
+                "name": "Hammer",
+                "placeholder": null,
+                "role": "checkbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {
+                  "data-test": "category-01M6EK94644PKNREN3JMH7RMY8"
+                },
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('checkbox', { name: 'Hammer', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Hammer",
+                      "role": "checkbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Hammer', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Hammer"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Hammer",
+              "role": "checkbox"
+            }
+          },
+          {
+            "args": [],
+            "expect": "toBeChecked",
+            "not": true,
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "list"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": "category_id",
+                  "type": "checkbox"
+                },
+                "box": {
+                  "h": 0.018055555555555554,
+                  "w": 0.01015625,
+                  "x": 0.0890625,
+                  "y": 0.5248263888888889
+                },
+                "label": "Hand Saw",
+                "name": "Hand Saw",
+                "placeholder": null,
+                "role": "checkbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {
+                  "data-test": "category-01M6EK94644PKNREN3JMH7RMY9"
+                },
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('checkbox', { name: 'Hand Saw', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Hand Saw",
+                      "role": "checkbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Hand Saw', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Hand Saw"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Hand Saw",
+              "role": "checkbox"
+            }
+          },
+          {
+            "args": [
+              "Hammer"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.17578125,
+                  "x": 0.5234375,
+                  "y": 0.16651475694444445
+                },
+                "label": null,
+                "name": "Hammer",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Hammer"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Hammer', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Hammer",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Hammer",
+              "role": "heading"
+            }
+          },
+          {
+            "args": [
+              "Court Hammer"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.17578125,
+                  "x": 0.309375,
+                  "y": 1.3187717013888889
+                },
+                "label": null,
+                "name": "Court Hammer",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Court Hammer"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Court Hammer', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Court Hammer",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[data-test=\"product-name\"]').filter({ hasText: 'Court Hammer' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"product-name\"]"
+                    },
+                    {
+                      "hasText": "Court Hammer",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "getByText('Court Hammer', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Court Hammer"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Court Hammer",
+              "role": "heading"
+            }
+          }
+        ],
         "instruction": "Only hammers are listed",
         "kind": "assert",
         "recordedWith": {
-          "at": "2026-10-10T18:29:41.007Z",
+          "at": "2026-11-02T17:49:10.340Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -587,53 +1007,114 @@
                 "box": {
                   "h": 0.5219618055555556,
                   "w": 0.20234375,
-                  "x": 0.290234375,
+                  "x": 0.29609375,
                   "y": 0.7762369791666667
                 },
                 "label": null,
-                "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+                "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E Out of stock $14.15",
                 "placeholder": null,
                 "role": "'link",
                 "siblingIndex": 0,
                 "tag": "a",
                 "testIds": {
-                  "data-test": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK"
+                  "data-test": "product-01M6EK947M8Y1DYSM2T19Q72W2"
                 },
-                "text": "Combination Pliers A B C D E $14.15"
+                "text": "Combination Pliers A B C D E Out of stock $14.15"
               },
-              "locators": [
-                {
-                  "display": "getByTestId('product-01M4KFJHJFJBXR3A2RWKK2Z7GK')",
-                  "expr": [
-                    {
-                      "id": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK",
-                      "m": "getByTestId"
-                    }
-                  ],
-                  "rung": "L1"
-                }
-              ],
-              "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+              "locators": [],
+              "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E Out of stock $14.15",
               "role": "'link"
             },
             "tool": "click"
           }
         ],
+        "history": [
+          {
+            "actions": [
+              {
+                "args": {
+                  "button": "left",
+                  "clickCount": 1,
+                  "modifiers": null
+                },
+                "intent": "Open Combination Pliers product",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": null
+                    },
+                    "box": {
+                      "h": 0.5219618055555556,
+                      "w": 0.20234375,
+                      "x": 0.290234375,
+                      "y": 0.7762369791666667
+                    },
+                    "label": null,
+                    "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+                    "placeholder": null,
+                    "role": "'link",
+                    "siblingIndex": 0,
+                    "tag": "a",
+                    "testIds": {
+                      "data-test": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK"
+                    },
+                    "text": "Combination Pliers A B C D E $14.15"
+                  },
+                  "locators": [
+                    {
+                      "display": "getByTestId('product-01M4KFJHJFJBXR3A2RWKK2Z7GK')",
+                      "expr": [
+                        {
+                          "id": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK",
+                          "m": "getByTestId"
+                        }
+                      ],
+                      "rung": "L1"
+                    }
+                  ],
+                  "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+                  "role": "'link"
+                },
+                "tool": "click"
+              }
+            ],
+            "instruction": "Open the \"Combination Pliers\" product",
+            "kind": "act",
+            "post": {
+              "urlPattern": "https://practicesoftwaretesting.com/product/01M4KFJHJFJBXR3A2RWKK2Z7GK"
+            },
+            "pre": {
+              "urlPattern": "https://practicesoftwaretesting.com/"
+            },
+            "recordedWith": {
+              "at": "2026-10-10T18:30:28.413Z",
+              "model": "claude-sonnet-5-5",
+              "provider": "claude-code"
+            },
+            "stats": {
+              "heals": 0
+            }
+          }
+        ],
         "instruction": "Open the \"Combination Pliers\" product",
         "kind": "act",
         "post": {
-          "urlPattern": "https://practicesoftwaretesting.com/product/01M4KFJHJFJBXR3A2RWKK2Z7GK"
+          "urlPattern": "https://practicesoftwaretesting.com/product/*"
         },
         "pre": {
           "urlPattern": "https://practicesoftwaretesting.com/"
         },
         "recordedWith": {
-          "at": "2026-10-10T18:30:28.413Z",
+          "at": "2026-11-02T17:49:46.230Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
         "stats": {
-          "heals": 0
+          "heals": 1,
+          "lastHealAt": "2026-11-02T17:49:46.230Z"
         }
       },
       "a64a75ed5e858d5b": {
@@ -743,33 +1224,22 @@
                 "box": {
                   "h": 0.5219618055555556,
                   "w": 0.20234375,
-                  "x": 0.290234375,
+                  "x": 0.29609375,
                   "y": 0.7762369791666667
                 },
                 "label": null,
-                "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+                "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E Out of stock $14.15",
                 "placeholder": null,
                 "role": "'link",
                 "siblingIndex": 0,
                 "tag": "a",
                 "testIds": {
-                  "data-test": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK"
+                  "data-test": "product-01M6EK947M8Y1DYSM2T19Q72W2"
                 },
-                "text": "Combination Pliers A B C D E $14.15"
+                "text": "Combination Pliers A B C D E Out of stock $14.15"
               },
-              "locators": [
-                {
-                  "display": "getByTestId('product-01M4KFJHJFJBXR3A2RWKK2Z7GK')",
-                  "expr": [
-                    {
-                      "id": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK",
-                      "m": "getByTestId"
-                    }
-                  ],
-                  "rung": "L1"
-                }
-              ],
-              "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+              "locators": [],
+              "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E Out of stock $14.15",
               "role": "'link"
             },
             "tool": "click"
@@ -780,7 +1250,7 @@
               "clickCount": 1,
               "modifiers": null
             },
-            "intent": "Open first related product (Pliers)",
+            "intent": "Open first related product",
             "target": {
               "fingerprint": {
                 "ancestors": [],
@@ -792,8 +1262,8 @@
                 "box": {
                   "h": 0.4583333333333333,
                   "w": 0.16124267578125,
-                  "x": 0.067578125,
-                  "y": 1.5039930555555556
+                  "x": 0.0734375,
+                  "y": 1.5817708333333333
                 },
                 "label": null,
                 "name": null,
@@ -810,21 +1280,128 @@
             "tool": "click"
           }
         ],
+        "history": [
+          {
+            "actions": [
+              {
+                "args": {
+                  "button": "left",
+                  "clickCount": 1,
+                  "modifiers": null
+                },
+                "intent": "Open Combination Pliers",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": null
+                    },
+                    "box": {
+                      "h": 0.5219618055555556,
+                      "w": 0.20234375,
+                      "x": 0.290234375,
+                      "y": 0.7762369791666667
+                    },
+                    "label": null,
+                    "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+                    "placeholder": null,
+                    "role": "'link",
+                    "siblingIndex": 0,
+                    "tag": "a",
+                    "testIds": {
+                      "data-test": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK"
+                    },
+                    "text": "Combination Pliers A B C D E $14.15"
+                  },
+                  "locators": [
+                    {
+                      "display": "getByTestId('product-01M4KFJHJFJBXR3A2RWKK2Z7GK')",
+                      "expr": [
+                        {
+                          "id": "product-01M4KFJHJFJBXR3A2RWKK2Z7GK",
+                          "m": "getByTestId"
+                        }
+                      ],
+                      "rung": "L1"
+                    }
+                  ],
+                  "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+                  "role": "'link"
+                },
+                "tool": "click"
+              },
+              {
+                "args": {
+                  "button": "left",
+                  "clickCount": 1,
+                  "modifiers": null
+                },
+                "intent": "Open first related product (Pliers)",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": null
+                    },
+                    "box": {
+                      "h": 0.4583333333333333,
+                      "w": 0.16124267578125,
+                      "x": 0.067578125,
+                      "y": 1.5039930555555556
+                    },
+                    "label": null,
+                    "name": null,
+                    "placeholder": null,
+                    "role": "link",
+                    "siblingIndex": 0,
+                    "tag": "a",
+                    "testIds": {},
+                    "text": "Pliers More information"
+                  },
+                  "locators": [],
+                  "role": "link"
+                },
+                "tool": "click"
+              }
+            ],
+            "instruction": "Open \"Combination Pliers\", then open the first related product below it",
+            "kind": "act",
+            "post": {
+              "urlPattern": "https://practicesoftwaretesting.com/product/01M4KFJHK0FVX48Z0RDJJ2M9Y3"
+            },
+            "pre": {
+              "urlPattern": "https://practicesoftwaretesting.com/"
+            },
+            "recordedWith": {
+              "at": "2026-10-10T18:30:48.868Z",
+              "model": "claude-sonnet-5-5",
+              "provider": "claude-code"
+            },
+            "stats": {
+              "heals": 0
+            }
+          }
+        ],
         "instruction": "Open \"Combination Pliers\", then open the first related product below it",
         "kind": "act",
         "post": {
-          "urlPattern": "https://practicesoftwaretesting.com/product/01M4KFJHK0FVX48Z0RDJJ2M9Y3"
+          "urlPattern": "https://practicesoftwaretesting.com/product/*"
         },
         "pre": {
           "urlPattern": "https://practicesoftwaretesting.com/"
         },
         "recordedWith": {
-          "at": "2026-10-10T18:30:48.868Z",
+          "at": "2026-11-02T17:50:16.840Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
         "stats": {
-          "heals": 0
+          "heals": 1,
+          "lastHealAt": "2026-11-02T17:50:16.840Z"
         }
       }
     },
@@ -1059,21 +1636,271 @@
             "tool": "click"
           }
         ],
+        "history": [
+          {
+            "actions": [
+              {
+                "args": {
+                  "button": "left",
+                  "clickCount": 1,
+                  "modifiers": null
+                },
+                "intent": "Open Categories menu",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [
+                      {
+                        "name": null,
+                        "role": "menuitem"
+                      },
+                      {
+                        "name": "Main menu",
+                        "role": "menubar"
+                      },
+                      {
+                        "name": null,
+                        "role": "navigation"
+                      }
+                    ],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": "button"
+                    },
+                    "box": {
+                      "h": 0.05555555555555555,
+                      "w": 0.084130859375,
+                      "x": 0.69610595703125,
+                      "y": 0.1558159722222222
+                    },
+                    "label": null,
+                    "name": "Categories",
+                    "placeholder": null,
+                    "role": "button",
+                    "siblingIndex": 0,
+                    "tag": "button",
+                    "testIds": {
+                      "data-test": "nav-categories"
+                    },
+                    "text": "Categories"
+                  },
+                  "locators": [
+                    {
+                      "display": "getByTestId('nav-categories')",
+                      "expr": [
+                        {
+                          "id": "nav-categories",
+                          "m": "getByTestId"
+                        }
+                      ],
+                      "rung": "L1"
+                    },
+                    {
+                      "display": "getByRole('button', { name: 'Categories', exact: true })",
+                      "expr": [
+                        {
+                          "exact": true,
+                          "m": "getByRole",
+                          "name": "Categories",
+                          "role": "button"
+                        }
+                      ],
+                      "rung": "L2"
+                    },
+                    {
+                      "display": "locator('li').filter({ hasText: 'Categories' }).getByText('Categories', { exact: true })",
+                      "expr": [
+                        {
+                          "m": "locator",
+                          "selector": "li"
+                        },
+                        {
+                          "hasText": "Categories",
+                          "m": "filter"
+                        },
+                        {
+                          "exact": true,
+                          "m": "getByText",
+                          "text": "Categories"
+                        }
+                      ],
+                      "rung": "L5"
+                    }
+                  ],
+                  "name": "Categories",
+                  "role": "button"
+                },
+                "tool": "click"
+              },
+              {
+                "args": {
+                  "button": "left",
+                  "clickCount": 1,
+                  "modifiers": null
+                },
+                "intent": "Open Rentals page",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [
+                      {
+                        "name": null,
+                        "role": "listitem"
+                      },
+                      {
+                        "name": "nav-categories",
+                        "role": "list"
+                      },
+                      {
+                        "name": null,
+                        "role": "menuitem"
+                      }
+                    ],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": null
+                    },
+                    "box": {
+                      "h": 0.044444444444444446,
+                      "w": 0.1234375,
+                      "x": 0.69688720703125,
+                      "y": 0.42803819444444446
+                    },
+                    "label": null,
+                    "name": "Rentals",
+                    "placeholder": null,
+                    "role": "link",
+                    "siblingIndex": 0,
+                    "tag": "a",
+                    "testIds": {
+                      "data-test": "nav-rentals"
+                    },
+                    "text": "Rentals"
+                  },
+                  "locators": [
+                    {
+                      "display": "getByTestId('nav-rentals')",
+                      "expr": [
+                        {
+                          "id": "nav-rentals",
+                          "m": "getByTestId"
+                        }
+                      ],
+                      "rung": "L1"
+                    },
+                    {
+                      "display": "getByRole('link', { name: 'Rentals', exact: true })",
+                      "expr": [
+                        {
+                          "exact": true,
+                          "m": "getByRole",
+                          "name": "Rentals",
+                          "role": "link"
+                        }
+                      ],
+                      "rung": "L2"
+                    },
+                    {
+                      "display": "getByText('Rentals', { exact: true })",
+                      "expr": [
+                        {
+                          "exact": true,
+                          "m": "getByText",
+                          "text": "Rentals"
+                        }
+                      ],
+                      "rung": "L6"
+                    }
+                  ],
+                  "name": "Rentals",
+                  "role": "link"
+                },
+                "tool": "click"
+              },
+              {
+                "args": {
+                  "button": "left",
+                  "clickCount": 1,
+                  "modifiers": null
+                },
+                "intent": "Open the excavator",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": null
+                    },
+                    "box": {
+                      "h": 0.2713541666666667,
+                      "w": 0.203515625,
+                      "x": 0.058984375,
+                      "y": 0.31929253472222224
+                    },
+                    "label": null,
+                    "name": "Excavator",
+                    "placeholder": null,
+                    "role": "img",
+                    "siblingIndex": 0,
+                    "tag": "img",
+                    "testIds": {},
+                    "text": ""
+                  },
+                  "locators": [
+                    {
+                      "display": "getByRole('img', { name: 'Excavator', exact: true })",
+                      "expr": [
+                        {
+                          "exact": true,
+                          "m": "getByRole",
+                          "name": "Excavator",
+                          "role": "img"
+                        }
+                      ],
+                      "rung": "L2"
+                    }
+                  ],
+                  "name": "Excavator",
+                  "role": "img"
+                },
+                "tool": "click"
+              }
+            ],
+            "instruction": "Open the rentals page from the Categories menu and open the excavator",
+            "kind": "act",
+            "post": {
+              "urlPattern": "https://practicesoftwaretesting.com/product/01M4KFJHQ7DCZPAAVBCF32CGAH"
+            },
+            "pre": {
+              "urlPattern": "https://practicesoftwaretesting.com/"
+            },
+            "recordedWith": {
+              "at": "2026-10-10T18:31:48.998Z",
+              "model": "claude-sonnet-5-5",
+              "provider": "claude-code"
+            },
+            "stats": {
+              "heals": 0
+            }
+          }
+        ],
         "instruction": "Open the rentals page from the Categories menu and open the excavator",
         "kind": "act",
         "post": {
-          "urlPattern": "https://practicesoftwaretesting.com/product/01M4KFJHQ7DCZPAAVBCF32CGAH"
+          "urlPattern": "https://practicesoftwaretesting.com/product/*"
         },
         "pre": {
           "urlPattern": "https://practicesoftwaretesting.com/"
         },
         "recordedWith": {
-          "at": "2026-10-10T18:31:48.998Z",
+          "at": "2026-11-02T17:50:30.920Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
         "stats": {
-          "heals": 0
+          "heals": 1,
+          "lastHealAt": "2026-11-02T17:50:30.920Z"
         }
       },
       "961caf9905901e30": {
@@ -2032,14 +2859,446 @@
         "instruction": "the price of every product shown, in order, as numbers",
         "kind": "extract",
         "recordedWith": {
-          "at": "2026-10-10T18:29:08.225Z",
+          "at": "2026-11-02T17:48:54.909Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
-        "sources": [],
+        "sources": [
+          {
+            "path": "0",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05694444444444444,
+                  "w": 0.20078125,
+                  "x": 0.296875,
+                  "y": 1.239865451388889
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 2,
+                "tag": "div",
+                "testIds": {},
+                "text": "$3.55"
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-test=\"sorting_completed\"]').locator('div').nth(3)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"sorting_completed\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "div"
+                    },
+                    {
+                      "index": 3,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "generic"
+            }
+          },
+          {
+            "path": "1",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05694444444444444,
+                  "w": 0.20078125,
+                  "x": 0.5109375,
+                  "y": 1.239865451388889
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 2,
+                "tag": "div",
+                "testIds": {},
+                "text": "$3.95"
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-test=\"sorting_completed\"]').locator('div').nth(7)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"sorting_completed\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "div"
+                    },
+                    {
+                      "index": 7,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "generic"
+            }
+          },
+          {
+            "path": "2",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05694444444444444,
+                  "w": 0.20078125,
+                  "x": 0.725,
+                  "y": 1.239865451388889
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 2,
+                "tag": "div",
+                "testIds": {},
+                "text": "$4.65"
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-test=\"sorting_completed\"]').locator('div').nth(11)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"sorting_completed\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "div"
+                    },
+                    {
+                      "index": 11,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "generic"
+            }
+          },
+          {
+            "path": "3",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05694444444444444,
+                  "w": 0.20078125,
+                  "x": 0.296875,
+                  "y": 1.7826605902777777
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 2,
+                "tag": "div",
+                "testIds": {},
+                "text": "$4.92"
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-test=\"sorting_completed\"]').locator('div').nth(15)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"sorting_completed\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "div"
+                    },
+                    {
+                      "index": 15,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "generic"
+            }
+          },
+          {
+            "path": "4",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05694444444444444,
+                  "w": 0.20078125,
+                  "x": 0.5109375,
+                  "y": 1.7826605902777777
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 2,
+                "tag": "div",
+                "testIds": {},
+                "text": "$5.55"
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-test=\"sorting_completed\"]').locator('div').nth(19)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"sorting_completed\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "div"
+                    },
+                    {
+                      "index": 19,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "generic"
+            }
+          },
+          {
+            "path": "5",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05694444444444444,
+                  "w": 0.20078125,
+                  "x": 0.725,
+                  "y": 1.7826605902777777
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 2,
+                "tag": "div",
+                "testIds": {},
+                "text": "$6.25"
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-test=\"sorting_completed\"]').locator('div').nth(23)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"sorting_completed\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "div"
+                    },
+                    {
+                      "index": 23,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "generic"
+            }
+          },
+          {
+            "path": "6",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05694444444444444,
+                  "w": 0.20078125,
+                  "x": 0.296875,
+                  "y": 2.325455729166667
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 2,
+                "tag": "div",
+                "testIds": {},
+                "text": "$7.23"
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-test=\"sorting_completed\"]').locator('div').nth(27)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"sorting_completed\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "div"
+                    },
+                    {
+                      "index": 27,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "generic"
+            }
+          },
+          {
+            "path": "7",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05694444444444444,
+                  "w": 0.20078125,
+                  "x": 0.5109375,
+                  "y": 2.325455729166667
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 2,
+                "tag": "div",
+                "testIds": {},
+                "text": "$7.99"
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-test=\"sorting_completed\"]').locator('div').nth(31)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"sorting_completed\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "div"
+                    },
+                    {
+                      "index": 31,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "generic"
+            }
+          },
+          {
+            "path": "8",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05694444444444444,
+                  "w": 0.20078125,
+                  "x": 0.725,
+                  "y": 2.325455729166667
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 2,
+                "tag": "div",
+                "testIds": {},
+                "text": "$9.17"
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-test=\"sorting_completed\"]').locator('div').nth(35)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"sorting_completed\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "div"
+                    },
+                    {
+                      "index": 35,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "generic"
+            }
+          }
+        ],
         "stats": {
-          "heals": 1,
-          "lastHealAt": "2026-10-10T18:29:08.225Z"
+          "heals": 0
         }
       }
     },
@@ -2453,6 +3712,63 @@
       "b4d41998af2d5ec2": {
         "compiled": [
           {
+            "args": [
+              "Power Tools"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.0533203125,
+                  "w": 0.890625,
+                  "x": 0.0546875,
+                  "y": 0.24012586805555555
+                },
+                "label": null,
+                "name": "Category: Power Tools",
+                "placeholder": null,
+                "role": "'heading",
+                "siblingIndex": 0,
+                "tag": "h2",
+                "testIds": {
+                  "data-test": "page-title"
+                },
+                "text": "Category: Power Tools"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('page-title')",
+                  "expr": [
+                    {
+                      "id": "page-title",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByText('Category: Power Tools', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Category: Power Tools"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Category: Power Tools",
+              "role": "'heading"
+            }
+          },
+          {
             "args": [],
             "expect": "toBeVisible",
             "target": {
@@ -2464,48 +3780,196 @@
                   "type": null
                 },
                 "box": {
-                  "h": 0.5219618055555556,
-                  "w": 0.20234375,
-                  "x": 0.504296875,
-                  "y": 0.8806857638888889
+                  "h": 0.03333333333333333,
+                  "w": 0.17578125,
+                  "x": 0.309375,
+                  "y": 0.6948350694444444
                 },
                 "label": null,
-                "name": "Cordless Drill 20V Compare Cordless Drill 20V CO₂: A B C D E $125.23",
+                "name": "Sheet Sander",
                 "placeholder": null,
-                "role": "'link",
-                "siblingIndex": 4,
-                "tag": "a",
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
                 "testIds": {
-                  "data-test": "product-01M4KFJHPZRRD7B057N8SBJAWB"
+                  "data-test": "product-name"
                 },
-                "text": "Cordless Drill 20V A B C D E $125.23"
+                "text": "Sheet Sander"
               },
               "locators": [
                 {
-                  "display": "getByTestId('product-01M4KFJHPZRRD7B057N8SBJAWB')",
+                  "display": "getByRole('heading', { name: 'Sheet Sander', exact: true })",
                   "expr": [
                     {
-                      "id": "product-01M4KFJHPZRRD7B057N8SBJAWB",
-                      "m": "getByTestId"
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Sheet Sander",
+                      "role": "heading"
                     }
                   ],
-                  "rung": "L1"
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[data-test=\"product-name\"]').filter({ hasText: 'Sheet Sander' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"product-name\"]"
+                    },
+                    {
+                      "hasText": "Sheet Sander",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "getByText('Sheet Sander', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Sheet Sander"
+                    }
+                  ],
+                  "rung": "L6"
                 }
               ],
-              "name": "Cordless Drill 20V Compare Cordless Drill 20V CO₂: A B C D E $125.23",
-              "role": "'link"
+              "name": "Sheet Sander",
+              "role": "heading"
+            }
+          },
+          {
+            "args": [],
+            "expect": "toBeVisible",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.17578125,
+                  "x": 0.5234375,
+                  "y": 1.2376302083333333
+                },
+                "label": null,
+                "name": "Cordless Drill 20V",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Cordless Drill 20V"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Cordless Drill 20V', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Cordless Drill 20V",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[data-test=\"product-name\"]').filter({ hasText: 'Cordless Drill 20V' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"product-name\"]"
+                    },
+                    {
+                      "hasText": "Cordless Drill 20V",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
+                }
+              ],
+              "name": "Cordless Drill 20V",
+              "role": "heading"
+            }
+          }
+        ],
+        "history": [
+          {
+            "compiled": [
+              {
+                "args": [],
+                "expect": "toBeVisible",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": null
+                    },
+                    "box": {
+                      "h": 0.5219618055555556,
+                      "w": 0.20234375,
+                      "x": 0.504296875,
+                      "y": 0.8806857638888889
+                    },
+                    "label": null,
+                    "name": "Cordless Drill 20V Compare Cordless Drill 20V CO₂: A B C D E $125.23",
+                    "placeholder": null,
+                    "role": "'link",
+                    "siblingIndex": 4,
+                    "tag": "a",
+                    "testIds": {
+                      "data-test": "product-01M4KFJHPZRRD7B057N8SBJAWB"
+                    },
+                    "text": "Cordless Drill 20V A B C D E $125.23"
+                  },
+                  "locators": [
+                    {
+                      "display": "getByTestId('product-01M4KFJHPZRRD7B057N8SBJAWB')",
+                      "expr": [
+                        {
+                          "id": "product-01M4KFJHPZRRD7B057N8SBJAWB",
+                          "m": "getByTestId"
+                        }
+                      ],
+                      "rung": "L1"
+                    }
+                  ],
+                  "name": "Cordless Drill 20V Compare Cordless Drill 20V CO₂: A B C D E $125.23",
+                  "role": "'link"
+                }
+              }
+            ],
+            "instruction": "The page lists power tools, such as drills or sanders",
+            "kind": "assert",
+            "recordedWith": {
+              "at": "2026-10-10T18:30:01.309Z",
+              "model": "claude-sonnet-5-5",
+              "provider": "claude-code"
+            },
+            "stats": {
+              "heals": 0
             }
           }
         ],
         "instruction": "The page lists power tools, such as drills or sanders",
         "kind": "assert",
         "recordedWith": {
-          "at": "2026-10-10T18:30:01.309Z",
+          "at": "2026-11-02T17:49:25.726Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
         "stats": {
-          "heals": 0
+          "heals": 1,
+          "lastHealAt": "2026-11-02T17:49:25.726Z"
         }
       },
       "ed0afb61f2bb6656": {

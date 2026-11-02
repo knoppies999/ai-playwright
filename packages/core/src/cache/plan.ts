@@ -4,6 +4,7 @@
 // - replays don't write stats (committed plans would change on every run); only heals do.
 import { z } from 'zod';
 import { LocatorExprSchema } from '../locators/expr.js';
+import { isIdSegment } from '../locators/volatile.js';
 
 export const PLAN_VERSION = 1;
 
@@ -129,7 +130,7 @@ export function urlPattern(url: string): string {
     const u = new URL(url);
     const path = u.pathname
       .split('/')
-      .map((seg) => (/^\d+$|^[0-9a-f]{8}-[0-9a-f-]{27,}$|^[0-9a-f]{16,}$/i.test(seg) ? '*' : seg))
+      .map((seg) => (isIdSegment(seg) ? '*' : seg))
       .join('/');
     return `${u.origin}${path}`;
   } catch {

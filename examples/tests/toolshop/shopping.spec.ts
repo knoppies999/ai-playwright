@@ -10,15 +10,15 @@ test.describe('Toolshop shopping', { tag: '@llm' }, () => {
   });
 
   test('add a quantity to the cart', async ({ page, ai }) => {
-    await ai.act('Open "Combination Pliers", set the quantity to 3 and add it to the cart');
+    await ai.act('Open "Slip Joint Pliers", set the quantity to 3 and add it to the cart');
     await ai.assert('A message says the product was added to the cart');
     await expect(page.getByTestId('cart-quantity')).toHaveText('3');
   });
 
   test('edit the cart', async ({ page, ai }) => {
-    await ai.act('Add "Combination Pliers" to the cart, go back to the shop and add "Bolt Cutters" too');
+    await ai.act('Add "Slip Joint Pliers" to the cart, go back to the shop and add "Bolt Cutters" too');
     await expect(page.getByTestId('cart-quantity')).toHaveText('2');
-    await ai.act('Open the cart, change the quantity of the Bolt Cutters to 2, and remove the Combination Pliers');
+    await ai.act('Open the cart, change the quantity of the Bolt Cutters to 2, and remove the Slip Joint Pliers');
     const cart = await ai.extract(
       'every cart line (product name, quantity, line total) and the cart total, as numbers',
       z.object({
@@ -35,7 +35,7 @@ test.describe('Toolshop shopping', { tag: '@llm' }, () => {
     test.setTimeout(10 * 60_000);
     const guest = gen.person('GB');
     const address = gen.address('GB');
-    await ai.act('Add "Combination Pliers" and "Bolt Cutters" to the cart, then open the cart');
+    await ai.act('Add "Slip Joint Pliers" and "Bolt Cutters" to the cart, then open the cart');
     const total = await ai.extract('the cart total, as a number', z.number());
     await ai.act('Proceed to checkout and continue as a guest', {
       data: { email: guest.email, firstName: guest.firstName, lastName: guest.lastName },
@@ -58,7 +58,7 @@ test.describe('Toolshop shopping', { tag: '@llm' }, () => {
 
   test('checkout validation: an empty billing address can’t continue', async ({ ai, gen }) => {
     const guest = gen.person('GB');
-    await ai.act('Add "Combination Pliers" to the cart, open the cart and proceed to checkout as a guest', {
+    await ai.act('Add "Slip Joint Pliers" to the cart, open the cart and proceed to checkout as a guest', {
       data: { email: guest.email, firstName: guest.firstName, lastName: guest.lastName },
     });
     await ai.act('On the billing address step, clear the street and try to proceed');

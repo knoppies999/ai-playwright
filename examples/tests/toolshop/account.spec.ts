@@ -37,9 +37,9 @@ test.describe('Toolshop accounts', { tag: '@llm' }, () => {
     await ai.assert(`The account page greets ${person.firstName} or shows "My account"`);
     await ai.act('Open my profile');
     await ai.assert(`The profile shows the first name ${person.firstName} and the last name ${person.lastName}`);
-    await ai.act('Go to the shop, open "Combination Pliers" and add it to my favourites');
+    await ai.act('Go to the shop, open "Slip Joint Pliers" and add it to my favourites');
     await ai.act('Open my favourites from the account menu');
-    await ai.assert('"Combination Pliers" is in my favourites');
+    await ai.assert('"Slip Joint Pliers" is in my favourites');
     await ai.act('Sign out');
     await expect(page.getByTestId('nav-sign-in')).toBeVisible();
   });
