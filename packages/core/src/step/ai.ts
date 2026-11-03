@@ -51,6 +51,7 @@ import { synthesizeLocators, type LocatorCandidate, type Rung } from '../locator
 import type { Observation } from '../observe/observer.js';
 import { findByRef } from '../observe/snapshot.js';
 import type { ActionRecord, StepContext, StepKind, StepOptions, StepOutcome } from '../types.js';
+import { allowEntry, isAllowedUrl } from './origins.js';
 import { StepSession } from './session.js';
 import { StructuredValidationError, structuredWithRepair } from './structured.js';
 
@@ -316,24 +317,14 @@ export class Ai {
   private allowedOrigins(startUrl: string): Set<string> {
     const origins = new Set<string>();
     for (const u of [...this.config.navigation.allowedOrigins, this.deps.baseURL, startUrl]) {
-      try {
-        if (u) origins.add(new URL(u).origin);
-      } catch {
-        // not a URL (about:blank)
-      }
+      const entry = u ? allowEntry(u) : undefined;
+      if (entry) origins.add(entry);
     }
     return origins;
   }
 
   private isAllowed(origins: Set<string>) {
-    return (url: string) => {
-      if (/^(about|data|blob):/.test(url)) return true;
-      try {
-        return origins.has(new URL(url).origin);
-      } catch {
-        return false;
-      }
-    };
+    return (url: string) => isAllowedUrl(url, origins);
   }
 
   private async openSession(): Promise<StepSession> {
@@ -630,6 +621,7 @@ export class Ai {
             secretPlaceholders: data.secretPlaceholders,
             isAllowedUrl,
             maxActions: options.maxActions ?? this.config.steps.maxActions,
+            unchangedWaitMs: this.config.settle.maxMs,
             deadline: Date.now() + (options.timeout ?? this.config.steps.timeoutMs),
           });
           this.addUsage(outcome.usage);

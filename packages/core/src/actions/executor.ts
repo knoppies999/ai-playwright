@@ -237,7 +237,9 @@ export class ActionExecutor {
         await this.guardSecret(loc, usesSecret);
         if (usesSecret && this.opts.secretFillMode === 'evaluate') await this.fillValue(loc, value, true, timeout);
         else await loc.pressSequentially(value, { timeout, delay: 20 });
-        if (call.args.submit) await loc.press('Enter', { timeout });
+        // Enter goes to whatever has focus now, like a person's: search boxes that swap themselves for a richer
+        // widget on focus (Wikipedia) leave the original element detached, and pressing on it would time out.
+        if (call.args.submit) await this.page.keyboard.press('Enter');
         break;
       }
       case 'fill_form': {
