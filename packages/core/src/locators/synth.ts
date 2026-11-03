@@ -193,7 +193,8 @@ export async function synthesizeLocators(page: Page, target: Locator, opts: Synt
       }
     };
     const fold = (s: string) => s.replace(/\s+/g, ' ').trim().toLowerCase();
-    const asserted = opts.assertedText ? fold(opts.assertedText) : '';
+    // Short values ("1", "OK") occur inside unrelated locators; only real text makes a locator circular.
+    const asserted = opts.assertedText && fold(opts.assertedText).length >= 3 ? fold(opts.assertedText) : '';
     /** True when the expression finds the element by the text the check will assert. */
     const circular = (expr: LocatorExpr) => asserted !== '' && fold(JSON.stringify(expr)).includes(asserted);
     const anchored = (expr: LocatorExpr): LocatorExpr[] =>

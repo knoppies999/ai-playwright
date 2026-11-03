@@ -29,7 +29,7 @@
 | `No cached plan for "…" and the cache is replay-only` | The PR gate found a step with no plan. Run it locally with `AIPW_CACHE=auto` and commit `__aipw__/*.plans.json` |
 | PR gate fails `aipw summary --max-llm-calls 0` | Some steps needed the model (no plan, an assertion that can't compile, or an AI heal). The message says how many; record or refresh those plans locally |
 | A step re-runs with AI after you edited it | Expected: the plan key includes the instruction and the data keys. Edit, run once, commit the new plan. `npx aipw cache prune` removes plans nothing uses |
-| Healed plans in CI aren't written | `heal.policy: report` (the CI default) writes them to `.aipw/healed/` and the summary lists them. Review and commit |
+| Healed plans in CI aren't written | `heal.policy: report` (the CI default) writes them to `.aipw/healed/`, published as a pipeline artifact. Download it into the repo, run `npx aipw cache accept` (or `--dry-run` first) to merge them into the committed plans, review the diff, commit |
 | `npx aipw cache stats` shows "AI on replay" | Those steps always call the model on replay (absence assertions, extracts without replayable sources) |
 
 ## Nudge mode

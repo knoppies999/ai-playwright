@@ -46,6 +46,7 @@ import { withRetry } from '../llm/retry.js';
 import { addUsage, emptyUsage, type LlmProvider, type Usage } from '../llm/provider.js';
 import { buildLocator, type LocatorExpr } from '../locators/expr.js';
 import { fingerprintOf } from '../locators/fingerprint.js';
+import { isRejectedTestIdValue } from '../locators/test-ids.js';
 import { synthesizeLocators, type LocatorCandidate, type Rung } from '../locators/synth.js';
 import type { Observation } from '../observe/observer.js';
 import { findByRef } from '../observe/snapshot.js';
@@ -854,6 +855,8 @@ export class Ai {
       .playwrightTestIdAttribute.split(',')
       .map((a) => a.trim().toLowerCase());
     for (const [attr, value] of Object.entries(fingerprint?.testIds ?? {})) {
+      // A record id ("product-01M4KF…") names one item, not the collection, and changes with the data.
+      if (isRejectedTestIdValue(value, this.config.testIds.rejectValues)) continue;
       candidates.push({
         rung: 'L1',
         expr: pwAttrs.includes(attr.toLowerCase())
@@ -878,8 +881,9 @@ export class Ai {
       }
       for (const kind of kinds) {
         for (const scope of scopes) candidates.push({ rung: 'L5', expr: [...scope, ...kind] });
-        candidates.push({ rung: 'L2', expr: kind });
       }
+      // Page-wide only with a name: "every button on the page" can match the count by coincidence.
+      if (node.name) candidates.push({ rung: 'L2', expr: kinds[0]! });
     }
     for (const c of candidates) {
       const loc = buildLocator(this._page, c.expr);
