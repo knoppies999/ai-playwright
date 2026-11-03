@@ -286,8 +286,8 @@ describe('ai.extract', () => {
     const provider = new FakeProvider(
       [],
       [
-        { value: 'two', note: null, sources: [] },
-        { value: 2, note: null, sources: [] },
+        { value: 'two', found: true, expand: null, note: null, sources: [] },
+        { value: 2, found: true, expand: null, note: null, sources: [] },
       ],
     );
     await expect(makeAi(page, provider).ai.extract('number of buttons', z.number())).resolves.toBe(2);
@@ -299,8 +299,8 @@ describe('ai.extract', () => {
     const provider = new FakeProvider(
       [],
       [
-        { value: 'x', note: null, sources: [] },
-        { value: 'y', note: null, sources: [] },
+        { value: 'x', found: true, expand: null, note: null, sources: [] },
+        { value: 'y', found: true, expand: null, note: null, sources: [] },
       ],
     );
     await expect(makeAi(page, provider).ai.extract('a number', z.number())).rejects.toBeInstanceOf(AiExtractError);
@@ -338,7 +338,7 @@ describe('ai.run', () => {
       [done('clicked')],
       [
         { pass: true, reason: 'ok', evidence: [], checks: [] },
-        { value: 'Login', note: null, sources: [] },
+        { value: 'Login', found: true, expand: null, note: null, sources: [] },
       ],
     );
     const { ai, events } = makeAi(page, provider);

@@ -49,7 +49,7 @@ import { fingerprintOf } from '../locators/fingerprint.js';
 import { isRejectedTestIdValue } from '../locators/test-ids.js';
 import { synthesizeLocators, type LocatorCandidate, type Rung } from '../locators/synth.js';
 import type { Observation } from '../observe/observer.js';
-import { findByRef } from '../observe/snapshot.js';
+import { expandRef, findByRef } from '../observe/snapshot.js';
 import type { ActionRecord, StepContext, StepKind, StepOptions, StepOutcome } from '../types.js';
 import { allowEntry, isAllowedUrl } from './origins.js';
 import { StepSession } from './session.js';
@@ -327,10 +327,15 @@ export class Ai {
     return (url: string) => isAllowedUrl(url, origins);
   }
 
-  private async openSession(): Promise<StepSession> {
+  /**
+   * `oneShot`: assert, extract and locate answer from a single snapshot, with no expand tool to see what pruning
+   * left out, so they get a larger budget (a Wikipedia infobox's values were pruned away and an extract returned 0).
+   */
+  private async openSession(oneShot = false): Promise<StepSession> {
     const { snapshot, settle } = this.config;
+    const maxTokens = Math.round(snapshot.maxTokens * (oneShot ? 2.5 : 1));
     return StepSession.open(this._page, {
-      prune: { maxTokens: snapshot.maxTokens, collapseSiblingsOver: snapshot.collapseSiblingsOver, maxTextLength: 300 },
+      prune: { maxTokens, collapseSiblingsOver: snapshot.collapseSiblingsOver, maxTextLength: 300 },
       stableMaxMs: settle.maxMs,
       stableIntervalMs: settle.snapshotIntervalMs,
       secrets: () => this.redactor.secrets,
@@ -914,7 +919,7 @@ export class Ai {
     ctx: StepContext,
     timeout: number,
   ): Promise<{ verdict: Verdict; compiled: CompiledCheck[] | null; note?: string }> {
-    const session = await this.openSession();
+    const session = await this.openSession(true);
     try {
       // The timeout is the page's time to get there, not the model's: time spent waiting for a judgement moves
       // the deadline, so a page still loading at the first look is looked at again (a judgement takes ~5 s).
@@ -1258,24 +1263,57 @@ export class Ai {
           },
         );
       }
-      const session = await this.openSession();
+      const session = await this.openSession(true);
       try {
         const obs = await session.observer.observe(options.scope);
-        const { value, usage } = await structuredWithRepair(this.deps.provider, {
-          system: SYSTEM_PROMPTS.extract,
-          prompt: `WHAT: ${what}\n\n${buildObservation(obs)}`,
-          schemaName: 'extraction',
-          schema: z.strictObject({
-            value: schema,
-            note: z.string().nullable(),
-            sources: z
-              .array(z.strictObject({ path: z.string(), ref: z.string() }))
-              .describe(
-                'For every leaf value: its JSON path ("" for a single value, "0", "1.name", "total") and the ref of the element it was read from',
-              ),
-          }),
-        });
-        this.addUsage(usage);
+        const ask = async (expanded?: string) => {
+          const { value, usage } = await structuredWithRepair(this.deps.provider, {
+            system: SYSTEM_PROMPTS.extract,
+            prompt: `WHAT: ${what}\n\n${buildObservation(obs, expanded ? { expanded } : {})}`,
+            schemaName: 'extraction',
+            schema: z.strictObject({
+              found: z.boolean().describe('false if what WHAT asks for is not in the snapshot; value is then ignored'),
+              expand: z
+                .string()
+                .nullable()
+                .describe(
+                  'When found is false because it is inside a truncated subtree ("… N nodes truncated (call expand with ref=eN)"): that ref, to see it in full. Otherwise null',
+                ),
+              value: schema,
+              note: z.string().nullable(),
+              sources: z
+                .array(z.strictObject({ path: z.string(), ref: z.string() }))
+                .describe(
+                  'For every leaf value: its JSON path ("" for a single value, "0", "1.name", "total") and the ref of the element it was read from',
+                ),
+            }),
+          });
+          this.addUsage(usage);
+          return value;
+        };
+        let value = await ask();
+        // One-shot steps have no expand tool: when the value is in a part pruning cut (a long list, a deep subtree),
+        // show that part and ask again; twice at most (a collapsed list, then one of its items).
+        for (let round = 0; round < 2 && !value.found; round++) {
+          const wanted = refIn(obs, value.expand);
+          const expanded = wanted
+            ? expandRef(obs.tree, wanted, Math.round(this.config.snapshot.maxTokens * 2.5))
+            : undefined;
+          if (!expanded) break;
+          expanded.refs.forEach((r) => obs.refs.add(r));
+          value = await ask(expanded.text);
+        }
+        // Better a clear failure than a made-up value (the schema forces one, e.g. 0 for a number).
+        if (!value.found) {
+          throw new AiExtractError(
+            what,
+            `Not on the page: ${value.note ?? 'the model could not find it in the snapshot'}`,
+            {
+              stepId: ctx.id,
+              callsite: ctx.callsite,
+            },
+          );
+        }
         if (cache && mode !== 'ai-only') {
           // Keep sources only if they rebuild exactly the value the model returned.
           const sources: NonNullable<StepPlan['sources']> = [];
@@ -1346,7 +1384,7 @@ export class Ai {
             throw new AiStepError('not_found', `The cached element for "${description}" is gone.`, context);
         }
       }
-      const session = await this.openSession();
+      const session = await this.openSession(true);
       try {
         const obs = await session.observer.observe(options.scope);
         const { value, usage } = await structuredWithRepair(this.deps.provider, {

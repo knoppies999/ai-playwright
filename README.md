@@ -115,10 +115,11 @@ await expect(page.locator('[id="status"]')).toContainText('Notifications saved')
 | TodoMVC | `npm run e2e:todomvc` | Hover-only delete, double-click edit, checkbox state, reload |
 | SauceDemo | `npm run e2e:llm` | Login, cart, checkout, sorting, a 13-scenario usability suite |
 | The Internet | `npm run e2e:the-internet` | Dynamic loading, JS prompts, unlabeled checkboxes, sortable tables |
+| Real sites: Wikipedia, GOV.UK | `npm run e2e:real-sites` | Real public sites, read-only: search with autocomplete, a lazily loaded language menu across subdomains, infobox and table reads |
 | Toolshop | `npm run e2e:toolshop` | A bigger live shop: search, filters, registration, guest checkout |
 
 Prefix any of them with `AIPW_CACHE=replay-only` to prove a suite runs with zero AI calls. The showcase, TodoMVC,
-SauceDemo and The Internet do. Toolshop is a shared public site whose stock and accounts change under you, so expect
+SauceDemo, The Internet and the real-sites suite do. Toolshop is a shared public site whose stock and accounts change under you, so expect
 occasional heals there.
 
 ## Providers

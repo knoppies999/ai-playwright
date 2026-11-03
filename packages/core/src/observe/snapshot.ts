@@ -237,8 +237,11 @@ function dropNoise(list: SnapNode[], maxTextLength: number): SnapNode[] {
   return out;
 }
 
-/** Long runs of same-role siblings keep the first 10 and last 2. */
-function collapseRuns(list: SnapNode[], over: number): SnapNode[] {
+/**
+ * Long runs of same-role siblings keep the first 10 and last 2. The collapsed line names the parent's ref, whose
+ * expand shows every sibling: otherwise item 14 of a long list could never be seen, not even by one-shot steps.
+ */
+function collapseRuns(list: SnapNode[], over: number, parentRef?: string): SnapNode[] {
   const out: SnapNode[] = [];
   let i = 0;
   while (i < list.length) {
@@ -246,17 +249,19 @@ function collapseRuns(list: SnapNode[], over: number): SnapNode[] {
     while (j < list.length && list[j]!.role === list[i]!.role && list[i]!.verbatim === undefined) j++;
     const run = list.slice(i, Math.max(j, i + 1));
     if (run.length > over) {
-      out.push(...run.slice(0, 10).map((n) => ({ ...n, children: collapseRuns(n.children, over) })));
+      out.push(...run.slice(0, 10).map((n) => ({ ...n, children: collapseRuns(n.children, over, n.ref) })));
       out.push({
         role: '…',
         attrs: [],
         colon: false,
-        value: `${run.length - 12} more ${run[0]!.role} items (scroll, filter or use a more specific instruction)`,
+        value: parentRef
+          ? `${run.length - 12} more ${run[0]!.role} items (call expand with ref=${parentRef} to see them all)`
+          : `${run.length - 12} more ${run[0]!.role} items (scroll, filter or use a more specific instruction)`,
         children: [],
       });
-      out.push(...run.slice(-2).map((n) => ({ ...n, children: collapseRuns(n.children, over) })));
+      out.push(...run.slice(-2).map((n) => ({ ...n, children: collapseRuns(n.children, over, n.ref) })));
     } else {
-      out.push(...run.map((n) => ({ ...n, children: collapseRuns(n.children, over) })));
+      out.push(...run.map((n) => ({ ...n, children: collapseRuns(n.children, over, n.ref) })));
     }
     i += run.length;
   }

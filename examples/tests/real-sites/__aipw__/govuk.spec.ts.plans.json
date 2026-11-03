@@ -1,0 +1,849 @@
+{
+  "tests": {
+    "bank holidays in Scotland": {
+      "46ae12fd1fdce5c9": {
+        "instruction": "the next bank holiday in Scotland: its name and date as shown",
+        "kind": "extract",
+        "recordedWith": {
+          "at": "2026-11-03T19:02:03.914Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "sources": [
+          {
+            "path": "name",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "tabpanel"
+                  },
+                  {
+                    "name": null,
+                    "role": "article"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.041666666666666664,
+                  "w": 0.4296875,
+                  "x": 0.15625,
+                  "y": 1.1
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 2,
+                "tag": "span",
+                "testIds": {},
+                "text": "St Andrew’s Day"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"scotland\"]').locator('span').nth(2)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"scotland\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "span"
+                    },
+                    {
+                      "index": 2,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "generic"
+            }
+          },
+          {
+            "path": "date",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "tabpanel"
+                  },
+                  {
+                    "name": null,
+                    "role": "article"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06944444444444445,
+                  "w": 0.4296875,
+                  "x": 0.15625,
+                  "y": 1.0097222222222222
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 1,
+                "tag": "span",
+                "testIds": {},
+                "text": "30 November"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"scotland\"]').locator('span').nth(1)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"scotland\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "span"
+                    },
+                    {
+                      "index": 1,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "generic"
+            }
+          }
+        ],
+        "stats": {
+          "heals": 0
+        }
+      },
+      "98ed4269c8b574c2": {
+        "compiled": [
+          {
+            "args": [
+              "Scotland"
+            ],
+            "expect": "toHaveText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "presentation"
+                  },
+                  {
+                    "name": null,
+                    "role": "tablist"
+                  },
+                  {
+                    "name": null,
+                    "role": "article"
+                  }
+                ],
+                "attrs": {
+                  "id": "tab_scotland",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.034722222222222224,
+                  "w": 0.05771484375,
+                  "x": 0.2965576171875,
+                  "y": 0.7930555555555555
+                },
+                "label": null,
+                "name": "Scotland",
+                "placeholder": null,
+                "role": "tab",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Scotland"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('tab', { name: 'Scotland', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Scotland",
+                      "role": "tab"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[id=\"tab_scotland\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"tab_scotland\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                },
+                {
+                  "display": "getByText('Scotland', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Scotland"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Scotland",
+              "role": "tab"
+            }
+          },
+          {
+            "args": [],
+            "expect": "toBeVisible",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "article"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": "scotland",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 8.26388888888889,
+                  "w": 0.4921875,
+                  "x": 0.125,
+                  "y": 0.85
+                },
+                "label": null,
+                "name": "Scotland",
+                "placeholder": null,
+                "role": "tabpanel",
+                "siblingIndex": 1,
+                "tag": "section",
+                "testIds": {},
+                "text": "The next bank holiday in Scotland is 30 November St Andrew’s Day Upcoming bank h"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('tabpanel', { name: 'Scotland', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Scotland",
+                      "role": "tabpanel"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[id=\"scotland\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"scotland\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "Scotland",
+              "role": "tabpanel"
+            }
+          },
+          {
+            "args": [],
+            "expect": "toBeVisible",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "tabpanel"
+                  },
+                  {
+                    "name": null,
+                    "role": "article"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": "upcoming-bank-holidays-in-scotland",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.041666666666666664,
+                  "w": 0.4921875,
+                  "x": 0.125,
+                  "y": 1.2180555555555554
+                },
+                "label": null,
+                "name": "Upcoming bank holidays in Scotland",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h2",
+                "testIds": {},
+                "text": "Upcoming bank holidays in Scotland"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Upcoming bank holidays in Scotland', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Upcoming bank holidays in Scotland",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[id=\"upcoming-bank-holidays-in-scotland\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"upcoming-bank-holidays-in-scotland\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "Upcoming bank holidays in Scotland",
+              "role": "heading"
+            }
+          },
+          {
+            "args": [],
+            "expect": "toBeVisible",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "tabpanel"
+                  },
+                  {
+                    "name": null,
+                    "role": "article"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": "table-id-f10bea60",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.2902777777777778,
+                  "w": 0.4921875,
+                  "x": 0.125,
+                  "y": 1.2875
+                },
+                "label": null,
+                "name": "Upcoming bank holidays in Scotland 2026",
+                "placeholder": null,
+                "role": "table",
+                "siblingIndex": 0,
+                "tag": "table",
+                "testIds": {},
+                "text": "Upcoming bank holidays in Scotland 2026 Date Day of the week Bank holiday 30 Nov"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('table', { name: 'Upcoming bank holidays in Scotland 2026', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Upcoming bank holidays in Scotland 2026",
+                      "role": "table"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[id=\"table-id-f10bea60\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"table-id-f10bea60\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "Upcoming bank holidays in Scotland 2026",
+              "role": "table"
+            }
+          }
+        ],
+        "instruction": "The Scotland tab is selected and its upcoming bank holidays are listed",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-11-03T19:01:57.130Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "e534332c4ce96ef4": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open Scotland tab",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "presentation"
+                  },
+                  {
+                    "name": null,
+                    "role": "tablist"
+                  },
+                  {
+                    "name": null,
+                    "role": "article"
+                  }
+                ],
+                "attrs": {
+                  "id": "tab_scotland",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.034722222222222224,
+                  "w": 0.05771484375,
+                  "x": 0.2965576171875,
+                  "y": 0.7930555555555555
+                },
+                "label": null,
+                "name": "Scotland",
+                "placeholder": null,
+                "role": "tab",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Scotland"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('tab', { name: 'Scotland', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Scotland",
+                      "role": "tab"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[id=\"tab_scotland\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"tab_scotland\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                },
+                {
+                  "display": "getByText('Scotland', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Scotland"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Scotland",
+              "role": "tab"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Show the bank holidays for Scotland",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://www.gov.uk/bank-holidays"
+        },
+        "pre": {
+          "urlPattern": "https://www.gov.uk/bank-holidays"
+        },
+        "recordedWith": {
+          "at": "2026-11-03T19:01:50.848Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "search GOV.UK and open a guide": {
+      "3d0598e2787710f3": {
+        "compiled": [
+          {
+            "args": [
+              "Renew or replace your adult passport"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.1388888888888889,
+                  "w": 0.4921875,
+                  "x": 0.125,
+                  "y": 0.6611111111111111
+                },
+                "label": null,
+                "name": "Renew or replace your adult passport",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h1",
+                "testIds": {},
+                "text": "Renew or replace your adult passport"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Renew or replace your adult passport', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Renew or replace your adult passport",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Renew or replace your adult passport', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Renew or replace your adult passport"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Renew or replace your adult passport",
+              "role": "heading"
+            }
+          },
+          {
+            "args": [],
+            "expect": "toBeVisible",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.15123697916666667,
+                  "w": 0.4921875,
+                  "x": 0.125,
+                  "y": 0.8416666666666667
+                },
+                "label": "Pages in this guide",
+                "name": "Pages in this guide",
+                "placeholder": null,
+                "role": "navigation",
+                "siblingIndex": 0,
+                "tag": "nav",
+                "testIds": {},
+                "text": "Contents Overview Renew Replace a lost, stolen or damaged passport"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('navigation', { name: 'Pages in this guide', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Pages in this guide",
+                      "role": "navigation"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Pages in this guide",
+              "role": "navigation"
+            }
+          },
+          {
+            "args": [
+              "/renew-adult-passport"
+            ],
+            "expect": "toHaveURL"
+          }
+        ],
+        "instruction": "The page is the guide to renewing or replacing an adult passport",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-11-03T19:02:38.045Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "7acfdc8c7d30d2f3": {
+        "actions": [
+          {
+            "args": {
+              "submit": true,
+              "text": "renew passport"
+            },
+            "intent": "Search for renew passport",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "search"
+                  },
+                  {
+                    "name": null,
+                    "role": "banner"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": "search-main-05bf5d78",
+                  "name": "keywords",
+                  "type": "search"
+                },
+                "box": {
+                  "h": 0.06944444444444445,
+                  "w": 0.453125,
+                  "x": 0.125,
+                  "y": 0.9340711805555556
+                },
+                "label": "Search",
+                "name": "Search",
+                "placeholder": "",
+                "role": "combobox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('combobox', { name: 'Search', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Search",
+                      "role": "combobox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Search', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Search"
+                    }
+                  ],
+                  "rung": "L3"
+                },
+                {
+                  "display": "locator('[id=\"search-main-05bf5d78\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"search-main-05bf5d78\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "Search",
+              "role": "combobox"
+            },
+            "tool": "type"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open adult passport result",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03194444444444444,
+                  "w": 0.24693603515625,
+                  "x": 0.125,
+                  "y": 0.9097222222222222
+                },
+                "label": null,
+                "name": "Renew or replace your adult passport",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Renew or replace your adult passport"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('link', { name: 'Renew or replace your adult passport', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Renew or replace your adult passport",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Renew or replace your adult passport', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Renew or replace your adult passport"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Renew or replace your adult passport",
+              "role": "link"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Search GOV.UK for \"renew passport\" and open the result about renewing or replacing an adult passport",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://www.gov.uk/renew-adult-passport"
+        },
+        "pre": {
+          "urlPattern": "https://www.gov.uk/"
+        },
+        "recordedWith": {
+          "at": "2026-11-03T19:02:30.345Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    }
+  },
+  "version": 1
+}

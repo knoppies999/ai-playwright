@@ -313,6 +313,8 @@ describe('caching assert, extract and locate', () => {
       [
         (req: { prompt: string }) => ({
           value: [29.99, 9.99],
+          found: true,
+          expand: null,
           note: null,
           sources: [
             { path: '0', ref: refOf('$29.99', req.prompt) },
@@ -341,6 +343,8 @@ describe('caching assert, extract and locate', () => {
       [
         (req: { prompt: string }) => ({
           value: 123,
+          found: true,
+          expand: null,
           note: null,
           sources: [{ path: '', ref: refOf('$29.99', req.prompt) }],
         }),

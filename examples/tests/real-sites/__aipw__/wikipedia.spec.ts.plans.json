@@ -1,0 +1,743 @@
+{
+  "tests": {
+    "jump to a section from the contents": {
+      "44aa373fd450335e": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Click Geology in table of contents",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "list"
+                  },
+                  {
+                    "name": "Contents",
+                    "role": "navigation"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03888888888888889,
+                  "w": 0.128125,
+                  "x": 0.046875,
+                  "y": 0.31723090277777777
+                },
+                "label": null,
+                "name": "Geology",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Geology"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('link', { name: 'Geology', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Geology",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Geology",
+              "role": "link"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Use the table of contents to go to the \"Geology\" section",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://en.wikipedia.org/wiki/Table_Mountain"
+        },
+        "pre": {
+          "urlPattern": "https://en.wikipedia.org/wiki/Table_Mountain"
+        },
+        "recordedWith": {
+          "at": "2026-11-03T19:04:10.411Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "93e4cfe01b09bd76": {
+        "compiled": [
+          {
+            "args": [],
+            "expect": "toBeVisible",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "region"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": "Geology",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.0375,
+                  "w": 0.0670166015625,
+                  "x": 0.20625,
+                  "y": 0.10451388888888889
+                },
+                "label": null,
+                "name": "Geology",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h2",
+                "testIds": {},
+                "text": "Geology"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Geology', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Geology",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[id=\"Geology\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"Geology\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "Geology",
+              "role": "heading"
+            }
+          },
+          {
+            "args": [
+              "Geology"
+            ],
+            "expect": "toHaveText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "region"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": "Geology",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.0375,
+                  "w": 0.0670166015625,
+                  "x": 0.20625,
+                  "y": 0.10451388888888889
+                },
+                "label": null,
+                "name": "Geology",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h2",
+                "testIds": {},
+                "text": "Geology"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Geology', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Geology",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[id=\"Geology\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"Geology\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "Geology",
+              "role": "heading"
+            }
+          }
+        ],
+        "instruction": "The Geology section heading is visible",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-11-03T19:04:16.567Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "read the same article in Afrikaans": {
+      "2c55f617cd82e5e1": {
+        "compiled": [
+          {
+            "args": [
+              "af.wikipedia.org/wiki/Tafelberg"
+            ],
+            "expect": "toHaveURL"
+          },
+          {
+            "args": [
+              "Tafelberg"
+            ],
+            "expect": "toHaveText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "banner"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": "firstHeading",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05499131944444444,
+                  "w": 0.5096923828125,
+                  "x": 0.20625,
+                  "y": 0.12506510416666666
+                },
+                "label": null,
+                "name": "Tafelberg",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h1",
+                "testIds": {},
+                "text": "Tafelberg"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Tafelberg', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Tafelberg",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[id=\"firstHeading\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"firstHeading\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "Tafelberg",
+              "role": "heading"
+            }
+          }
+        ],
+        "instruction": "The page is the Afrikaans Wikipedia article about Table Mountain (Tafelberg)",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-11-03T19:04:56.112Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "f24d7ff3928aa7f9": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open languages menu",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "banner"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": "p-lang-btn-checkbox",
+                  "name": null,
+                  "type": "checkbox"
+                },
+                "box": {
+                  "h": 0.044444444444444446,
+                  "w": 0.12242431640625,
+                  "x": 0.68070068359375,
+                  "y": 0.13033854166666667
+                },
+                "label": "68 languages",
+                "name": "68 languages",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: '68 languages', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "68 languages",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('68 languages', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "68 languages"
+                    }
+                  ],
+                  "rung": "L3"
+                },
+                {
+                  "display": "locator('[id=\"p-lang-btn-checkbox\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"p-lang-btn-checkbox\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "68 languages",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Select Afrikaans language",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "option"
+                  },
+                  {
+                    "name": "Suggested languages",
+                    "role": "listbox"
+                  },
+                  {
+                    "name": "Languages",
+                    "role": "dialog"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.022222222222222223,
+                  "w": 0.04559326171875,
+                  "x": 0.5262939453125,
+                  "y": 0.30972222222222223
+                },
+                "label": null,
+                "name": "Afrikaans",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Afrikaans"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"v-0-option-1\"]').getByRole('link').first()",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"v-0-option-1\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "link"
+                    },
+                    {
+                      "index": 0,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "Afrikaans",
+              "role": "link"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Switch this article to Afrikaans using the languages menu",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://af.wikipedia.org/wiki/Tafelberg"
+        },
+        "pre": {
+          "urlPattern": "https://en.wikipedia.org/wiki/Table_Mountain"
+        },
+        "recordedWith": {
+          "at": "2026-11-03T19:04:47.284Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "search for an article and read its infobox": {
+      "a8b4366a8d694578": {
+        "instruction": "the elevation of the highest point in metres, from the infobox",
+        "kind": "extract",
+        "recordedWith": {
+          "at": "2026-11-03T19:14:08.882Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "sources": [
+          {
+            "path": "",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03211805555555555,
+                  "w": 0.16866455078125,
+                  "x": 0.61976318359375,
+                  "y": 0.9514105902777777
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 0,
+                "tag": "td",
+                "testIds": {},
+                "text": "1,084.6 m (3,558 ft)[2]"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"mwCw\"]').getByRole('cell').nth(2)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"mwCw\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "cell"
+                    },
+                    {
+                      "index": 2,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "cell"
+            }
+          }
+        ],
+        "stats": {
+          "heals": 0
+        }
+      },
+      "c84cf0d9bcc5c1ec": {
+        "actions": [
+          {
+            "args": {
+              "submit": true,
+              "text": "Table Mountain"
+            },
+            "intent": "Search for Table Mountain",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  },
+                  {
+                    "name": null,
+                    "role": "search"
+                  },
+                  {
+                    "name": null,
+                    "role": "banner"
+                  }
+                ],
+                "attrs": {
+                  "id": "searchInput",
+                  "name": "search",
+                  "type": "search"
+                },
+                "box": {
+                  "h": 0.044444444444444446,
+                  "w": 0.31585693359375,
+                  "x": 0.2078125,
+                  "y": 0.02361111111111111
+                },
+                "label": "Search Wikipedia",
+                "name": "Search Wikipedia",
+                "placeholder": "Search Wikipedia",
+                "role": "searchbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('searchbox', { name: 'Search Wikipedia', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Search Wikipedia",
+                      "role": "searchbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Search Wikipedia', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Search Wikipedia"
+                    }
+                  ],
+                  "rung": "L3"
+                },
+                {
+                  "display": "locator('[id=\"searchInput\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"searchInput\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "Search Wikipedia",
+              "role": "searchbox"
+            },
+            "tool": "type"
+          }
+        ],
+        "instruction": "Search Wikipedia for \"Table Mountain\" and open the article about the mountain in Cape Town",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://en.wikipedia.org/wiki/Table_Mountain"
+        },
+        "pre": {
+          "urlPattern": "https://en.wikipedia.org/wiki/Main_Page"
+        },
+        "recordedWith": {
+          "at": "2026-11-03T19:13:49.094Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "da5dcaf4c534436f": {
+        "compiled": [
+          {
+            "args": [
+              "Table Mountain"
+            ],
+            "expect": "toHaveText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "banner"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": "firstHeading",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05499131944444444,
+                  "w": 0.47445068359375,
+                  "x": 0.20625,
+                  "y": 0.12506510416666666
+                },
+                "label": null,
+                "name": "Table Mountain",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h1",
+                "testIds": {},
+                "text": "Table Mountain"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Table Mountain', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Table Mountain",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[id=\"firstHeading\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"firstHeading\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "Table Mountain",
+              "role": "heading"
+            }
+          }
+        ],
+        "instruction": "The article heading is \"Table Mountain\"",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-11-03T19:13:55.171Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    }
+  },
+  "version": 1
+}
