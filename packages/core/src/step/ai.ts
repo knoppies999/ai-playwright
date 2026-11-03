@@ -72,6 +72,8 @@ export interface AiDeps {
   idPrefix?: string;
   events?: EventBus;
   redactor?: Redactor;
+  /** Shared by ai.on(page) instances, so steps on any page count as used. */
+  usedStepKeys?: Set<string>;
   /** Values generated or extracted earlier in the test, shared across pages. */
   values?: Record<string, unknown>;
   /** Test-data generators, seeded per test (docs/08 §3). Shared with the gen fixture. */
@@ -222,7 +224,8 @@ function leafText(el: Element): string {
   return (el as HTMLElement).innerText ?? el.textContent ?? '';
 }
 
-const ASSERT_VERBS = /^(verify|check|assert|expect|ensure)\b[:\s]*/i;
+/** "Verify that X" / "Check: X" → the condition X. */
+const ASSERT_VERBS = /^(verify|check|assert|expect|ensure)\b[:\s]*(that\s+)?/i;
 const EXTRACT_LINE = /^(?:extract|read|get)\s+(.+?)\s+as\s+([A-Za-z_]\w*)\s*$/i;
 const BULLET = /^(?:[-*•]|\d+[.)])\s+/;
 
@@ -232,6 +235,8 @@ export type StepAttach = (name: string, body: string | Buffer, contentType: stri
 export class Ai {
   readonly events: EventBus;
   readonly redactor: Redactor;
+  /** Plan keys of the steps this test ran: after a pass, other steps in its plan are stale (see PlanStore.retain). */
+  readonly usedStepKeys: Set<string>;
   readonly values: Record<string, unknown>;
   private ordinal = 0;
   private readonly stepOrdinals = new OrdinalCounter();
@@ -270,6 +275,7 @@ export class Ai {
     this.deps = { ...deps, provider: withBudget(withRetry(deps.provider, deps.config.retry), this.budget) };
     this._page = deps.page;
     this.redactor = deps.redactor ?? new Redactor();
+    this.usedStepKeys = deps.usedStepKeys ?? new Set();
     this.events = deps.events ?? new EventBus(this.redactor);
     this.values = deps.values ?? {};
     this.gen = deps.gen ?? createGenerators({ seed: deps.idPrefix ?? 'aipw' });
@@ -297,6 +303,7 @@ export class Ai {
       values: this.values,
       gen: this.gen,
       codeTools: this.codeTools,
+      usedStepKeys: this.usedStepKeys,
     });
   }
 
@@ -429,7 +436,7 @@ export class Ai {
 
   private stepKeyFor(kind: StepKind, instruction: string, options: StepOptions, peek = false): string {
     const testIdAttribute = this.deps.playwrightTestIdAttribute ?? 'data-testid';
-    return stepKey({
+    const key = stepKey({
       kind,
       instruction,
       dataKeys: Object.keys(options.data ?? {}),
@@ -441,6 +448,8 @@ export class Ai {
         : this.stepOrdinals.next(kind, instruction, options.key),
       pinned: options.key,
     });
+    if (!peek) this.usedStepKeys.add(key);
+    return key;
   }
 
   private synthOptions() {

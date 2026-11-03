@@ -100,13 +100,18 @@ export function stepCode(step: StepPlan): string[] {
 
 /**
  * Plans are keyed by hash, so they have no order. Given the spec's source, sorts steps by where their instruction
- * appears in it, as a string literal so "Save" isn't found inside "Saved" (${…} instructions come last).
+ * appears in it, as a string literal so "Save" isn't found inside "Saved". Lines of an ai.run script aren't quoted,
+ * so longer instructions are also found bare (${…} instructions come last).
  */
 export function inSpecOrder(steps: StepPlan[], specSource?: string): StepPlan[] {
   const position = (step: StepPlan) => {
     const found = ["'", '"', '`']
       .map((q) => specSource?.indexOf(`${q}${step.instruction}${q}`) ?? -1)
       .filter((i) => i >= 0);
+    if (!found.length && step.instruction.length >= 12) {
+      const bare = specSource?.indexOf(step.instruction) ?? -1;
+      if (bare >= 0) found.push(bare);
+    }
     return found.length ? Math.min(...found) : Number.MAX_SAFE_INTEGER;
   };
   return [...steps].sort((a, b) => position(a) - position(b));

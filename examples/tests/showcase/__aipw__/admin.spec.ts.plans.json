@@ -918,6 +918,718 @@
         }
       }
     },
+    "showcase > a whole flow as an English script": {
+      "0aa355737da4ab3b": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open settings menu",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": "Main",
+                    "role": "navigation"
+                  },
+                  {
+                    "name": null,
+                    "role": "banner"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.029166666666666667,
+                  "w": 0.05013427734375,
+                  "x": 0.10054931640625,
+                  "y": 0.013888888888888888
+                },
+                "label": null,
+                "name": "Settings",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Settings"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Settings', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Settings",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Settings', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Settings"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Settings",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open Users page",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": "Main",
+                    "role": "navigation"
+                  },
+                  {
+                    "name": null,
+                    "role": "banner"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04027777777777778,
+                  "w": 0.042578125,
+                  "x": 0.10445556640625,
+                  "y": 0.05
+                },
+                "label": null,
+                "name": "Users",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Users"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('link', { name: 'Users', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Users",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Users', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Users"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Users",
+              "role": "link"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Open the users page from the settings menu",
+        "kind": "act",
+        "post": {
+          "urlPattern": "http://localhost:5173/users"
+        },
+        "pre": {
+          "urlPattern": "http://localhost:5173/app"
+        },
+        "recordedWith": {
+          "at": "2026-11-03T17:35:47.965Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "183eae7817a32d34": {
+        "instruction": "the email address of Thandi Mokoena",
+        "kind": "extract",
+        "recordedWith": {
+          "at": "2026-11-03T17:35:58.499Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "sources": [
+          {
+            "path": "",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04027777777777778,
+                  "w": 0.13870849609375,
+                  "x": 0.12730712890625,
+                  "y": 0.1970486111111111
+                },
+                "label": null,
+                "name": "thandi@example.com",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 1,
+                "tag": "td",
+                "testIds": {},
+                "text": "thandi@example.com"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"rows\"]').getByRole('cell').nth(1)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"rows\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "cell"
+                    },
+                    {
+                      "index": 1,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "thandi@example.com",
+              "role": "cell"
+            }
+          }
+        ],
+        "stats": {
+          "heals": 0
+        }
+      },
+      "54b8834787ddafa6": {
+        "compiled": [
+          {
+            "args": [
+              "Sipho Dlamini"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04027777777777778,
+                  "w": 0.3199951171875,
+                  "x": 0.0140625,
+                  "y": 0.24010416666666667
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "row",
+                "siblingIndex": 1,
+                "tag": "tr",
+                "testIds": {},
+                "text": "Sipho Dlamini sipho@example.com Disabled"
+              },
+              "locators": [
+                {
+                  "display": "locator('tr').filter({ hasText: 'Sipho Dlamini' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "tr"
+                    },
+                    {
+                      "hasText": "Sipho Dlamini",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "locator('tr').filter({ hasText: 'sipho@example.com' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "tr"
+                    },
+                    {
+                      "hasText": "sipho@example.com",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
+                }
+              ],
+              "role": "row"
+            }
+          },
+          {
+            "args": [
+              "Disabled"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04027777777777778,
+                  "w": 0.0664794921875,
+                  "x": 0.267578125,
+                  "y": 0.24010416666666667
+                },
+                "label": null,
+                "name": "Disabled",
+                "placeholder": null,
+                "role": "cell",
+                "siblingIndex": 2,
+                "tag": "td",
+                "testIds": {},
+                "text": "Disabled"
+              },
+              "locators": [
+                {
+                  "display": "locator('tr').filter({ hasText: 'Sipho Dlamini' }).getByRole('cell', { name: 'Disabled', exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "tr"
+                    },
+                    {
+                      "hasText": "Sipho Dlamini",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Disabled",
+                      "role": "cell"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "locator('tr').filter({ hasText: 'Sipho Dlamini' }).getByText('Disabled', { exact: true })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "tr"
+                    },
+                    {
+                      "hasText": "Sipho Dlamini",
+                      "m": "filter"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Disabled"
+                    }
+                  ],
+                  "rung": "L5"
+                }
+              ],
+              "name": "Disabled",
+              "role": "cell"
+            }
+          }
+        ],
+        "instruction": "Sipho Dlamini is listed as Disabled",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-11-03T17:37:20.426Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "6d3732c408d9eef7": {
+        "actions": [
+          {
+            "args": {
+              "fields": [
+                {
+                  "value": "{{data.username}}"
+                },
+                {
+                  "value": "{{secret.password}}"
+                }
+              ]
+            },
+            "intent": "Fill credentials",
+            "targets": [
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": "Log in",
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": null,
+                    "name": "username",
+                    "type": null
+                  },
+                  "box": {
+                    "h": 0.029166666666666667,
+                    "w": 0.13828125,
+                    "x": 0.083935546875,
+                    "y": 0.13671875
+                  },
+                  "label": "Username",
+                  "name": "Username",
+                  "placeholder": null,
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {},
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByRole('textbox', { name: 'Username', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Username",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Username', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Username"
+                      }
+                    ],
+                    "rung": "L3"
+                  },
+                  {
+                    "display": "locator('input[name=\"username\"]')",
+                    "expr": [
+                      {
+                        "m": "locator",
+                        "selector": "input[name=\"username\"]"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Username",
+                "role": "textbox"
+              },
+              {
+                "fingerprint": {
+                  "ancestors": [
+                    {
+                      "name": "Log in",
+                      "role": "form"
+                    }
+                  ],
+                  "attrs": {
+                    "id": null,
+                    "name": "password",
+                    "type": "password"
+                  },
+                  "box": {
+                    "h": 0.029166666666666667,
+                    "w": 0.13828125,
+                    "x": 0.080029296875,
+                    "y": 0.17977430555555557
+                  },
+                  "label": "Password",
+                  "name": "Password",
+                  "placeholder": null,
+                  "role": "textbox",
+                  "siblingIndex": 0,
+                  "tag": "input",
+                  "testIds": {},
+                  "text": ""
+                },
+                "locators": [
+                  {
+                    "display": "getByRole('textbox', { name: 'Password', exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByRole",
+                        "name": "Password",
+                        "role": "textbox"
+                      }
+                    ],
+                    "rung": "L2"
+                  },
+                  {
+                    "display": "getByLabel('Password', { exact: true })",
+                    "expr": [
+                      {
+                        "exact": true,
+                        "m": "getByLabel",
+                        "text": "Password"
+                      }
+                    ],
+                    "rung": "L3"
+                  },
+                  {
+                    "display": "locator('input[name=\"password\"]')",
+                    "expr": [
+                      {
+                        "m": "locator",
+                        "selector": "input[name=\"password\"]"
+                      }
+                    ],
+                    "rung": "L3"
+                  }
+                ],
+                "name": "Password",
+                "role": "textbox"
+              }
+            ],
+            "tool": "fill_form"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Submit login",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": "Log in",
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": "submit",
+                  "name": null,
+                  "type": "submit"
+                },
+                "box": {
+                  "h": 0.029166666666666667,
+                  "w": 0.25,
+                  "x": 0.025,
+                  "y": 0.22005208333333334
+                },
+                "label": null,
+                "name": "Log in",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {
+                  "data-testid": "login-submit"
+                },
+                "text": "Log in"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('login-submit')",
+                  "expr": [
+                    {
+                      "id": "login-submit",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('button', { name: 'Log in', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Log in",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[id=\"submit\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"submit\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "Log in",
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Log in as admin",
+        "kind": "act",
+        "post": {
+          "urlPattern": "http://localhost:5173/app"
+        },
+        "pre": {
+          "urlPattern": "http://localhost:5173/login"
+        },
+        "recordedWith": {
+          "at": "2026-11-03T17:35:14.784Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "fdcbcad33c70ec71": {
+        "instruction": "the button that adds a new user",
+        "kind": "locate",
+        "recordedWith": {
+          "at": "2026-11-03T17:36:02.637Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        },
+        "target": {
+          "fingerprint": {
+            "ancestors": [],
+            "attrs": {
+              "id": "add",
+              "name": null,
+              "type": null
+            },
+            "box": {
+              "h": 0.029166666666666667,
+              "w": 0.05418701171875,
+              "x": 0.0125,
+              "y": 0.12204861111111111
+            },
+            "label": null,
+            "name": "Add user",
+            "placeholder": null,
+            "role": "button",
+            "siblingIndex": 0,
+            "tag": "button",
+            "testIds": {
+              "data-testid": "add-user"
+            },
+            "text": "Add user"
+          },
+          "locators": [
+            {
+              "display": "getByTestId('add-user')",
+              "expr": [
+                {
+                  "id": "add-user",
+                  "m": "getByTestId"
+                }
+              ],
+              "rung": "L1"
+            },
+            {
+              "display": "getByRole('button', { name: 'Add user', exact: true })",
+              "expr": [
+                {
+                  "exact": true,
+                  "m": "getByRole",
+                  "name": "Add user",
+                  "role": "button"
+                }
+              ],
+              "rung": "L2"
+            },
+            {
+              "display": "locator('[id=\"add\"]')",
+              "expr": [
+                {
+                  "m": "locator",
+                  "selector": "[id=\"add\"]"
+                }
+              ],
+              "rung": "L4"
+            }
+          ],
+          "name": "Add user",
+          "role": "button"
+        }
+      }
+    },
     "showcase > an admin finds the users and reads the table": {
       "32c521b4788664b9": {
         "instruction": "every user in the table with their status",

@@ -169,6 +169,10 @@ Failure: no element matched for action #1 (button "Settings").
 Complete the step on the current page. The UI may have changed.
 ```
 
+> **Stale steps clean themselves up.** Editing an instruction gives the step a new key, which used to leave the old
+> entry in the plan file for good. After a test passes in a local run (cache `auto` or `refresh`, not CI, not nudge),
+> its entries for steps that didn't run are removed.
+
 > **As built:** when the replay broke part-way, the actions that already ran are listed for the model ("Already done by
 > the replay: fill textbox "Username", then fill textbox "Password".") and stay at the start of the healed plan, ahead of
 > what the model does next. (Before this, a heal after a partial replay stored only the model's actions, so "click

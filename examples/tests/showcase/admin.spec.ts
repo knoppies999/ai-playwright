@@ -54,6 +54,25 @@ test.describe('showcase', { tag: '@llm' }, () => {
     ]);
   });
 
+  test('a whole flow as an English script', async ({ ai }) => {
+    // One bullet per step. "Verify …" lines are assertions; "Read … as name" stores a value. Each line is its own
+    // cached step, so the script replays with no AI like any other test.
+    const { values } = await ai.run(
+      `
+      - Log in as admin
+      - Open the users page from the settings menu
+      - Verify that Sipho Dlamini is listed as Disabled
+      - Read the email address of Thandi Mokoena as thandiEmail
+      `,
+      { data: { username: 'admin' }, secrets: ['password'] },
+    );
+    expect(values.thandiEmail).toBe('thandi@example.com');
+
+    // ai.locate hands back an ordinary Playwright locator, durable on replay.
+    const addUser = await ai.locate('the button that adds a new user');
+    await expect(addUser).toBeEnabled();
+  });
+
   test('two identical Save buttons: the right one is pressed', async ({ page, ai }) => {
     await ai.act('Log in as admin', { data: { username: 'admin' }, secrets: ['password'] });
     // Both sections have a plain "Save" button; only the section tells them apart.
