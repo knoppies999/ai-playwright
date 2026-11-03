@@ -197,6 +197,26 @@ describe('assert compiles to deterministic checks', () => {
   });
 });
 
+describe('assert timeout', () => {
+  it('gives the page its timeout even when a judgement takes longer than that', async () => {
+    const page = await open('<main><h1>Loading…</h1></main>');
+    // The heading appears 300 ms in, while the first (slow) judgement is still running.
+    void page.evaluate(() => setTimeout(() => (document.querySelector('h1')!.textContent = 'Excavator'), 300));
+    const slow = (verdict: object) => () => new Promise((r) => setTimeout(() => r(verdict), 600));
+    const provider = new FakeProvider(
+      [],
+      [
+        slow({ pass: false, reason: 'still loading', evidence: [], checks: [] }),
+        slow({ pass: true, reason: 'shown', evidence: ['Excavator'], checks: [] }),
+      ],
+    );
+    await expect(
+      makeAi(page, provider, new MemoryPlanStore()).assert('The Excavator page is shown', { timeout: 400 }),
+    ).resolves.toMatchObject({ pass: true });
+    expect(provider.structuredRequests).toHaveLength(2);
+  });
+});
+
 describe('relational text checks', () => {
   const USERS = `<table><thead><tr><th>Name</th><th>Status</th></tr></thead><tbody>
     <tr><td>Thandi Mokoena</td><td>Active</td></tr>

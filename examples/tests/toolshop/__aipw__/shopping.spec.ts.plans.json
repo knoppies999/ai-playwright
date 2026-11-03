@@ -445,17 +445,29 @@
                 "label": null,
                 "name": "Slip Joint Pliers Compare Slip Joint Pliers CO₂: A B C D E $9.17",
                 "placeholder": null,
-                "role": "'link",
+                "role": "link",
                 "siblingIndex": 4,
                 "tag": "a",
                 "testIds": {
-                  "data-test": "product-01M6EPPWR3DX82W25Y9NT71W1D"
+                  "data-test": "product-01M6H5NGW6239C2MQRBB5QJ8XF"
                 },
                 "text": "Slip Joint Pliers A B C D E $9.17"
               },
-              "locators": [],
+              "locators": [
+                {
+                  "display": "getByRole('link', { name: 'Slip Joint Pliers Compare' })",
+                  "expr": [
+                    {
+                      "m": "getByRole",
+                      "name": "Slip Joint Pliers Compare",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
               "name": "Slip Joint Pliers Compare Slip Joint Pliers CO₂: A B C D E $9.17",
-              "role": "'link"
+              "role": "link"
             },
             "tool": "click"
           },
@@ -604,6 +616,15 @@
           },
           {
             "args": {
+              "ms": null,
+              "state": null,
+              "text": "Proceed to Checkout"
+            },
+            "intent": "Wait for cart content to render",
+            "tool": "wait_for"
+          },
+          {
+            "args": {
               "button": "left",
               "clickCount": 1,
               "modifiers": null
@@ -669,7 +690,7 @@
               "clickCount": 1,
               "modifiers": null
             },
-            "intent": "Choose Continue as Guest",
+            "intent": "Select Continue as Guest tab",
             "target": {
               "fingerprint": {
                 "ancestors": [
@@ -1043,14 +1064,48 @@
               "role": "button"
             },
             "tool": "click"
-          },
+          }
+        ],
+        "instruction": "Add \"Slip Joint Pliers\" to the cart, open the cart and proceed to checkout as a guest",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/checkout"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/"
+        },
+        "recordedWith": {
+          "at": "2026-11-03T17:15:34.812Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "3af84d057f5a2544": {
+        "compiled": null,
+        "instruction": "The address step is still shown: it is not possible to continue to payment",
+        "kind": "assert",
+        "note": "check 2 (toBeDisabled): ref null is not in the snapshot",
+        "recordedWith": {
+          "at": "2026-11-03T17:16:05.695Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "504c1bf5451572bd": {
+        "actions": [
           {
             "args": {
               "button": "left",
               "clickCount": 1,
               "modifiers": null
             },
-            "intent": "Proceed to checkout as guest",
+            "intent": "Proceed to billing address step",
             "target": {
               "fingerprint": {
                 "ancestors": [],
@@ -1104,41 +1159,7 @@
               "role": "button"
             },
             "tool": "click"
-          }
-        ],
-        "instruction": "Add \"Slip Joint Pliers\" to the cart, open the cart and proceed to checkout as a guest",
-        "kind": "act",
-        "post": {
-          "urlPattern": "https://practicesoftwaretesting.com/checkout"
-        },
-        "pre": {
-          "urlPattern": "https://practicesoftwaretesting.com/"
-        },
-        "recordedWith": {
-          "at": "2026-11-02T18:03:06.158Z",
-          "model": "claude-sonnet-5-5",
-          "provider": "claude-code"
-        },
-        "stats": {
-          "heals": 0
-        }
-      },
-      "3af84d057f5a2544": {
-        "compiled": null,
-        "instruction": "The address step is still shown: it is not possible to continue to payment",
-        "kind": "assert",
-        "note": "check 2 (toBeDisabled): ref null is not in the snapshot",
-        "recordedWith": {
-          "at": "2026-11-02T18:03:29.312Z",
-          "model": "claude-sonnet-5-5",
-          "provider": "claude-code"
-        },
-        "stats": {
-          "heals": 0
-        }
-      },
-      "504c1bf5451572bd": {
-        "actions": [
+          },
           {
             "args": {
               "value": ""
@@ -1213,83 +1234,6 @@
               "role": "textbox"
             },
             "tool": "fill"
-          },
-          {
-            "args": {
-              "button": "left",
-              "clickCount": 1,
-              "modifiers": null
-            },
-            "intent": "Focus street then blur to trigger validation",
-            "target": {
-              "fingerprint": {
-                "ancestors": [
-                  {
-                    "name": null,
-                    "role": "form"
-                  }
-                ],
-                "attrs": {
-                  "id": "street",
-                  "name": null,
-                  "type": "text"
-                },
-                "box": {
-                  "h": 0.05277777777777778,
-                  "w": 0.4171875,
-                  "x": 0.29140625,
-                  "y": 0.7576171875
-                },
-                "label": "Street",
-                "name": "Street",
-                "placeholder": "Your Street *",
-                "role": "textbox",
-                "siblingIndex": 0,
-                "tag": "input",
-                "testIds": {
-                  "data-test": "street"
-                },
-                "text": ""
-              },
-              "locators": [
-                {
-                  "display": "getByTestId('street')",
-                  "expr": [
-                    {
-                      "id": "street",
-                      "m": "getByTestId"
-                    }
-                  ],
-                  "rung": "L1"
-                },
-                {
-                  "display": "getByRole('textbox', { name: 'Street', exact: true })",
-                  "expr": [
-                    {
-                      "exact": true,
-                      "m": "getByRole",
-                      "name": "Street",
-                      "role": "textbox"
-                    }
-                  ],
-                  "rung": "L2"
-                },
-                {
-                  "display": "getByLabel('Street', { exact: true })",
-                  "expr": [
-                    {
-                      "exact": true,
-                      "m": "getByLabel",
-                      "text": "Street"
-                    }
-                  ],
-                  "rung": "L3"
-                }
-              ],
-              "name": "Street",
-              "role": "textbox"
-            },
-            "tool": "click"
           }
         ],
         "instruction": "On the billing address step, clear the street and try to proceed",
@@ -1301,7 +1245,7 @@
           "urlPattern": "https://practicesoftwaretesting.com/checkout"
         },
         "recordedWith": {
-          "at": "2026-11-02T18:03:23.397Z",
+          "at": "2026-11-03T17:15:59.720Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -1337,17 +1281,29 @@
                 "label": null,
                 "name": "Slip Joint Pliers Compare Slip Joint Pliers CO₂: A B C D E $9.17",
                 "placeholder": null,
-                "role": "'link",
+                "role": "link",
                 "siblingIndex": 4,
                 "tag": "a",
                 "testIds": {
-                  "data-test": "product-01M6EK948DPF5EN00G7ZP0MDPP"
+                  "data-test": "product-01M6H5NGW6239C2MQRBB5QJ8XF"
                 },
                 "text": "Slip Joint Pliers A B C D E $9.17"
               },
-              "locators": [],
+              "locators": [
+                {
+                  "display": "getByRole('link', { name: 'Slip Joint Pliers Compare' })",
+                  "expr": [
+                    {
+                      "m": "getByRole",
+                      "name": "Slip Joint Pliers Compare",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
               "name": "Slip Joint Pliers Compare Slip Joint Pliers CO₂: A B C D E $9.17",
-              "role": "'link"
+              "role": "link"
             },
             "tool": "click"
           },
@@ -1357,7 +1313,7 @@
               "clickCount": 1,
               "modifiers": null
             },
-            "intent": "Try add to cart button",
+            "intent": "Add Slip Joint Pliers to cart",
             "target": {
               "fingerprint": {
                 "ancestors": [],
@@ -1422,7 +1378,7 @@
           },
           {
             "args": {},
-            "intent": "Go back to shop listing",
+            "intent": "Return to shop listing",
             "tool": "go_back"
           },
           {
@@ -1449,17 +1405,29 @@
                 "label": null,
                 "name": "Bolt Cutters Compare Bolt Cutters CO₂: A B C D E $48.41",
                 "placeholder": null,
-                "role": "'link",
+                "role": "link",
                 "siblingIndex": 2,
                 "tag": "a",
                 "testIds": {
-                  "data-test": "product-01M6EK9482C32YFDK95K18GSQ4"
+                  "data-test": "product-01M6H5NGVWWDCCR9CF5Y7XKMX1"
                 },
                 "text": "Bolt Cutters A B C D E $48.41"
               },
-              "locators": [],
+              "locators": [
+                {
+                  "display": "getByRole('link', { name: 'Bolt Cutters Compare Bolt' })",
+                  "expr": [
+                    {
+                      "m": "getByRole",
+                      "name": "Bolt Cutters Compare Bolt",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
               "name": "Bolt Cutters Compare Bolt Cutters CO₂: A B C D E $48.41",
-              "role": "'link"
+              "role": "link"
             },
             "tool": "click"
           },
@@ -1469,7 +1437,7 @@
               "clickCount": 1,
               "modifiers": null
             },
-            "intent": "Try add to cart button",
+            "intent": "Add Bolt Cutters to cart",
             "target": {
               "fingerprint": {
                 "ancestors": [],
@@ -1542,7 +1510,7 @@
           "urlPattern": "https://practicesoftwaretesting.com/"
         },
         "recordedWith": {
-          "at": "2026-11-02T17:57:22.010Z",
+          "at": "2026-11-03T17:10:19.566Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -2065,17 +2033,29 @@
                 "label": null,
                 "name": "Slip Joint Pliers Compare Slip Joint Pliers CO₂: A B C D E $9.17",
                 "placeholder": null,
-                "role": "'link",
+                "role": "link",
                 "siblingIndex": 4,
                 "tag": "a",
                 "testIds": {
-                  "data-test": "product-01M6EK948DPF5EN00G7ZP0MDPP"
+                  "data-test": "product-01M6H5NGW6239C2MQRBB5QJ8XF"
                 },
                 "text": "Slip Joint Pliers A B C D E $9.17"
               },
-              "locators": [],
+              "locators": [
+                {
+                  "display": "getByRole('link', { name: 'Slip Joint Pliers Compare' })",
+                  "expr": [
+                    {
+                      "m": "getByRole",
+                      "name": "Slip Joint Pliers Compare",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
               "name": "Slip Joint Pliers Compare Slip Joint Pliers CO₂: A B C D E $9.17",
-              "role": "'link"
+              "role": "link"
             },
             "tool": "click"
           },
@@ -2085,7 +2065,7 @@
               "clickCount": 1,
               "modifiers": null
             },
-            "intent": "Try add to cart button",
+            "intent": "Add Slip Joint Pliers to cart",
             "target": {
               "fingerprint": {
                 "ancestors": [],
@@ -2258,7 +2238,7 @@
               "clickCount": 1,
               "modifiers": null
             },
-            "intent": "Open cart",
+            "intent": "Open the cart",
             "target": {
               "fingerprint": {
                 "ancestors": [
@@ -2325,15 +2305,6 @@
               "role": "link"
             },
             "tool": "click"
-          },
-          {
-            "args": {
-              "ms": null,
-              "state": null,
-              "text": "Bolt Cutters"
-            },
-            "intent": "Verify cart contents loaded",
-            "tool": "wait_for"
           }
         ],
         "instruction": "Add \"Slip Joint Pliers\" and \"Bolt Cutters\" to the cart, then open the cart",
@@ -2345,7 +2316,7 @@
           "urlPattern": "https://practicesoftwaretesting.com/"
         },
         "recordedWith": {
-          "at": "2026-11-02T17:58:52.921Z",
+          "at": "2026-11-03T17:11:42.070Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -2361,7 +2332,7 @@
               "clickCount": 1,
               "modifiers": null
             },
-            "intent": "Proceed to billing address step",
+            "intent": "Proceed to checkout",
             "target": {
               "fingerprint": {
                 "ancestors": [],
@@ -2872,7 +2843,7 @@
                 }
               ]
             },
-            "intent": "Refill address fields after autofill",
+            "intent": "Refill street, city, state after autofill",
             "targets": [
               {
                 "fingerprint": {
@@ -3152,7 +3123,7 @@
           "urlPattern": "https://practicesoftwaretesting.com/checkout"
         },
         "recordedWith": {
-          "at": "2026-11-02T18:00:44.933Z",
+          "at": "2026-11-03T17:13:22.466Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -3164,7 +3135,7 @@
         "instruction": "the cart total, as a number",
         "kind": "extract",
         "recordedWith": {
-          "at": "2026-11-02T17:58:57.612Z",
+          "at": "2026-11-03T17:11:47.114Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -3692,7 +3663,7 @@
           "urlPattern": "https://practicesoftwaretesting.com/checkout"
         },
         "recordedWith": {
-          "at": "2026-11-02T17:59:28.094Z",
+          "at": "2026-11-03T17:12:13.609Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },

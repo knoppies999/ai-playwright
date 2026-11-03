@@ -307,7 +307,7 @@
         "instruction": "Errors say which fields are required",
         "kind": "assert",
         "recordedWith": {
-          "at": "2026-11-02T17:47:22.808Z",
+          "at": "2026-11-03T17:00:34.482Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -694,7 +694,7 @@
               "clickCount": 1,
               "modifiers": null
             },
-            "intent": "Send the form",
+            "intent": "Send the contact form",
             "target": {
               "fingerprint": {
                 "ancestors": [
@@ -758,7 +758,7 @@
             "args": {
               "button": "left",
               "clickCount": 1,
-              "modifiers": null
+              "modifiers": []
             },
             "intent": "Retry sending the form",
             "target": {
@@ -830,7 +830,7 @@
           "urlPattern": "https://practicesoftwaretesting.com/contact"
         },
         "recordedWith": {
-          "at": "2026-11-02T17:48:08.530Z",
+          "at": "2026-11-03T17:01:23.366Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -888,7 +888,7 @@
         "instruction": "A message thanks me and says the message was sent",
         "kind": "assert",
         "recordedWith": {
-          "at": "2026-11-02T17:48:20.264Z",
+          "at": "2026-11-03T17:01:28.345Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -983,7 +983,7 @@
           "urlPattern": "https://practicesoftwaretesting.com/contact"
         },
         "recordedWith": {
-          "at": "2026-11-02T17:47:16.861Z",
+          "at": "2026-11-03T17:00:29.039Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -4241,6 +4241,314 @@
         "stats": {
           "heals": 1,
           "lastHealAt": "2026-11-02T18:05:48.908Z"
+        }
+      }
+    },
+    "Toolshop accounts > sign-in with a wrong password is refused": {
+      "1ae80d67b42e1128": {
+        "compiled": [
+          {
+            "args": [
+              "Invalid email or password"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.08055555555555556,
+                  "w": 0.383642578125,
+                  "x": 0.3081787109375,
+                  "y": 1.0494574652777777
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "generic",
+                "siblingIndex": 3,
+                "tag": "div",
+                "testIds": {
+                  "data-test": "login-error"
+                },
+                "text": "Invalid email or password"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('login-error')",
+                  "expr": [
+                    {
+                      "id": "login-error",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                }
+              ],
+              "role": "generic"
+            }
+          }
+        ],
+        "instruction": "An error says the email or password is invalid",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-11-03T17:19:02.269Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "f43c5ced4d72e827": {
+        "actions": [
+          {
+            "args": {
+              "value": "{{data.email}}"
+            },
+            "intent": "Enter email",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": "email",
+                  "name": null,
+                  "type": "email"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.30693359375,
+                  "x": 0.346533203125,
+                  "y": 0.6626519097222222
+                },
+                "label": "Email address *",
+                "name": "Email address *",
+                "placeholder": "Your email",
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {
+                  "data-test": "email"
+                },
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('email')",
+                  "expr": [
+                    {
+                      "id": "email",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('textbox', { name: 'Email address *', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Email address *",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Email address *', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Email address *"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Email address *",
+              "role": "textbox"
+            },
+            "tool": "fill"
+          },
+          {
+            "args": {
+              "value": "{{data.password}}"
+            },
+            "intent": "Enter password",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": "password",
+                  "name": null,
+                  "type": "password"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.27333984375,
+                  "x": 0.346533203125,
+                  "y": 0.7709852430555556
+                },
+                "label": "Password *",
+                "name": "Password *",
+                "placeholder": "Your password",
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {
+                  "data-test": "password"
+                },
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('password')",
+                  "expr": [
+                    {
+                      "id": "password",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('textbox', { name: 'Password *', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Password *",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Password *', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Password *"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Password *",
+              "role": "textbox"
+            },
+            "tool": "fill"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Submit login",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "submit"
+                },
+                "box": {
+                  "h": 0.04969618055555555,
+                  "w": 0.153466796875,
+                  "x": 0.346533203125,
+                  "y": 0.8459852430555556
+                },
+                "label": "Login",
+                "name": "Login",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {
+                  "data-test": "login-submit"
+                },
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('login-submit')",
+                  "expr": [
+                    {
+                      "id": "login-submit",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('button', { name: 'Login', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Login",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Login', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Login"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Login",
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Try to sign in with this email and password",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://practicesoftwaretesting.com/auth/login"
+        },
+        "pre": {
+          "urlPattern": "https://practicesoftwaretesting.com/auth/login"
+        },
+        "recordedWith": {
+          "at": "2026-11-03T17:18:57.431Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
         }
       }
     }

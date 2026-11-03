@@ -902,7 +902,9 @@ export class Ai {
   ): Promise<{ verdict: Verdict; compiled: CompiledCheck[] | null; note?: string }> {
     const session = await this.openSession();
     try {
-      const deadline = Date.now() + timeout;
+      // The timeout is the page's time to get there, not the model's: time spent waiting for a judgement moves
+      // the deadline, so a page still loading at the first look is looked at again (a judgement takes ~5 s).
+      let deadline = Date.now() + timeout;
       let lastHash: string | undefined;
       let verdict: Verdict | undefined;
       for (;;) {
@@ -911,12 +913,14 @@ export class Ai {
         if (obs.snapshotHash !== lastHash) {
           lastHash = obs.snapshotHash;
           const hints = options.hints?.length ? `HINTS\n${options.hints.map((h) => `- ${h}`).join('\n')}\n\n` : '';
+          const asked = Date.now();
           const { value, usage } = await structuredWithRepair(this.deps.provider, {
             system: SYSTEM_PROMPTS.assert,
             prompt: `${hints}ASSERTION: ${condition}\n\n${buildObservation(obs)}`,
             schemaName: 'verdict',
             schema: VerdictSchema,
           });
+          deadline += Date.now() - asked;
           this.addUsage(usage);
           verdict = value;
           this.events.emit({

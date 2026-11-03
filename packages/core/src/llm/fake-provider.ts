@@ -63,8 +63,9 @@ export class FakeProvider implements LlmProvider {
     this.structuredRequests.push(req as StructuredRequest);
     if (!this.structuredAnswers.length) throw new Error('FakeProvider: no scripted structured answer left');
     const next = this.structuredAnswers.shift();
+    // A function answer may be async (e.g. to play a slow model).
     const value =
-      typeof next === 'function' ? (next as (r: StructuredRequest) => unknown)(req as StructuredRequest) : next;
+      typeof next === 'function' ? await (next as (r: StructuredRequest) => unknown)(req as StructuredRequest) : next;
     return { value, stop: 'tool', usage: USAGE };
   }
 }
