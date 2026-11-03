@@ -144,6 +144,8 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     const specFile = relative(process.cwd(), testInfo.file);
     // Under `aipw nudge` (AIPW_NUDGE_PORT set), connect to the driver so the human can step through (docs/07).
     const nudge = await NudgeController.fromEnv({ file: specFile, title: testInfo.titlePath.slice(1).join(' > ') });
+    const planStore = new FilePlanStore(planFilePath(testInfo.file, config.cache.dir));
+    const testTitle = testInfo.titlePath.slice(1).join(' > ');
     const ai = new Ai({
       page,
       provider: aipwProvider,
@@ -152,8 +154,8 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       nudge,
       // docs/06 §2: committed plans next to the spec; healed plans under heal.policy report go to .aipw/healed/.
       cache: {
-        store: new FilePlanStore(planFilePath(testInfo.file, config.cache.dir)),
-        testTitle: testInfo.titlePath.slice(1).join(' > '),
+        store: planStore,
+        testTitle,
         healedStore: new FilePlanStore(join(process.cwd(), '.aipw', 'healed', `${specFile}.plans.json`)),
       },
       baseURL,
@@ -185,6 +187,19 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       await use(ai);
     } finally {
       nudge?.close();
+    }
+
+    // A passing local run: plan entries for steps this test no longer has (an edited instruction leaves its old
+    // entry behind) are removed. Not in CI, where plans are read-only, and not in nudge mode, which skips steps.
+    const cacheMode = process.env.AIPW_CACHE ?? config.cache.mode;
+    if (
+      testInfo.status === 'passed' &&
+      !process.env.CI &&
+      !nudge &&
+      (cacheMode === 'auto' || cacheMode === 'refresh')
+    ) {
+      const removed = await planStore.retain(testTitle, ai.usedStepKeys);
+      if (removed) testInfo.annotations.push({ type: 'aipw', description: `removed ${removed} stale plan step(s)` });
     }
 
     // Per-test step summary for the run summary reporter (docs/09 §2.2).

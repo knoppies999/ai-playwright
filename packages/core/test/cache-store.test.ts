@@ -88,3 +88,18 @@ describe('urlPattern', () => {
     expect(urlPattern('https://www.saucedemo.com/inventory.html')).toBe('https://www.saucedemo.com/inventory.html');
   });
 });
+
+describe('retain (stale steps)', () => {
+  it('removes the steps a test no longer runs, and the test when none are left', async () => {
+    const path = join(mkdtempSync(join(tmpdir(), 'aipw-retain-')), 'a.spec.ts.plans.json');
+    const store = new FilePlanStore(path);
+    await store.put('t > one', 'k1', plan('Save'));
+    await store.put('t > one', 'k2', plan('Verify that it saved'));
+    await store.put('t > two', 'k3', plan('Open'));
+    expect(await store.retain('t > one', new Set(['k1']))).toBe(1);
+    expect(Object.keys(readPlanFile(path).tests['t > one']!)).toEqual(['k1']);
+    expect(await store.retain('t > two', new Set())).toBe(1);
+    expect(readPlanFile(path).tests['t > two']).toBeUndefined();
+    expect(await store.retain('t > one', new Set(['k1']))).toBe(0);
+  });
+});

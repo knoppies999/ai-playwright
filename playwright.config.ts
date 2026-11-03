@@ -76,6 +76,8 @@ export default defineConfig(
         name: 'toolshop',
         testDir: 'examples/tests/toolshop',
         fullyParallel: false,
+        // A shared public site that is often slow: give code assertions more time.
+        expect: { timeout: 15_000 },
         use: {
           ...devices['Desktop Chrome'],
           baseURL: toolshop.baseURL,

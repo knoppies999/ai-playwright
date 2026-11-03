@@ -42,6 +42,8 @@ export interface PlanStore {
   get(test: string, key: string): StepPlan | undefined;
   /** Writes one step's plan, keeping up to 3 previous versions in history. */
   put(test: string, key: string, plan: StepPlan, options?: { healed?: boolean }): Promise<void>;
+  /** Removes this test's steps that aren't in `keys` (steps whose instruction was edited away). Returns how many. */
+  retain(test: string, keys: ReadonlySet<string>): Promise<number>;
 }
 
 export class FilePlanStore implements PlanStore {
@@ -69,12 +71,33 @@ export class FilePlanStore implements PlanStore {
         next.history = previous.history;
       }
       steps[key] = next;
-      const text = stableStringify(file);
-      const tmp = `${this.path}.${process.pid}.tmp`;
-      writeFileSync(tmp, text);
-      renameSync(tmp, this.path);
-      this.snapshot = file;
+      this.write(file);
     });
+  }
+
+  async retain(test: string, keys: ReadonlySet<string>): Promise<number> {
+    if (!existsSync(this.path)) return 0;
+    let removed = 0;
+    await withLock(this.path, () => {
+      const file = readPlanFile(this.path);
+      const steps = file.tests[test];
+      if (!steps) return;
+      for (const key of Object.keys(steps)) {
+        if (keys.has(key)) continue;
+        delete steps[key];
+        removed++;
+      }
+      if (!Object.keys(steps).length) delete file.tests[test];
+      if (removed) this.write(file);
+    });
+    return removed;
+  }
+
+  private write(file: PlanFile): void {
+    const tmp = `${this.path}.${process.pid}.tmp`;
+    writeFileSync(tmp, stableStringify(file));
+    renameSync(tmp, this.path);
+    this.snapshot = file;
   }
 }
 
@@ -96,5 +119,12 @@ export class MemoryPlanStore implements PlanStore {
       next.stats = { heals: previous.stats.heals + 1, lastHealAt: plan.recordedWith.at };
     }
     steps[key] = next;
+  }
+
+  async retain(test: string, keys: ReadonlySet<string>): Promise<number> {
+    const steps = this.file.tests[test] ?? {};
+    const stale = Object.keys(steps).filter((k) => !keys.has(k));
+    for (const k of stale) delete steps[k];
+    return stale.length;
   }
 }

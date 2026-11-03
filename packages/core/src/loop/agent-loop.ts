@@ -155,8 +155,8 @@ export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<S
     const stuck = noProgress(history, obs.snapshotHash);
     if (stuck) {
       return failLimit(
-        `no progress: ${stuck}. If the page is slow to react, raise settle.maxMs in aipw.config.ts or say what to ` +
-          'wait for in the instruction ("…and wait for the confirmation").',
+        `no progress: ${stuck}. Either what the instruction asks for isn't on the page, or the page is slow to ` +
+          'react (raise settle.maxMs in aipw.config.ts, or name what to wait for: "…and wait for the confirmation").',
       );
     }
 

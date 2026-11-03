@@ -5,10 +5,9 @@
         "actions": [
           {
             "args": {
-              "submit": true,
-              "text": "chainsaw sharpener deluxe 9000"
+              "value": "chainsaw sharpener deluxe 9000"
             },
-            "intent": "Search for product",
+            "intent": "Enter search term",
             "target": {
               "fingerprint": {
                 "ancestors": [
@@ -77,7 +76,73 @@
               "name": "Search",
               "role": "textbox"
             },
-            "tool": "type"
+            "tool": "fill"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Submit search",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "submit"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.05704345703125,
+                  "x": 0.21092529296875,
+                  "y": 0.9587239583333333
+                },
+                "label": null,
+                "name": "Search",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 1,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "search-submit"
+                },
+                "text": "Search"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('search-submit')",
+                  "expr": [
+                    {
+                      "id": "search-submit",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('button', { name: 'Search', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Search",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Search",
+              "role": "button"
+            },
+            "tool": "click"
           }
         ],
         "instruction": "Search for \"chainsaw sharpener deluxe 9000\"",
@@ -89,7 +154,7 @@
           "urlPattern": "https://practicesoftwaretesting.com/"
         },
         "recordedWith": {
-          "at": "2026-10-10T18:27:33.002Z",
+          "at": "2026-11-03T17:02:14.189Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -116,7 +181,7 @@
                   "h": 0.03333333333333333,
                   "w": 0.64921875,
                   "x": 0.28671875,
-                  "y": 0.14650607638888888
+                  "y": 0.6201171875
                 },
                 "label": null,
                 "name": null,
@@ -148,7 +213,7 @@
         "instruction": "The page says no products were found",
         "kind": "assert",
         "recordedWith": {
-          "at": "2026-10-10T18:27:37.084Z",
+          "at": "2026-11-03T17:02:20.009Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -182,7 +247,7 @@
                   "h": 0.05277777777777778,
                   "w": 0.027685546875,
                   "x": 0.18402099609375,
-                  "y": 0.4740017361111111
+                  "y": 0.9476128472222223
                 },
                 "label": null,
                 "name": "X",
@@ -234,7 +299,7 @@
           "urlPattern": "https://practicesoftwaretesting.com/"
         },
         "recordedWith": {
-          "at": "2026-10-10T18:27:50.966Z",
+          "at": "2026-11-03T17:02:42.551Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -259,41 +324,34 @@
                   "h": 0.5219618055555556,
                   "w": 0.20234375,
                   "x": 0.29609375,
-                  "y": 0.04429253472222222
+                  "y": 0.5179036458333334
                 },
                 "label": null,
-                "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E Out of stock $14.15",
+                "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
                 "placeholder": null,
-                "role": "'link",
+                "role": "link",
                 "siblingIndex": 0,
                 "tag": "a",
                 "testIds": {
-                  "data-test": "product-01M6EK947M8Y1DYSM2T19Q72W2"
+                  "data-test": "product-01M6H5NGVKQ44FTGT6HGX72BQP"
                 },
-                "text": "Combination Pliers A B C D E Out of stock $14.15"
+                "text": "Combination Pliers A B C D E $14.15"
               },
               "locators": [
                 {
-                  "display": "locator('[data-test=\"search_completed\"]').locator('a').first()",
+                  "display": "getByRole('link', { name: 'Combination Pliers Compare Combination' })",
                   "expr": [
                     {
-                      "m": "locator",
-                      "selector": "[data-test=\"search_completed\"]"
-                    },
-                    {
-                      "m": "locator",
-                      "selector": "a"
-                    },
-                    {
-                      "index": 0,
-                      "m": "nth"
+                      "m": "getByRole",
+                      "name": "Combination Pliers Compare Combination",
+                      "role": "link"
                     }
                   ],
-                  "rung": "L7"
+                  "rung": "L2"
                 }
               ],
-              "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E Out of stock $14.15",
-              "role": "'link"
+              "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+              "role": "link"
             }
           },
           {
@@ -311,41 +369,34 @@
                   "h": 0.5219618055555556,
                   "w": 0.20234375,
                   "x": 0.51015625,
-                  "y": 0.04429253472222222
+                  "y": 0.5179036458333334
                 },
                 "label": null,
                 "name": "Pliers Compare Pliers CO₂: A B C D E $12.01",
                 "placeholder": null,
-                "role": "'link",
+                "role": "link",
                 "siblingIndex": 1,
                 "tag": "a",
                 "testIds": {
-                  "data-test": "product-01M6EK947YRXZY9YD4TAK1D73W"
+                  "data-test": "product-01M6H5NGVS2SK32YTAVV565059"
                 },
                 "text": "Pliers A B C D E $12.01"
               },
               "locators": [
                 {
-                  "display": "locator('[data-test=\"search_completed\"]').locator('a').nth(1)",
+                  "display": "getByRole('link', { name: 'Pliers Compare Pliers CO₂:' })",
                   "expr": [
                     {
-                      "m": "locator",
-                      "selector": "[data-test=\"search_completed\"]"
-                    },
-                    {
-                      "m": "locator",
-                      "selector": "a"
-                    },
-                    {
-                      "index": 1,
-                      "m": "nth"
+                      "m": "getByRole",
+                      "name": "Pliers Compare Pliers CO₂:",
+                      "role": "link"
                     }
                   ],
-                  "rung": "L7"
+                  "rung": "L2"
                 }
               ],
               "name": "Pliers Compare Pliers CO₂: A B C D E $12.01",
-              "role": "'link"
+              "role": "link"
             }
           },
           {
@@ -363,41 +414,34 @@
                   "h": 0.5219618055555556,
                   "w": 0.20234375,
                   "x": 0.72421875,
-                  "y": 1.1632161458333334
+                  "y": 1.6368272569444444
                 },
                 "label": null,
                 "name": "Thor Hammer Compare Thor Hammer CO₂: A B C D E $11.14",
                 "placeholder": null,
-                "role": "'link",
+                "role": "link",
                 "siblingIndex": 8,
                 "tag": "a",
                 "testIds": {
-                  "data-test": "product-01M6EK949CJCA4EVVNHEHEDA5X"
+                  "data-test": "product-01M6H5NGWHFABXKG0RQBJCS37J"
                 },
                 "text": "Thor Hammer A B C D E $11.14"
               },
               "locators": [
                 {
-                  "display": "locator('[data-test=\"search_completed\"]').locator('a').nth(8)",
+                  "display": "getByRole('link', { name: 'Thor Hammer Compare Thor' })",
                   "expr": [
                     {
-                      "m": "locator",
-                      "selector": "[data-test=\"search_completed\"]"
-                    },
-                    {
-                      "m": "locator",
-                      "selector": "a"
-                    },
-                    {
-                      "index": 8,
-                      "m": "nth"
+                      "m": "getByRole",
+                      "name": "Thor Hammer Compare Thor",
+                      "role": "link"
                     }
                   ],
-                  "rung": "L7"
+                  "rung": "L2"
                 }
               ],
               "name": "Thor Hammer Compare Thor Hammer CO₂: A B C D E $11.14",
-              "role": "'link"
+              "role": "link"
             }
           }
         ],
@@ -464,13 +508,12 @@
         "instruction": "Products are listed again",
         "kind": "assert",
         "recordedWith": {
-          "at": "2026-11-02T17:48:45.147Z",
+          "at": "2026-11-03T17:02:52.688Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
         "stats": {
-          "heals": 1,
-          "lastHealAt": "2026-11-02T17:48:45.147Z"
+          "heals": 0
         }
       }
     },
@@ -506,7 +549,7 @@
                 "siblingIndex": 0,
                 "tag": "input",
                 "testIds": {
-                  "data-test": "category-01M6EK94644PKNREN3JMH7RMY8"
+                  "data-test": "category-01M6H5NGT2W6HBVKF6PNN1N4QF"
                 },
                 "text": ""
               },
@@ -540,66 +583,103 @@
             }
           },
           {
-            "args": [],
-            "expect": "toBeChecked",
-            "not": true,
+            "args": [
+              "1"
+            ],
+            "expect": "toHaveCount",
+            "target": {
+              "locators": [
+                {
+                  "display": "getByTestId('filter_completed').getByRole('heading', { name: 'Claw Hammer with Shock Reduction Grip', exact: true })",
+                  "expr": [
+                    {
+                      "id": "filter_completed",
+                      "m": "getByTestId"
+                    },
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Claw Hammer with Shock Reduction Grip",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L5"
+                }
+              ],
+              "role": "heading"
+            }
+          },
+          {
+            "args": [
+              "Hammer"
+            ],
+            "expect": "toContainText",
             "target": {
               "fingerprint": {
-                "ancestors": [
-                  {
-                    "name": null,
-                    "role": "list"
-                  }
-                ],
+                "ancestors": [],
                 "attrs": {
                   "id": null,
-                  "name": "category_id",
-                  "type": "checkbox"
+                  "name": null,
+                  "type": null
                 },
                 "box": {
-                  "h": 0.018055555555555554,
-                  "w": 0.01015625,
-                  "x": 0.0890625,
-                  "y": 0.5248263888888889
+                  "h": 0.06666666666666667,
+                  "w": 0.17578125,
+                  "x": 0.309375,
+                  "y": 0.16651475694444445
                 },
-                "label": "Hand Saw",
-                "name": "Hand Saw",
+                "label": null,
+                "name": "Claw Hammer with Shock Reduction Grip",
                 "placeholder": null,
-                "role": "checkbox",
+                "role": "heading",
                 "siblingIndex": 0,
-                "tag": "input",
+                "tag": "h5",
                 "testIds": {
-                  "data-test": "category-01M6EK94644PKNREN3JMH7RMY9"
+                  "data-test": "product-name"
                 },
-                "text": ""
+                "text": "Claw Hammer with Shock Reduction Grip"
               },
               "locators": [
                 {
-                  "display": "getByRole('checkbox', { name: 'Hand Saw', exact: true })",
+                  "display": "getByRole('heading', { name: 'Claw Hammer with Shock Reduction Grip', exact: true })",
                   "expr": [
                     {
                       "exact": true,
                       "m": "getByRole",
-                      "name": "Hand Saw",
-                      "role": "checkbox"
+                      "name": "Claw Hammer with Shock Reduction Grip",
+                      "role": "heading"
                     }
                   ],
                   "rung": "L2"
                 },
                 {
-                  "display": "getByLabel('Hand Saw', { exact: true })",
+                  "display": "locator('[data-test=\"product-name\"]').filter({ hasText: 'Claw Hammer with Shock Reduction Grip' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"product-name\"]"
+                    },
+                    {
+                      "hasText": "Claw Hammer with Shock Reduction Grip",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "getByText('Claw Hammer with Shock Reduction Grip', { exact: true })",
                   "expr": [
                     {
                       "exact": true,
-                      "m": "getByLabel",
-                      "text": "Hand Saw"
+                      "m": "getByText",
+                      "text": "Claw Hammer with Shock Reduction Grip"
                     }
                   ],
-                  "rung": "L3"
+                  "rung": "L6"
                 }
               ],
-              "name": "Hand Saw",
-              "role": "checkbox"
+              "name": "Claw Hammer with Shock Reduction Grip",
+              "role": "heading"
             }
           },
           {
@@ -652,7 +732,285 @@
           },
           {
             "args": [
-              "Court Hammer"
+              "Hammer"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.17578125,
+                  "x": 0.7375,
+                  "y": 0.16651475694444445
+                },
+                "label": null,
+                "name": "Claw Hammer",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Claw Hammer"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Claw Hammer', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Claw Hammer",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Claw Hammer', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Claw Hammer"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Claw Hammer",
+              "role": "heading"
+            }
+          },
+          {
+            "args": [
+              "Hammer"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.17578125,
+                  "x": 0.309375,
+                  "y": 0.7426432291666667
+                },
+                "label": null,
+                "name": "Thor Hammer",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Thor Hammer"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Thor Hammer', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Thor Hammer",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[data-test=\"product-name\"]').filter({ hasText: 'Thor Hammer' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"product-name\"]"
+                    },
+                    {
+                      "hasText": "Thor Hammer",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "getByText('Thor Hammer', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Thor Hammer"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Thor Hammer",
+              "role": "heading"
+            }
+          },
+          {
+            "args": [
+              "hammer"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.17578125,
+                  "x": 0.5234375,
+                  "y": 0.7426432291666667
+                },
+                "label": null,
+                "name": "Sledgehammer",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Sledgehammer"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Sledgehammer', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Sledgehammer",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[data-test=\"product-name\"]').filter({ hasText: 'Sledgehammer' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"product-name\"]"
+                    },
+                    {
+                      "hasText": "Sledgehammer",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "getByText('Sledgehammer', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Sledgehammer"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Sledgehammer",
+              "role": "heading"
+            }
+          },
+          {
+            "args": [
+              "Hammer"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.17578125,
+                  "x": 0.7375,
+                  "y": 0.7426432291666667
+                },
+                "label": null,
+                "name": "Claw Hammer with Fiberglass Handle",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Claw Hammer with Fiberglass Handle"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Claw Hammer with Fiberglass Handle', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Claw Hammer with Fiberglass Handle",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[data-test=\"product-name\"]').filter({ hasText: 'Claw Hammer with Fiberglass Handle' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"product-name\"]"
+                    },
+                    {
+                      "hasText": "Claw Hammer with Fiberglass Handle",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "getByText('Claw Hammer with Fiberglass Handle', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Claw Hammer with Fiberglass Handle"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Claw Hammer with Fiberglass Handle",
+              "role": "heading"
+            }
+          },
+          {
+            "args": [
+              "Hammer"
             ],
             "expect": "toContainText",
             "target": {
@@ -727,7 +1085,7 @@
         "instruction": "Only hammers are listed",
         "kind": "assert",
         "recordedWith": {
-          "at": "2026-11-02T17:49:10.340Z",
+          "at": "2026-11-03T17:04:06.852Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -758,7 +1116,7 @@
                 "box": {
                   "h": 0.018055555555555554,
                   "w": 0.01015625,
-                  "x": 0.083203125,
+                  "x": 0.0890625,
                   "y": 1.4581597222222222
                 },
                 "label": "Hammer",
@@ -768,21 +1126,11 @@
                 "siblingIndex": 0,
                 "tag": "input",
                 "testIds": {
-                  "data-test": "category-01M4KFJHGYSDS2H4ZRACN47VH2"
+                  "data-test": "category-01M6H5NGT2W6HBVKF6PNN1N4QF"
                 },
                 "text": ""
               },
               "locators": [
-                {
-                  "display": "getByTestId('category-01M4KFJHGYSDS2H4ZRACN47VH2')",
-                  "expr": [
-                    {
-                      "id": "category-01M4KFJHGYSDS2H4ZRACN47VH2",
-                      "m": "getByTestId"
-                    }
-                  ],
-                  "rung": "L1"
-                },
                 {
                   "display": "getByRole('checkbox', { name: 'Hammer', exact: true })",
                   "expr": [
@@ -822,7 +1170,7 @@
           "urlPattern": "https://practicesoftwaretesting.com/"
         },
         "recordedWith": {
-          "at": "2026-10-10T18:29:35.195Z",
+          "at": "2026-11-03T17:03:58.278Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -865,7 +1213,7 @@
                 "box": {
                   "h": 0.05277777777777778,
                   "w": 0.02705078125,
-                  "x": 0.3329833984375,
+                  "x": 0.3388427734375,
                   "y": 2.4393446180555554
                 },
                 "label": "Page-2",
@@ -906,7 +1254,7 @@
           "urlPattern": "https://practicesoftwaretesting.com/"
         },
         "recordedWith": {
-          "at": "2026-10-10T18:30:13.068Z",
+          "at": "2026-11-03T17:04:54.667Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -917,8 +1265,10 @@
       "f37827965769cb81": {
         "compiled": [
           {
-            "args": [],
-            "expect": "toBeVisible",
+            "args": [
+              "2"
+            ],
+            "expect": "toContainText",
             "target": {
               "fingerprint": {
                 "ancestors": [
@@ -943,7 +1293,7 @@
                 "box": {
                   "h": 0.05277777777777778,
                   "w": 0.02705078125,
-                  "x": 0.3329833984375,
+                  "x": 0.3388427734375,
                   "y": 0.6671223958333333
                 },
                 "label": "Page-2",
@@ -977,7 +1327,7 @@
         "instruction": "Page 2 of the results is shown",
         "kind": "assert",
         "recordedWith": {
-          "at": "2026-10-10T18:30:17.583Z",
+          "at": "2026-11-03T17:05:03.368Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -1011,19 +1361,31 @@
                   "y": 0.7762369791666667
                 },
                 "label": null,
-                "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E Out of stock $14.15",
+                "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
                 "placeholder": null,
-                "role": "'link",
+                "role": "link",
                 "siblingIndex": 0,
                 "tag": "a",
                 "testIds": {
-                  "data-test": "product-01M6EK947M8Y1DYSM2T19Q72W2"
+                  "data-test": "product-01M6H5NGVKQ44FTGT6HGX72BQP"
                 },
-                "text": "Combination Pliers A B C D E Out of stock $14.15"
+                "text": "Combination Pliers A B C D E $14.15"
               },
-              "locators": [],
-              "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E Out of stock $14.15",
-              "role": "'link"
+              "locators": [
+                {
+                  "display": "getByRole('link', { name: 'Combination Pliers Compare Combination' })",
+                  "expr": [
+                    {
+                      "m": "getByRole",
+                      "name": "Combination Pliers Compare Combination",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+              "role": "link"
             },
             "tool": "click"
           }
@@ -1108,20 +1470,20 @@
           "urlPattern": "https://practicesoftwaretesting.com/"
         },
         "recordedWith": {
-          "at": "2026-11-02T17:49:46.230Z",
+          "at": "2026-11-03T17:05:21.036Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
         "stats": {
-          "heals": 1,
-          "lastHealAt": "2026-11-02T17:49:46.230Z"
+          "heals": 0
         }
       },
       "a64a75ed5e858d5b": {
         "instruction": "the product name, its price, and its material and weight from the specifications",
         "kind": "extract",
+        "note": "no durable locator for the source of \"price\" (e415)",
         "recordedWith": {
-          "at": "2026-10-10T18:30:32.788Z",
+          "at": "2026-11-03T17:05:26.498Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -1150,7 +1512,66 @@
                 "box": {
                   "h": 0.06666666666666667,
                   "w": 0.4265625,
-                  "x": 0.503515625,
+                  "x": 0.509375,
+                  "y": 0.2623480902777778
+                },
+                "label": null,
+                "name": "Pliers",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h1",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Pliers"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('product-name')",
+                  "expr": [
+                    {
+                      "id": "product-name",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('heading', { name: 'Pliers', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Pliers",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Pliers",
+              "role": "heading"
+            }
+          },
+          {
+            "args": [
+              "Combination Pliers"
+            ],
+            "expect": "toHaveText",
+            "not": true,
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.4265625,
+                  "x": 0.509375,
                   "y": 0.2623480902777778
                 },
                 "label": null,
@@ -1196,7 +1617,7 @@
         "instruction": "A different pliers product page is shown, not Combination Pliers",
         "kind": "assert",
         "recordedWith": {
-          "at": "2026-10-10T18:30:53.665Z",
+          "at": "2026-11-03T17:06:03.571Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -1228,19 +1649,31 @@
                   "y": 0.7762369791666667
                 },
                 "label": null,
-                "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E Out of stock $14.15",
+                "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
                 "placeholder": null,
-                "role": "'link",
+                "role": "link",
                 "siblingIndex": 0,
                 "tag": "a",
                 "testIds": {
-                  "data-test": "product-01M6EK947M8Y1DYSM2T19Q72W2"
+                  "data-test": "product-01M6H5NGVKQ44FTGT6HGX72BQP"
                 },
-                "text": "Combination Pliers A B C D E Out of stock $14.15"
+                "text": "Combination Pliers A B C D E $14.15"
               },
-              "locators": [],
-              "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E Out of stock $14.15",
-              "role": "'link"
+              "locators": [
+                {
+                  "display": "getByRole('link', { name: 'Combination Pliers Compare Combination' })",
+                  "expr": [
+                    {
+                      "m": "getByRole",
+                      "name": "Combination Pliers Compare Combination",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Combination Pliers Compare Combination Pliers CO₂: A B C D E $14.15",
+              "role": "link"
             },
             "tool": "click"
           },
@@ -1250,7 +1683,7 @@
               "clickCount": 1,
               "modifiers": null
             },
-            "intent": "Open first related product",
+            "intent": "Open first related product (Pliers)",
             "target": {
               "fingerprint": {
                 "ancestors": [],
@@ -1263,7 +1696,7 @@
                   "h": 0.4583333333333333,
                   "w": 0.16124267578125,
                   "x": 0.0734375,
-                  "y": 1.5817708333333333
+                  "y": 1.5039930555555556
                 },
                 "label": null,
                 "name": null,
@@ -1395,13 +1828,12 @@
           "urlPattern": "https://practicesoftwaretesting.com/"
         },
         "recordedWith": {
-          "at": "2026-11-02T17:50:16.840Z",
+          "at": "2026-11-03T17:05:54.974Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
         "stats": {
-          "heals": 1,
-          "lastHealAt": "2026-11-02T17:50:16.840Z"
+          "heals": 0
         }
       }
     },
@@ -1439,7 +1871,7 @@
                 "box": {
                   "h": 0.05555555555555555,
                   "w": 0.084130859375,
-                  "x": 0.69610595703125,
+                  "x": 0.70196533203125,
                   "y": 0.1558159722222222
                 },
                 "label": null,
@@ -1532,7 +1964,7 @@
                 "box": {
                   "h": 0.044444444444444446,
                   "w": 0.1234375,
-                  "x": 0.69688720703125,
+                  "x": 0.70274658203125,
                   "y": 0.42803819444444446
                 },
                 "label": null,
@@ -1592,7 +2024,7 @@
               "clickCount": 1,
               "modifiers": null
             },
-            "intent": "Open the excavator",
+            "intent": "Open the Excavator rental",
             "target": {
               "fingerprint": {
                 "ancestors": [],
@@ -1602,36 +2034,47 @@
                   "type": null
                 },
                 "box": {
-                  "h": 0.2713541666666667,
-                  "w": 0.203515625,
-                  "x": 0.058984375,
-                  "y": 0.31929253472222224
+                  "h": 0.03333333333333333,
+                  "w": 0.623046875,
+                  "x": 0.299609375,
+                  "y": 0.34151475694444444
                 },
                 "label": null,
                 "name": "Excavator",
                 "placeholder": null,
-                "role": "img",
+                "role": "heading",
                 "siblingIndex": 0,
-                "tag": "img",
+                "tag": "h5",
                 "testIds": {},
-                "text": ""
+                "text": "Excavator"
               },
               "locators": [
                 {
-                  "display": "getByRole('img', { name: 'Excavator', exact: true })",
+                  "display": "getByRole('heading', { name: 'Excavator', exact: true })",
                   "expr": [
                     {
                       "exact": true,
                       "m": "getByRole",
                       "name": "Excavator",
-                      "role": "img"
+                      "role": "heading"
                     }
                   ],
                   "rung": "L2"
+                },
+                {
+                  "display": "getByText('Excavator', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Excavator"
+                    }
+                  ],
+                  "rung": "L6"
                 }
               ],
               "name": "Excavator",
-              "role": "img"
+              "role": "heading"
             },
             "tool": "click"
           }
@@ -1894,13 +2337,12 @@
           "urlPattern": "https://practicesoftwaretesting.com/"
         },
         "recordedWith": {
-          "at": "2026-11-02T17:50:30.920Z",
+          "at": "2026-11-03T17:07:25.931Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
         "stats": {
-          "heals": 1,
-          "lastHealAt": "2026-11-02T17:50:30.920Z"
+          "heals": 0
         }
       },
       "961caf9905901e30": {
@@ -2076,7 +2518,7 @@
           "urlPattern": "https://practicesoftwaretesting.com/"
         },
         "recordedWith": {
-          "at": "2026-10-10T18:24:08.613Z",
+          "at": "2026-11-03T17:01:47.573Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -2088,9 +2530,138 @@
         "compiled": [
           {
             "args": [
-              "1"
+              "4 products found"
             ],
-            "expect": "toHaveCount",
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.64921875,
+                  "x": 0.28671875,
+                  "y": 0.10206163194444444
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "paragraph",
+                "siblingIndex": 0,
+                "tag": "p",
+                "testIds": {
+                  "data-test": "search-result-count",
+                  "data-testid": "search-result-count"
+                },
+                "text": "4 products found for 'pliers'"
+              },
+              "locators": [
+                {
+                  "display": "locator('[data-testid=\"search-result-count\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-testid=\"search-result-count\"]"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByTestId('search-result-count')",
+                  "expr": [
+                    {
+                      "id": "search-result-count",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                }
+              ],
+              "role": "paragraph"
+            }
+          },
+          {
+            "args": [
+              "Pliers"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.17578125,
+                  "x": 0.309375,
+                  "y": 0.5034505208333333
+                },
+                "label": null,
+                "name": "Combination Pliers",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Combination Pliers"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Combination Pliers', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Combination Pliers",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[data-test=\"product-name\"]').filter({ hasText: 'Combination Pliers' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"product-name\"]"
+                    },
+                    {
+                      "hasText": "Combination Pliers",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "getByText('Combination Pliers', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Combination Pliers"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Combination Pliers",
+              "role": "heading"
+            }
+          },
+          {
+            "args": [
+              "Pliers"
+            ],
+            "expect": "toContainText",
             "target": {
               "fingerprint": {
                 "ancestors": [],
@@ -2133,12 +2704,158 @@
               "name": "Pliers",
               "role": "heading"
             }
+          },
+          {
+            "args": [
+              "Pliers"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.17578125,
+                  "x": 0.7375,
+                  "y": 0.5034505208333333
+                },
+                "label": null,
+                "name": "Long Nose Pliers",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Long Nose Pliers"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Long Nose Pliers', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Long Nose Pliers",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[data-test=\"product-name\"]').filter({ hasText: 'Long Nose Pliers' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"product-name\"]"
+                    },
+                    {
+                      "hasText": "Long Nose Pliers",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "getByText('Long Nose Pliers', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Long Nose Pliers"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Long Nose Pliers",
+              "role": "heading"
+            }
+          },
+          {
+            "args": [
+              "Pliers"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03333333333333333,
+                  "w": 0.17578125,
+                  "x": 0.309375,
+                  "y": 1.0462456597222223
+                },
+                "label": null,
+                "name": "Slip Joint Pliers",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h5",
+                "testIds": {
+                  "data-test": "product-name"
+                },
+                "text": "Slip Joint Pliers"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Slip Joint Pliers', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Slip Joint Pliers",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "locator('[data-test=\"product-name\"]').filter({ hasText: 'Slip Joint Pliers' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"product-name\"]"
+                    },
+                    {
+                      "hasText": "Slip Joint Pliers",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
+                },
+                {
+                  "display": "getByText('Slip Joint Pliers', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Slip Joint Pliers"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Slip Joint Pliers",
+              "role": "heading"
+            }
           }
         ],
         "instruction": "Every product listed has \"Pliers\" in its name",
         "kind": "assert",
         "recordedWith": {
-          "at": "2026-10-10T18:24:13.932Z",
+          "at": "2026-11-03T17:01:54.530Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -2173,7 +2890,7 @@
                 "box": {
                   "h": 0.05277777777777778,
                   "w": 0.20390625,
-                  "x": 0.058203125,
+                  "x": 0.0640625,
                   "y": 0.8620659722222223
                 },
                 "label": "sort",
@@ -2237,7 +2954,7 @@
           "urlPattern": "https://practicesoftwaretesting.com/"
         },
         "recordedWith": {
-          "at": "2026-10-10T18:29:19.021Z",
+          "at": "2026-11-03T17:03:33.500Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -2249,7 +2966,7 @@
         "instruction": "the name of every product shown, in order",
         "kind": "extract",
         "recordedWith": {
-          "at": "2026-10-10T18:29:24.230Z",
+          "at": "2026-11-03T17:03:40.260Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -2267,7 +2984,7 @@
                 "box": {
                   "h": 0.03333333333333333,
                   "w": 0.17578125,
-                  "x": 0.303515625,
+                  "x": 0.309375,
                   "y": 1.133181423611111
                 },
                 "label": null,
@@ -2293,6 +3010,20 @@
                     }
                   ],
                   "rung": "L2"
+                },
+                {
+                  "display": "locator('[data-test=\"product-name\"]').filter({ hasText: 'Wood Saw' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"product-name\"]"
+                    },
+                    {
+                      "hasText": "Wood Saw",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
                 },
                 {
                   "display": "getByText('Wood Saw', { exact: true })",
@@ -2323,7 +3054,7 @@
                 "box": {
                   "h": 0.03333333333333333,
                   "w": 0.17578125,
-                  "x": 0.517578125,
+                  "x": 0.5234375,
                   "y": 1.133181423611111
                 },
                 "label": null,
@@ -2349,6 +3080,20 @@
                     }
                   ],
                   "rung": "L2"
+                },
+                {
+                  "display": "locator('[data-test=\"product-name\"]').filter({ hasText: 'Wood Carving Chisels' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"product-name\"]"
+                    },
+                    {
+                      "hasText": "Wood Carving Chisels",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
                 },
                 {
                   "display": "getByText('Wood Carving Chisels', { exact: true })",
@@ -2379,7 +3124,7 @@
                 "box": {
                   "h": 0.03333333333333333,
                   "w": 0.17578125,
-                  "x": 0.731640625,
+                  "x": 0.7375,
                   "y": 1.133181423611111
                 },
                 "label": null,
@@ -2405,6 +3150,20 @@
                     }
                   ],
                   "rung": "L2"
+                },
+                {
+                  "display": "locator('[data-test=\"product-name\"]').filter({ hasText: 'Washers' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"product-name\"]"
+                    },
+                    {
+                      "hasText": "Washers",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
                 },
                 {
                   "display": "getByText('Washers', { exact: true })",
@@ -2435,7 +3194,7 @@
                 "box": {
                   "h": 0.03333333333333333,
                   "w": 0.17578125,
-                  "x": 0.303515625,
+                  "x": 0.309375,
                   "y": 1.6759765625
                 },
                 "label": null,
@@ -2461,6 +3220,20 @@
                     }
                   ],
                   "rung": "L2"
+                },
+                {
+                  "display": "locator('[data-test=\"product-name\"]').filter({ hasText: 'Tool Cabinet' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"product-name\"]"
+                    },
+                    {
+                      "hasText": "Tool Cabinet",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
                 },
                 {
                   "display": "getByText('Tool Cabinet', { exact: true })",
@@ -2491,7 +3264,7 @@
                 "box": {
                   "h": 0.03333333333333333,
                   "w": 0.17578125,
-                  "x": 0.517578125,
+                  "x": 0.5234375,
                   "y": 1.6759765625
                 },
                 "label": null,
@@ -2517,6 +3290,20 @@
                     }
                   ],
                   "rung": "L2"
+                },
+                {
+                  "display": "locator('[data-test=\"product-name\"]').filter({ hasText: 'Thor Hammer' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"product-name\"]"
+                    },
+                    {
+                      "hasText": "Thor Hammer",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
                 },
                 {
                   "display": "getByText('Thor Hammer', { exact: true })",
@@ -2547,7 +3334,7 @@
                 "box": {
                   "h": 0.03333333333333333,
                   "w": 0.17578125,
-                  "x": 0.731640625,
+                  "x": 0.7375,
                   "y": 1.6759765625
                 },
                 "label": null,
@@ -2573,6 +3360,20 @@
                     }
                   ],
                   "rung": "L2"
+                },
+                {
+                  "display": "locator('[data-test=\"product-name\"]').filter({ hasText: 'Tape Measure 7.5m' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"product-name\"]"
+                    },
+                    {
+                      "hasText": "Tape Measure 7.5m",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
                 }
               ],
               "name": "Tape Measure 7.5m",
@@ -2592,7 +3393,7 @@
                 "box": {
                   "h": 0.03333333333333333,
                   "w": 0.17578125,
-                  "x": 0.303515625,
+                  "x": 0.309375,
                   "y": 2.218771701388889
                 },
                 "label": null,
@@ -2618,6 +3419,20 @@
                     }
                   ],
                   "rung": "L2"
+                },
+                {
+                  "display": "locator('[data-test=\"product-name\"]').filter({ hasText: 'Tape Measure 5m' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"product-name\"]"
+                    },
+                    {
+                      "hasText": "Tape Measure 5m",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
                 }
               ],
               "name": "Tape Measure 5m",
@@ -2637,7 +3452,7 @@
                 "box": {
                   "h": 0.06666666666666667,
                   "w": 0.17578125,
-                  "x": 0.517578125,
+                  "x": 0.5234375,
                   "y": 2.218771701388889
                 },
                 "label": null,
@@ -2663,6 +3478,20 @@
                     }
                   ],
                   "rung": "L2"
+                },
+                {
+                  "display": "locator('[data-test=\"product-name\"]').filter({ hasText: 'Swiss Woodcarving Chisels' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"product-name\"]"
+                    },
+                    {
+                      "hasText": "Swiss Woodcarving Chisels",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
                 },
                 {
                   "display": "getByText('Swiss Woodcarving Chisels', { exact: true })",
@@ -2693,7 +3522,7 @@
                 "box": {
                   "h": 0.06666666666666667,
                   "w": 0.17578125,
-                  "x": 0.731640625,
+                  "x": 0.7375,
                   "y": 2.218771701388889
                 },
                 "label": null,
@@ -2719,6 +3548,20 @@
                     }
                   ],
                   "rung": "L2"
+                },
+                {
+                  "display": "locator('[data-test=\"product-name\"]').filter({ hasText: 'Super-thin Protection Gloves' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[data-test=\"product-name\"]"
+                    },
+                    {
+                      "hasText": "Super-thin Protection Gloves",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
                 },
                 {
                   "display": "getByText('Super-thin Protection Gloves', { exact: true })",
@@ -2832,7 +3675,7 @@
           "urlPattern": "https://practicesoftwaretesting.com/"
         },
         "recordedWith": {
-          "at": "2026-10-10T18:28:07.551Z",
+          "at": "2026-11-03T17:03:10.715Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -2859,7 +3702,7 @@
         "instruction": "the price of every product shown, in order, as numbers",
         "kind": "extract",
         "recordedWith": {
-          "at": "2026-11-02T17:48:54.909Z",
+          "at": "2026-11-03T17:03:19.181Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -3328,7 +4171,7 @@
                 "box": {
                   "h": 0.03333333333333333,
                   "w": 0.0438720703125,
-                  "x": 0.8862060546875,
+                  "x": 0.8920654296875,
                   "y": 0.16692708333333334
                 },
                 "label": "Select language",
@@ -3408,7 +4251,7 @@
                 "box": {
                   "h": 0.044444444444444446,
                   "w": 0.1234375,
-                  "x": 0.8869873046875,
+                  "x": 0.8928466796875,
                   "y": 0.30442708333333335
                 },
                 "label": null,
@@ -3449,7 +4292,7 @@
           "urlPattern": "https://practicesoftwaretesting.com/"
         },
         "recordedWith": {
-          "at": "2026-10-10T18:31:28.265Z",
+          "at": "2026-11-03T17:06:50.930Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -3461,9 +4304,162 @@
         "compiled": [
           {
             "args": [
+              "Start"
+            ],
+            "expect": "toHaveText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "menuitem"
+                  },
+                  {
+                    "name": "Main menu",
+                    "role": "menubar"
+                  },
+                  {
+                    "name": null,
+                    "role": "navigation"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.0379150390625,
+                  "x": 0.64622802734375,
+                  "y": 0.1558159722222222
+                },
+                "label": null,
+                "name": "Start",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "nav-home"
+                },
+                "text": "Start"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('nav-home')",
+                  "expr": [
+                    {
+                      "id": "nav-home",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('link', { name: 'Start', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Start",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Start', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Start"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Start",
+              "role": "link"
+            }
+          },
+          {
+            "args": [
+              "Kategorien"
+            ],
+            "expect": "toHaveText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "menuitem"
+                  },
+                  {
+                    "name": "Main menu",
+                    "role": "menubar"
+                  },
+                  {
+                    "name": null,
+                    "role": "navigation"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "button"
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.08541259765625,
+                  "x": 0.68414306640625,
+                  "y": 0.1558159722222222
+                },
+                "label": null,
+                "name": "Kategorien",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {
+                  "data-test": "nav-categories"
+                },
+                "text": "Kategorien"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('nav-categories')",
+                  "expr": [
+                    {
+                      "id": "nav-categories",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('button', { name: 'Kategorien', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Kategorien",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Kategorien",
+              "role": "button"
+            }
+          },
+          {
+            "args": [
               "Kontakt"
             ],
-            "expect": "toContainText",
+            "expect": "toHaveText",
             "target": {
               "fingerprint": {
                 "ancestors": [
@@ -3488,7 +4484,7 @@
                 "box": {
                   "h": 0.05555555555555555,
                   "w": 0.05489501953125,
-                  "x": 0.7636962890625,
+                  "x": 0.7695556640625,
                   "y": 0.1558159722222222
                 },
                 "label": null,
@@ -3540,12 +4536,94 @@
               "name": "Kontakt",
               "role": "link"
             }
+          },
+          {
+            "args": [
+              "Einloggen"
+            ],
+            "expect": "toHaveText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "menuitem"
+                  },
+                  {
+                    "name": "Main menu",
+                    "role": "menubar"
+                  },
+                  {
+                    "name": null,
+                    "role": "navigation"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.06761474609375,
+                  "x": 0.82445068359375,
+                  "y": 0.1558159722222222
+                },
+                "label": null,
+                "name": "Einloggen",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {
+                  "data-test": "nav-sign-in"
+                },
+                "text": "Einloggen"
+              },
+              "locators": [
+                {
+                  "display": "getByTestId('nav-sign-in')",
+                  "expr": [
+                    {
+                      "id": "nav-sign-in",
+                      "m": "getByTestId"
+                    }
+                  ],
+                  "rung": "L1"
+                },
+                {
+                  "display": "getByRole('link', { name: 'Einloggen', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Einloggen",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Einloggen', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Einloggen"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Einloggen",
+              "role": "link"
+            }
           }
         ],
         "instruction": "The navigation menu is in German",
         "kind": "assert",
         "recordedWith": {
-          "at": "2026-10-10T18:31:14.406Z",
+          "at": "2026-11-03T17:06:29.367Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -3578,7 +4656,7 @@
                 "box": {
                   "h": 0.03333333333333333,
                   "w": 0.0444580078125,
-                  "x": 0.8856201171875,
+                  "x": 0.8914794921875,
                   "y": 0.16692708333333334
                 },
                 "label": "Select language",
@@ -3658,7 +4736,7 @@
                 "box": {
                   "h": 0.044444444444444446,
                   "w": 0.1234375,
-                  "x": 0.8864013671875,
+                  "x": 0.8922607421875,
                   "y": 0.21553819444444444
                 },
                 "label": null,
@@ -3682,6 +4760,20 @@
                     }
                   ],
                   "rung": "L2"
+                },
+                {
+                  "display": "locator('li').filter({ hasText: 'DE' })",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "li"
+                    },
+                    {
+                      "hasText": "DE",
+                      "m": "filter"
+                    }
+                  ],
+                  "rung": "L5"
                 }
               ],
               "name": "DE",
@@ -3699,7 +4791,7 @@
           "urlPattern": "https://practicesoftwaretesting.com/"
         },
         "recordedWith": {
-          "at": "2026-10-10T18:31:09.406Z",
+          "at": "2026-11-03T17:06:23.540Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -3733,7 +4825,7 @@
                 "label": null,
                 "name": "Category: Power Tools",
                 "placeholder": null,
-                "role": "'heading",
+                "role": "heading",
                 "siblingIndex": 0,
                 "tag": "h2",
                 "testIds": {
@@ -3753,6 +4845,18 @@
                   "rung": "L1"
                 },
                 {
+                  "display": "getByRole('heading', { name: 'Category: Power Tools', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Category: Power Tools",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
                   "display": "getByText('Category: Power Tools', { exact: true })",
                   "expr": [
                     {
@@ -3765,7 +4869,7 @@
                 }
               ],
               "name": "Category: Power Tools",
-              "role": "'heading"
+              "role": "heading"
             }
           },
           {
@@ -3963,13 +5067,12 @@
         "instruction": "The page lists power tools, such as drills or sanders",
         "kind": "assert",
         "recordedWith": {
-          "at": "2026-11-02T17:49:25.726Z",
+          "at": "2026-11-03T17:04:38.081Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
         "stats": {
-          "heals": 1,
-          "lastHealAt": "2026-11-02T17:49:25.726Z"
+          "heals": 0
         }
       },
       "ed0afb61f2bb6656": {
@@ -4005,7 +5108,7 @@
                 "box": {
                   "h": 0.05555555555555555,
                   "w": 0.084130859375,
-                  "x": 0.69610595703125,
+                  "x": 0.70196533203125,
                   "y": 0.1558159722222222
                 },
                 "label": null,
@@ -4073,7 +5176,7 @@
               "clickCount": 1,
               "modifiers": null
             },
-            "intent": "Open Power Tools category",
+            "intent": "Click Power Tools category",
             "target": {
               "fingerprint": {
                 "ancestors": [
@@ -4098,7 +5201,7 @@
                 "box": {
                   "h": 0.044444444444444446,
                   "w": 0.1234375,
-                  "x": 0.69688720703125,
+                  "x": 0.70274658203125,
                   "y": 0.27109375
                 },
                 "label": null,
@@ -4170,7 +5273,7 @@
           "urlPattern": "https://practicesoftwaretesting.com/"
         },
         "recordedWith": {
-          "at": "2026-10-10T18:29:56.976Z",
+          "at": "2026-11-03T17:04:31.636Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },

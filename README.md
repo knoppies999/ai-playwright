@@ -66,15 +66,16 @@ claude auth login        # once, for the default claude-code provider (runs on y
 npm run demo             # the whole story, narrated
 ```
 
-`npm run demo` runs one admin journey on the local demo app (a hover-only menu, two identical "Save" buttons, a
-server-validated form filled with generated SA ID / IBAN / phone values and a secret password) four times:
+`npm run demo` runs four admin tests on the local demo app (a hover-only menu, two identical "Save" buttons, a
+server-validated form filled with generated SA ID / IBAN / phone values and a secret password, and a whole flow written
+as an `ai.run` script) four times. A live run on Sonnet 5.5 (the table is also saved to `.aipw/demo.md`):
 
 | Phase | What happens | From cache | LLM calls | Time |
 |---|---|---|---|---|
-| Record | The model works out every English step; aipw stores durable locators | 0/10 | 21 | ~2 min |
-| Replay | Same UI: plain Playwright, no model | 10/10 | 0 | ~8 s |
-| Redesign | Test ids renamed (healed by fingerprint, free), menu moved and renamed (healed by the model once) | 8/10 | 3 | ~26 s |
-| Replay the redesign | The healed plan, no model | 10/10 | 0 | ~9 s |
+| Record | The model works out every English step; aipw stores durable locators | 0/15 | 30 | ~3 min |
+| Replay | Same UI: plain Playwright, no model | 15/15 | 0 | ~8 s |
+| Redesign | Test ids renamed (healed by fingerprint, free), menu moved and renamed (healed by the model) | 12/15, 3 healed | 6 | ~55 s |
+| Replay the redesign | The healed plan, no model | 15/15 | 0 | ~8 s |
 
 Add `--headed` to watch: `npm run demo -- --headed`. The spec is [examples/tests/showcase/admin.spec.ts](examples/tests/showcase/admin.spec.ts).
 
@@ -94,6 +95,17 @@ $ npx aipw cache show examples/tests/showcase/admin.spec.ts --grep "reads the ta
 
 Assertions compile to one deterministic check per clause and replay without the model. When one can't, the plan
 says why (`check: none (judged by AI on every run): …`), and `npx aipw cache stats` counts those steps per spec.
+
+`npx aipw cache code <spec>` prints the same plans as plain Playwright, to review what replays or to turn a flow
+that has settled into ordinary code:
+
+```ts
+// ai.act('Open the users page from the settings menu')
+await page.getByRole('button', { name: 'Settings', exact: true }).click();
+await page.getByRole('link', { name: 'Users', exact: true }).click();
+// ai.assert('A message says the notifications were saved')
+await expect(page.locator('[id="status"]')).toContainText('Notifications saved');
+```
 
 ### More example suites
 

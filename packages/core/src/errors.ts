@@ -18,6 +18,20 @@ function nudgeHint(callsite?: Callsite): string | undefined {
   return callsite ? `npx aipw nudge ${callsite.file}:${callsite.line}` : undefined;
 }
 
+/** The last line of an AI failure: how to step through it. Playwright prints only the message, so it goes there. */
+const howToDebug = (callsite?: Callsite) => {
+  const hint = nudgeHint(callsite);
+  return hint ? `\nStep through it: ${hint}` : '';
+};
+
+/** What the AI did before it gave up: the last few actions, for the failure message. */
+function whatItDid(trajectory: string[] | undefined): string {
+  if (!trajectory?.length) return '';
+  const shown = trajectory.slice(-8);
+  const skipped = trajectory.length - shown.length;
+  return `\nWhat the AI did:${skipped ? `\n  … ${skipped} earlier` : ''}\n${shown.map((l) => `  ${l}`).join('\n')}`;
+}
+
 export class AiError extends Error {
   readonly stepId?: string;
   readonly callsite?: Callsite;
@@ -41,7 +55,10 @@ export class AiStepError extends AiError {
     /** Trajectory and last observation, for reports. */
     readonly details: { trajectory?: string[]; snapshot?: string } = {},
   ) {
-    super(`AI step failed (${kind}): ${reason}`, context);
+    super(
+      `AI step failed (${kind}): ${reason}${whatItDid(details.trajectory)}${howToDebug(context.callsite)}`,
+      context,
+    );
   }
 }
 
@@ -52,7 +69,7 @@ export class AiAssertionError extends AiError {
     readonly evidence: string[],
     context: AiErrorContext = {},
   ) {
-    super(`AI assertion failed: ${condition}\nReason: ${reason}`, context);
+    super(`AI assertion failed: ${condition}\nReason: ${reason}${howToDebug(context.callsite)}`, context);
   }
 }
 
@@ -62,7 +79,7 @@ export class AiExtractError extends AiError {
     readonly issues: string,
     context: AiErrorContext = {},
   ) {
-    super(`AI extract failed: ${what}\n${issues}`, context);
+    super(`AI extract failed: ${what}\n${issues}${howToDebug(context.callsite)}`, context);
   }
 }
 

@@ -146,6 +146,10 @@ Replay runs the compiled check with Playwright's `expect` and the assert timeout
 > arrays/objects of them) with **no model call at all**, which keeps `replay-only` at zero calls.
 > Compiled text checks (`toContainText`, `toHaveText`) also require the element to be visible, because `ai.assert` is about
 > what the page shows.
+> **Sources are located without their value.** A status cell found by `getByRole('cell', { name: 'Active' })` breaks
+> the moment the status changes, which is exactly when you want to read it. Locators that contain the value read from
+> the element are skipped; a test id, a row anchor that isn't the value, or the position in the list or table
+> (`getByTestId('todo-title').nth(1)`, `locator('[id="rows"]').getByRole('cell').nth(2)`) is used instead.
 > Form controls are read by state, not text: a checkbox reads as `checked`/`unchecked` (so `z.boolean()` replays), an
 > input as its value. An extract without replayable sources is asked of the model on every run but its plan is not
 > rewritten each time (no churn in the committed file); its `note` says why it can't replay.
@@ -164,6 +168,10 @@ Recorded plan: hover button "Settings" → click menuitem "Users"
 Failure: no element matched for action #1 (button "Settings").
 Complete the step on the current page. The UI may have changed.
 ```
+
+> **Stale steps clean themselves up.** Editing an instruction gives the step a new key, which used to leave the old
+> entry in the plan file for good. After a test passes in a local run (cache `auto` or `refresh`, not CI, not nudge),
+> its entries for steps that didn't run are removed.
 
 > **As built:** when the replay broke part-way, the actions that already ran are listed for the model ("Already done by
 > the replay: fill textbox "Username", then fill textbox "Password".") and stay at the start of the healed plan, ahead of

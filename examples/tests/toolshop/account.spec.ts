@@ -47,7 +47,7 @@ test.describe('Toolshop accounts', { tag: '@llm' }, () => {
   test('sign-in with a wrong password is refused', async ({ page, ai, gen }) => {
     await page.goto('/auth/login');
     // Not a secret: a deliberately wrong value.
-    await ai.act('Sign in with this email and password', {
+    await ai.act('Try to sign in with this email and password', {
       data: { email: gen.email(), password: 'Not-The-Password-1!' },
     });
     await ai.assert('An error says the email or password is invalid');

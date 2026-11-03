@@ -7,7 +7,7 @@
 //
 // Phases 1–4 use a scratch copy of the plan folder, so the committed plan file is never changed.
 import { spawnSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -51,6 +51,10 @@ function table(results) {
   const line = (cells) => cells.map((c, i) => c.padEnd(widths[i])).join('  ');
   console.log(`\n${bold(line(head))}`);
   for (const r of rows) console.log(line(r));
+  // Kept as Markdown too, so the results survive a scrolled-away terminal.
+  const md = [head, head.map(() => '---'), ...rows].map((cells) => `| ${cells.join(' | ')} |`).join('\n');
+  mkdirSync(join(root, '.aipw'), { recursive: true });
+  writeFileSync(join(root, '.aipw', 'demo.md'), `# aipw demo, ${new Date().toISOString()}\n\n${md}\n`);
 }
 
 if (replayOnly) {

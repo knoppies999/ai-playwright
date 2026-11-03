@@ -145,8 +145,9 @@ export function runInit(args: string[], root = process.cwd()): number {
     console.error(res.error);
     return 1;
   }
-  for (const f of res.written) console.log(`  wrote    ${f}`);
-  for (const f of res.skipped) console.log(`  exists   ${f} (left alone; --force overwrites)`);
+  const slash = (p: string) => p.replace(/\\/g, '/');
+  for (const f of res.written) console.log(`  wrote    ${slash(f)}`);
+  for (const f of res.skipped) console.log(`  exists   ${slash(f)} (left alone; --force overwrites)`);
   for (const m of res.messages) console.log(`\n${m}`);
   const p = (provider ?? 'claude-code') as Provider;
   const spec = `${(dir ?? 'tests').replace(/\\/g, '/')}/aipw-example.spec.ts`;

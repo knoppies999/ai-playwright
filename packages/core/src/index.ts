@@ -78,6 +78,7 @@ export {
   PlanFileSchema,
   stableStringify,
   type CompiledCheck,
+  type PlanAction,
   type PlanFile,
   type PlanTarget,
   type StepPlan,

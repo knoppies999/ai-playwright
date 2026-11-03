@@ -46,6 +46,7 @@ import { withRetry } from '../llm/retry.js';
 import { addUsage, emptyUsage, type LlmProvider, type Usage } from '../llm/provider.js';
 import { buildLocator, type LocatorExpr } from '../locators/expr.js';
 import { fingerprintOf } from '../locators/fingerprint.js';
+import { isRejectedTestIdValue } from '../locators/test-ids.js';
 import { synthesizeLocators, type LocatorCandidate, type Rung } from '../locators/synth.js';
 import type { Observation } from '../observe/observer.js';
 import { findByRef } from '../observe/snapshot.js';
@@ -71,6 +72,8 @@ export interface AiDeps {
   idPrefix?: string;
   events?: EventBus;
   redactor?: Redactor;
+  /** Shared by ai.on(page) instances, so steps on any page count as used. */
+  usedStepKeys?: Set<string>;
   /** Values generated or extracted earlier in the test, shared across pages. */
   values?: Record<string, unknown>;
   /** Test-data generators, seeded per test (docs/08 §3). Shared with the gen fixture. */
@@ -203,6 +206,16 @@ function refIn(obs: Observation, ref: string | null | undefined): string | undef
   return named.length === 1 ? named[0] : undefined;
 }
 
+/** The text of a leaf of an extracted value at a JSON path ("0.name"), or undefined for booleans and missing paths. */
+function leafAt(value: unknown, path: string): string | undefined {
+  let cur: unknown = value;
+  for (const seg of path === '' ? [] : path.split('.')) {
+    if (cur === null || typeof cur !== 'object') return undefined;
+    cur = (cur as Record<string, unknown>)[seg];
+  }
+  return typeof cur === 'string' || typeof cur === 'number' ? String(cur) : undefined;
+}
+
 function leafText(el: Element): string {
   const input = el as HTMLInputElement;
   if (input.type === 'checkbox' || input.type === 'radio') return input.checked ? 'checked' : 'unchecked';
@@ -211,7 +224,8 @@ function leafText(el: Element): string {
   return (el as HTMLElement).innerText ?? el.textContent ?? '';
 }
 
-const ASSERT_VERBS = /^(verify|check|assert|expect|ensure)\b[:\s]*/i;
+/** "Verify that X" / "Check: X" → the condition X. */
+const ASSERT_VERBS = /^(verify|check|assert|expect|ensure)\b[:\s]*(that\s+)?/i;
 const EXTRACT_LINE = /^(?:extract|read|get)\s+(.+?)\s+as\s+([A-Za-z_]\w*)\s*$/i;
 const BULLET = /^(?:[-*•]|\d+[.)])\s+/;
 
@@ -221,6 +235,8 @@ export type StepAttach = (name: string, body: string | Buffer, contentType: stri
 export class Ai {
   readonly events: EventBus;
   readonly redactor: Redactor;
+  /** Plan keys of the steps this test ran: after a pass, other steps in its plan are stale (see PlanStore.retain). */
+  readonly usedStepKeys: Set<string>;
   readonly values: Record<string, unknown>;
   private ordinal = 0;
   private readonly stepOrdinals = new OrdinalCounter();
@@ -259,6 +275,7 @@ export class Ai {
     this.deps = { ...deps, provider: withBudget(withRetry(deps.provider, deps.config.retry), this.budget) };
     this._page = deps.page;
     this.redactor = deps.redactor ?? new Redactor();
+    this.usedStepKeys = deps.usedStepKeys ?? new Set();
     this.events = deps.events ?? new EventBus(this.redactor);
     this.values = deps.values ?? {};
     this.gen = deps.gen ?? createGenerators({ seed: deps.idPrefix ?? 'aipw' });
@@ -286,6 +303,7 @@ export class Ai {
       values: this.values,
       gen: this.gen,
       codeTools: this.codeTools,
+      usedStepKeys: this.usedStepKeys,
     });
   }
 
@@ -418,7 +436,7 @@ export class Ai {
 
   private stepKeyFor(kind: StepKind, instruction: string, options: StepOptions, peek = false): string {
     const testIdAttribute = this.deps.playwrightTestIdAttribute ?? 'data-testid';
-    return stepKey({
+    const key = stepKey({
       kind,
       instruction,
       dataKeys: Object.keys(options.data ?? {}),
@@ -430,6 +448,8 @@ export class Ai {
         : this.stepOrdinals.next(kind, instruction, options.key),
       pinned: options.key,
     });
+    if (!peek) this.usedStepKeys.add(key);
+    return key;
   }
 
   private synthOptions() {
@@ -619,7 +639,7 @@ export class Ai {
               (outcome.failure?.kind ?? 'unexpected_state') as StepFailureKind,
               outcome.failure?.reason ?? outcome.summary,
               { stepId: ctx.id, callsite: ctx.callsite },
-              { trajectory: trajectory(outcome), snapshot: outcome.lastSnapshot },
+              { trajectory: trajectory(outcome).map((l) => this.redactor.redact(l)), snapshot: outcome.lastSnapshot },
             );
           }
           if (cache && mode !== 'ai-only') {
@@ -672,11 +692,12 @@ export class Ai {
     obs: Observation,
     ref: string | null | undefined,
     assertedText?: string,
+    readsValue?: string,
   ): Promise<PlanTarget | undefined> {
     ref = refIn(obs, ref);
     if (!ref) return undefined;
     const node = findByRef(obs.tree, ref)?.node;
-    return this.targetForLocator(this._page.locator(`aria-ref=${ref}`), node, assertedText);
+    return this.targetForLocator(this._page.locator(`aria-ref=${ref}`), node, assertedText, readsValue);
   }
 
   /** Like targetFor, for any element (e.g. the DOM parent of an element the model named). */
@@ -684,12 +705,14 @@ export class Ai {
     loc: Locator,
     node?: { role: string; name?: string },
     assertedText?: string,
+    readsValue?: string,
   ): Promise<PlanTarget | undefined> {
     const candidates = await synthesizeLocators(this._page, loc, {
       ...this.synthOptions(),
       role: node?.role,
       name: node?.name,
       ...(assertedText && { assertedText }),
+      ...(readsValue !== undefined && { readsValue }),
     }).catch(() => []);
     if (!candidates.length) return undefined;
     const fingerprint = await fingerprintOf(loc, node?.role, node?.name);
@@ -854,6 +877,8 @@ export class Ai {
       .playwrightTestIdAttribute.split(',')
       .map((a) => a.trim().toLowerCase());
     for (const [attr, value] of Object.entries(fingerprint?.testIds ?? {})) {
+      // A record id ("product-01M4KF…") names one item, not the collection, and changes with the data.
+      if (isRejectedTestIdValue(value, this.config.testIds.rejectValues)) continue;
       candidates.push({
         rung: 'L1',
         expr: pwAttrs.includes(attr.toLowerCase())
@@ -878,8 +903,9 @@ export class Ai {
       }
       for (const kind of kinds) {
         for (const scope of scopes) candidates.push({ rung: 'L5', expr: [...scope, ...kind] });
-        candidates.push({ rung: 'L2', expr: kind });
       }
+      // Page-wide only with a name: "every button on the page" can match the count by coincidence.
+      if (node.name) candidates.push({ rung: 'L2', expr: kinds[0]! });
     }
     for (const c of candidates) {
       const loc = buildLocator(this._page, c.expr);
@@ -898,7 +924,9 @@ export class Ai {
   ): Promise<{ verdict: Verdict; compiled: CompiledCheck[] | null; note?: string }> {
     const session = await this.openSession();
     try {
-      const deadline = Date.now() + timeout;
+      // The timeout is the page's time to get there, not the model's: time spent waiting for a judgement moves
+      // the deadline, so a page still loading at the first look is looked at again (a judgement takes ~5 s).
+      let deadline = Date.now() + timeout;
       let lastHash: string | undefined;
       let verdict: Verdict | undefined;
       for (;;) {
@@ -907,12 +935,14 @@ export class Ai {
         if (obs.snapshotHash !== lastHash) {
           lastHash = obs.snapshotHash;
           const hints = options.hints?.length ? `HINTS\n${options.hints.map((h) => `- ${h}`).join('\n')}\n\n` : '';
+          const asked = Date.now();
           const { value, usage } = await structuredWithRepair(this.deps.provider, {
             system: SYSTEM_PROMPTS.assert,
             prompt: `${hints}ASSERTION: ${condition}\n\n${buildObservation(obs)}`,
             schemaName: 'verdict',
             schema: VerdictSchema,
           });
+          deadline += Date.now() - asked;
           this.addUsage(usage);
           verdict = value;
           this.events.emit({
@@ -1259,7 +1289,8 @@ export class Ai {
           const sources: NonNullable<StepPlan['sources']> = [];
           let note = value.sources.length ? undefined : 'the model gave no sources';
           for (const s of value.sources) {
-            const target = await this.targetFor(obs, s.ref);
+            // Located without its value, so the source still works when the value changes.
+            const target = await this.targetFor(obs, s.ref, undefined, leafAt(value.value, s.path));
             if (!target) {
               sources.length = 0;
               note = `no durable locator for the source of "${s.path}" (${s.ref})`;

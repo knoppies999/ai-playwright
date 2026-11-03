@@ -42,3 +42,10 @@ steps:
   - task: PublishPipelineArtifact@1
     condition: failed()
     inputs: { targetPath: playwright-report, artifact: playwright-report }
+
+  # Fingerprint heals still run in replay-only mode, and heal.policy report (the CI default) writes the healed plans
+  # to .aipw/healed/ instead of changing the committed ones: download them from here, review, and commit.
+  - task: PublishPipelineArtifact@1
+    displayName: Publish aipw summary and healed plans
+    condition: succeededOrFailed()
+    inputs: { targetPath: .aipw, artifact: aipw-pr-gate }

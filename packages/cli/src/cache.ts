@@ -1,7 +1,8 @@
 // `aipw cache stats|show|prune|refresh` (docs/06 §8).
 import { readPlanFile, stableStringify, type PlanFile, type PlanTarget, type StepPlan } from '@aipw/core';
 import { spawnSync } from 'node:child_process';
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { inSpecOrder, plansToCode } from './code.js';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, relative } from 'node:path';
 
 /** Every *.plans.json under a __aipw__ folder, skipping node_modules and dot folders. */
@@ -105,24 +106,13 @@ function describeStep(step: StepPlan): string[] {
   return lines;
 }
 
-/**
- * Plans are keyed by hash, so they have no order. Given the spec's source, steps are listed in the order their
- * instructions appear in it (instructions built with ${…} aren't found and come last).
- */
 export function showPlans(file: PlanFile, grep?: string, specSource?: string): string {
   const out: string[] = [];
-  // As a string literal, so "Save" isn't found inside "Saved".
-  const position = (step: StepPlan) => {
-    const found = ["'", '"', '`']
-      .map((q) => specSource?.indexOf(`${q}${step.instruction}${q}`) ?? -1)
-      .filter((at) => at >= 0);
-    return found.length ? Math.min(...found) : Number.MAX_SAFE_INTEGER;
-  };
   for (const [title, steps] of Object.entries(file.tests).sort(([a], [b]) => a.localeCompare(b))) {
     if (grep && !title.includes(grep)) continue;
     out.push(title);
-    const ordered = Object.values(steps).sort((a, b) => position(a) - position(b));
-    for (const step of ordered) out.push(...describeStep(step).map((l) => `  ${l}`));
+    for (const step of inSpecOrder(Object.values(steps), specSource))
+      out.push(...describeStep(step).map((l) => `  ${l}`));
   }
   return out.join('\n');
 }
@@ -134,9 +124,51 @@ export function prunePlans(file: PlanFile, live: Set<string>): { file: PlanFile;
   return { file: { ...file, tests }, removed };
 }
 
+/**
+ * `aipw cache accept`: merges healed plans written aside (heal.policy report, the CI default: .aipw/healed/<spec>
+ * .plans.json, e.g. downloaded from a pipeline artifact) into the committed plan files next to each spec. Merged
+ * files are removed, so running it twice changes nothing.
+ */
+export function acceptHealed(root: string, options: { from?: string; dir?: string; dryRun?: boolean } = {}): string[] {
+  const from = options.from ?? join(root, '.aipw', 'healed');
+  const report: string[] = [];
+  if (!existsSync(from)) return report;
+  const healedFiles: string[] = [];
+  const walk = (dir: string) => {
+    for (const entry of readdirSync(dir, { withFileTypes: true })) {
+      const path = join(dir, entry.name);
+      if (entry.isDirectory()) walk(path);
+      else if (entry.name.endsWith('.plans.json')) healedFiles.push(path);
+    }
+  };
+  walk(from);
+  for (const path of healedFiles.sort()) {
+    const spec = relative(from, path).replace(/\.plans\.json$/, '');
+    const target = join(root, dirname(spec), options.dir ?? '__aipw__', `${basename(spec)}.plans.json`);
+    const healed = readPlanFile(path);
+    const committed = readPlanFile(target);
+    let steps = 0;
+    for (const [title, byKey] of Object.entries(healed.tests)) {
+      committed.tests[title] = { ...committed.tests[title], ...byKey };
+      steps += Object.keys(byKey).length;
+    }
+    report.push(
+      `${spec.replace(/\\/g, '/')}: ${options.dryRun ? 'would accept' : 'accepted'} ${steps} healed step${steps === 1 ? '' : 's'}`,
+    );
+    if (options.dryRun) continue;
+    mkdirSync(dirname(target), { recursive: true });
+    writeFileSync(target, stableStringify(committed));
+    rmSync(path);
+  }
+  return report;
+}
+
+/** Quotes an argument for a shell command line when it has spaces or quotes. */
+const shellQuote = (a: string) => (/^[\w./:=@-]+$/.test(a) ? a : `"${a.replace(/"/g, '\\"')}"`);
+
 /** Test titles per spec file, from `playwright test --list --reporter=json`. */
 function listTests(root: string): Map<string, Set<string>> {
-  const res = spawnSync('npx', ['playwright', 'test', '--list', '--reporter=json'], {
+  const res = spawnSync('npx playwright test --list --reporter=json', {
     cwd: root,
     encoding: 'utf8',
     shell: true,
@@ -188,6 +220,17 @@ export function runCacheCommand(args: string[], root = process.cwd()): number {
       console.log(showPlans(readPlanFile(path), grep, source) || 'No plans.');
       return 0;
     }
+    case 'code': {
+      if (!target) {
+        console.error('Usage: aipw cache code <spec file> [--grep <title part>]');
+        return 1;
+      }
+      const grep = rest[0] === '--grep' ? rest[1] : undefined;
+      const path = join(dirname(target), '__aipw__', `${basename(target)}.plans.json`);
+      const source = existsSync(target) ? readFileSync(target, 'utf8') : undefined;
+      console.log(plansToCode(readPlanFile(path), source, grep) || 'No plans.');
+      return 0;
+    }
     case 'prune': {
       const dryRun = args.includes('--dry-run');
       const live = listTests(root);
@@ -207,7 +250,9 @@ export function runCacheCommand(args: string[], root = process.cwd()): number {
         console.error('Usage: aipw cache refresh <spec file> [--grep <title part>]');
         return 1;
       }
-      const res = spawnSync('npx', ['playwright', 'test', target, ...rest], {
+      // One quoted command line (DEP0190: no argument array with shell: true).
+      const command = ['npx', 'playwright', 'test', target, ...rest].map(shellQuote).join(' ');
+      const res = spawnSync(command, {
         cwd: root,
         stdio: 'inherit',
         shell: true,
@@ -215,8 +260,16 @@ export function runCacheCommand(args: string[], root = process.cwd()): number {
       });
       return res.status ?? 1;
     }
+    case 'accept': {
+      const from = target && !target.startsWith('--') ? join(root, target) : undefined;
+      const report = acceptHealed(root, { ...(from && { from }), dryRun: args.includes('--dry-run') });
+      console.log(report.length ? report.join('\n') : 'No healed plans to accept (.aipw/healed/ is empty).');
+      return 0;
+    }
     default:
-      console.error('Usage: aipw cache stats | show <spec> | prune [--dry-run] | refresh <spec> [--grep x]');
+      console.error(
+        'Usage: aipw cache stats | show <spec> | code <spec> | prune [--dry-run] | refresh <spec> [--grep x] | accept [dir] [--dry-run]',
+      );
       return 1;
   }
 }

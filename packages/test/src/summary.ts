@@ -134,7 +134,10 @@ export function formatSummaryText(r: RunSummary): string {
     `aipw summary — provider ${r.providers.join(', ') || 'none'}, cache ${r.cacheModes.join(', ') || 'n/a'}`,
     `  AI steps    ${String(s.total).padStart(4)}    from cache ${s.cache} (${pct(s.cache, s.total)})   AI ${s.ai}   healed ${s.healed}   failed ${s.failed}`,
     `  LLM calls   ${String(r.usage.requests).padStart(4)}    tokens in ${k(tokensIn(r.usage))} / out ${k(r.usage.outputTokens)}` +
-      (r.costUsd !== undefined ? `    est. cost $${r.costUsd.toFixed(2)}` : ''),
+      (r.costUsd !== undefined
+        ? // On a Claude subscription nothing is charged per call: the figure is what the API would have cost.
+          `    est. cost $${r.costUsd.toFixed(2)}${r.providers.every((p) => p.startsWith('claude-code')) ? ' (API-equivalent; uses your Claude plan)' : ''}`
+        : ''),
   ];
   const slow = r.slowest[0];
   if (slow)

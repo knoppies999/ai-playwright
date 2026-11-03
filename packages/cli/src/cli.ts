@@ -16,7 +16,7 @@ Usage: aipw <command> [options]
 Commands:
   init         [--provider claude-code|foundry|openai|anthropic|copilot] [--dir tests] [--force]
   nudge        <spec[:line]> [--break step|action|fail|none] [--at N] [--fresh] [--verify all|none]
-  cache        stats | show <spec> | prune [--dry-run] | refresh <spec> [--grep x]
+  cache        stats | show <spec> | code <spec> | prune [--dry-run] | refresh <spec> [--grep x] | accept [dir] [--dry-run]
   doctor       [--provider x] [--probe]
   conformance  --provider x [--project saucedemo-llm] [--out docs/conformance]
   hints        lint [dir]
