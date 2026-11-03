@@ -1,6 +1,7 @@
 // `aipw cache stats|show|prune|refresh` (docs/06 §8).
 import { readPlanFile, stableStringify, type PlanFile, type PlanTarget, type StepPlan } from '@aipw/core';
 import { spawnSync } from 'node:child_process';
+import { inSpecOrder, plansToCode } from './code.js';
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, relative } from 'node:path';
 
@@ -105,24 +106,13 @@ function describeStep(step: StepPlan): string[] {
   return lines;
 }
 
-/**
- * Plans are keyed by hash, so they have no order. Given the spec's source, steps are listed in the order their
- * instructions appear in it (instructions built with ${…} aren't found and come last).
- */
 export function showPlans(file: PlanFile, grep?: string, specSource?: string): string {
   const out: string[] = [];
-  // As a string literal, so "Save" isn't found inside "Saved".
-  const position = (step: StepPlan) => {
-    const found = ["'", '"', '`']
-      .map((q) => specSource?.indexOf(`${q}${step.instruction}${q}`) ?? -1)
-      .filter((at) => at >= 0);
-    return found.length ? Math.min(...found) : Number.MAX_SAFE_INTEGER;
-  };
   for (const [title, steps] of Object.entries(file.tests).sort(([a], [b]) => a.localeCompare(b))) {
     if (grep && !title.includes(grep)) continue;
     out.push(title);
-    const ordered = Object.values(steps).sort((a, b) => position(a) - position(b));
-    for (const step of ordered) out.push(...describeStep(step).map((l) => `  ${l}`));
+    for (const step of inSpecOrder(Object.values(steps), specSource))
+      out.push(...describeStep(step).map((l) => `  ${l}`));
   }
   return out.join('\n');
 }
@@ -230,6 +220,17 @@ export function runCacheCommand(args: string[], root = process.cwd()): number {
       console.log(showPlans(readPlanFile(path), grep, source) || 'No plans.');
       return 0;
     }
+    case 'code': {
+      if (!target) {
+        console.error('Usage: aipw cache code <spec file> [--grep <title part>]');
+        return 1;
+      }
+      const grep = rest[0] === '--grep' ? rest[1] : undefined;
+      const path = join(dirname(target), '__aipw__', `${basename(target)}.plans.json`);
+      const source = existsSync(target) ? readFileSync(target, 'utf8') : undefined;
+      console.log(plansToCode(readPlanFile(path), source, grep) || 'No plans.');
+      return 0;
+    }
     case 'prune': {
       const dryRun = args.includes('--dry-run');
       const live = listTests(root);
@@ -267,7 +268,7 @@ export function runCacheCommand(args: string[], root = process.cwd()): number {
     }
     default:
       console.error(
-        'Usage: aipw cache stats | show <spec> | prune [--dry-run] | refresh <spec> [--grep x] | accept [dir] [--dry-run]',
+        'Usage: aipw cache stats | show <spec> | code <spec> | prune [--dry-run] | refresh <spec> [--grep x] | accept [dir] [--dry-run]',
       );
       return 1;
   }

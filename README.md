@@ -95,6 +95,17 @@ $ npx aipw cache show examples/tests/showcase/admin.spec.ts --grep "reads the ta
 Assertions compile to one deterministic check per clause and replay without the model. When one can't, the plan
 says why (`check: none (judged by AI on every run): …`), and `npx aipw cache stats` counts those steps per spec.
 
+`npx aipw cache code <spec>` prints the same plans as plain Playwright, to review what replays or to turn a flow
+that has settled into ordinary code:
+
+```ts
+// ai.act('Open the users page from the settings menu')
+await page.getByRole('button', { name: 'Settings', exact: true }).click();
+await page.getByRole('link', { name: 'Users', exact: true }).click();
+// ai.assert('A message says the notifications were saved')
+await expect(page.locator('[id="status"]')).toContainText('Notifications saved');
+```
+
 ### More example suites
 
 | Suite | Run | Shows |
