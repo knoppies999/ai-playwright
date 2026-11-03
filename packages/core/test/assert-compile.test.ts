@@ -282,6 +282,43 @@ describe('extract replay', () => {
     expect(replayer.structuredRequests).toHaveLength(0);
   });
 
+  it('locates sources without their values, so changed values replay with no AI', async () => {
+    const table = (a: string, b: string) =>
+      `<table><tbody id="rows"><tr><td>Thandi Mokoena</td><td>${a}</td></tr><tr><td>Sipho Dlamini</td><td>${b}</td></tr></tbody></table>`;
+    const users = z.array(z.object({ name: z.string(), status: z.string() }));
+    const store = new MemoryPlanStore();
+    const recorder = new FakeProvider(
+      [],
+      [
+        (req: { prompt: string }) => ({
+          value: [
+            { name: 'Thandi Mokoena', status: 'Active' },
+            { name: 'Sipho Dlamini', status: 'Disabled' },
+          ],
+          note: null,
+          sources: [
+            { path: '0.name', ref: refOf(req.prompt, 'cell "Thandi Mokoena"') },
+            { path: '0.status', ref: refOf(req.prompt, 'cell "Active"') },
+            { path: '1.name', ref: refOf(req.prompt, 'cell "Sipho Dlamini"') },
+            { path: '1.status', ref: refOf(req.prompt, 'cell "Disabled"') },
+          ],
+        }),
+      ],
+    );
+    await makeAi(await open(table('Active', 'Disabled')), recorder, store).extract('the users', users);
+    const sources = Object.values(store.file.tests[TEST]!)[0]!.sources!;
+    for (const s of sources) expect(s.target.locators[0]!.display).not.toMatch(/Active|Disabled/);
+
+    const replayer = new FakeProvider();
+    await expect(
+      makeAi(await open(table('Locked', 'Active')), replayer, store).extract('the users', users),
+    ).resolves.toEqual([
+      { name: 'Thandi Mokoena', status: 'Locked' },
+      { name: 'Sipho Dlamini', status: 'Active' },
+    ]);
+    expect(replayer.structuredRequests).toHaveLength(0);
+  });
+
   it('does not rewrite an AI-only extract plan on every run', async () => {
     const store = new MemoryPlanStore();
     const page = await openTodos();

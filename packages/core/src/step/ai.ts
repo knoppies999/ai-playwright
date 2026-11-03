@@ -204,6 +204,16 @@ function refIn(obs: Observation, ref: string | null | undefined): string | undef
   return named.length === 1 ? named[0] : undefined;
 }
 
+/** The text of a leaf of an extracted value at a JSON path ("0.name"), or undefined for booleans and missing paths. */
+function leafAt(value: unknown, path: string): string | undefined {
+  let cur: unknown = value;
+  for (const seg of path === '' ? [] : path.split('.')) {
+    if (cur === null || typeof cur !== 'object') return undefined;
+    cur = (cur as Record<string, unknown>)[seg];
+  }
+  return typeof cur === 'string' || typeof cur === 'number' ? String(cur) : undefined;
+}
+
 function leafText(el: Element): string {
   const input = el as HTMLInputElement;
   if (input.type === 'checkbox' || input.type === 'radio') return input.checked ? 'checked' : 'unchecked';
@@ -673,11 +683,12 @@ export class Ai {
     obs: Observation,
     ref: string | null | undefined,
     assertedText?: string,
+    readsValue?: string,
   ): Promise<PlanTarget | undefined> {
     ref = refIn(obs, ref);
     if (!ref) return undefined;
     const node = findByRef(obs.tree, ref)?.node;
-    return this.targetForLocator(this._page.locator(`aria-ref=${ref}`), node, assertedText);
+    return this.targetForLocator(this._page.locator(`aria-ref=${ref}`), node, assertedText, readsValue);
   }
 
   /** Like targetFor, for any element (e.g. the DOM parent of an element the model named). */
@@ -685,12 +696,14 @@ export class Ai {
     loc: Locator,
     node?: { role: string; name?: string },
     assertedText?: string,
+    readsValue?: string,
   ): Promise<PlanTarget | undefined> {
     const candidates = await synthesizeLocators(this._page, loc, {
       ...this.synthOptions(),
       role: node?.role,
       name: node?.name,
       ...(assertedText && { assertedText }),
+      ...(readsValue !== undefined && { readsValue }),
     }).catch(() => []);
     if (!candidates.length) return undefined;
     const fingerprint = await fingerprintOf(loc, node?.role, node?.name);
@@ -1267,7 +1280,8 @@ export class Ai {
           const sources: NonNullable<StepPlan['sources']> = [];
           let note = value.sources.length ? undefined : 'the model gave no sources';
           for (const s of value.sources) {
-            const target = await this.targetFor(obs, s.ref);
+            // Located without its value, so the source still works when the value changes.
+            const target = await this.targetFor(obs, s.ref, undefined, leafAt(value.value, s.path));
             if (!target) {
               sources.length = 0;
               note = `no durable locator for the source of "${s.path}" (${s.ref})`;

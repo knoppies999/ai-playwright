@@ -33,6 +33,11 @@ export interface SynthOptions {
    * text are tried first, and never anchored by this text.
    */
   assertedText?: string;
+  /**
+   * The value an extract reads from this element. Locators that contain it are skipped (a price cell found by
+   * its price breaks when the price changes); position in a list or table is used instead.
+   */
+  readsValue?: string;
 }
 
 interface Attr {
@@ -197,10 +202,14 @@ export async function synthesizeLocators(page: Page, target: Locator, opts: Synt
     const asserted = opts.assertedText && fold(opts.assertedText).length >= 3 ? fold(opts.assertedText) : '';
     /** True when the expression finds the element by the text the check will assert. */
     const circular = (expr: LocatorExpr) => asserted !== '' && fold(JSON.stringify(expr)).includes(asserted);
+    // An extract source must not be found by the value it is read for: when the value changes, so would the locator.
+    const read = opts.readsValue !== undefined && fold(opts.readsValue) !== '' ? fold(opts.readsValue) : '';
+    const findsByValue = (expr: LocatorExpr) => read !== '' && fold(JSON.stringify(expr)).includes(read);
     const anchored = (expr: LocatorExpr): LocatorExpr[] =>
       facts.items.flatMap((item) =>
         item.anchors
           .filter((a) => asserted === '' || !fold(a).includes(asserted))
+          .filter((a) => read === '' || !fold(a).includes(read))
           .map((a) => [{ m: 'locator', selector: item.selector }, { m: 'filter', hasText: a }, ...expr] as LocatorExpr),
       );
 
@@ -255,7 +264,7 @@ export async function synthesizeLocators(page: Page, target: Locator, opts: Synt
       if (found.length >= max) break;
       const inItem = anchored(base.expr).map((expr) => ({ rung: 'L5' as Rung, expr }));
       const tries: { rung: Rung; expr: LocatorExpr }[] = circular(base.expr) ? [...inItem, base] : [base, ...inItem];
-      for (const t of tries) {
+      for (const t of tries.filter((x) => !findsByValue(x.expr))) {
         const key = JSON.stringify(t.expr);
         if (seen.has(key)) continue;
         seen.add(key);
@@ -268,6 +277,23 @@ export async function synthesizeLocators(page: Page, target: Locator, opts: Synt
     }
     // L7, last resort (docs/12 §3): the n-th element of its role (or tag) inside the nearest stable ancestor.
     // Positional, so fragile, but it replays; without it the step goes to the AI on every run.
+    // First, a test id shared by a list of items: the n-th one (getByTestId('todo-title').nth(1)).
+    for (const t of found.length ? [] : facts.testIds) {
+      if (isRejectedTestIdValue(t.value, opts.rejectTestIdValues)) continue;
+      const base: LocatorExpr = pwTestIdAttrs.includes(t.attr.toLowerCase())
+        ? [{ m: 'getByTestId', id: t.value }]
+        : [{ m: 'locator', selector: css(t.attr, t.value) }];
+      const index = await handle.evaluate(
+        (el, selector) => Array.from(el.ownerDocument.querySelectorAll(selector)).indexOf(el),
+        css(t.attr, t.value),
+      );
+      const expr: LocatorExpr = [...base, { m: 'nth', index }];
+      if (index >= 0 && (await isTarget(expr))) {
+        const full = [...prefix, ...expr];
+        found.push({ rung: 'L7', expr: full, display: buildLocator(page, full).toString() });
+        break;
+      }
+    }
     if (!found.length) {
       const scopes = facts.scopes.flatMap((sc) =>
         [

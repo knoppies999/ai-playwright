@@ -923,7 +923,7 @@
         "instruction": "every user in the table with their status",
         "kind": "extract",
         "recordedWith": {
-          "at": "2026-11-02T16:51:08.594Z",
+          "at": "2026-11-03T17:33:07.340Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -964,27 +964,22 @@
               },
               "locators": [
                 {
-                  "display": "getByRole('cell', { name: 'Thandi Mokoena', exact: true })",
+                  "display": "locator('[id=\"rows\"]').getByRole('cell').first()",
                   "expr": [
                     {
-                      "exact": true,
+                      "m": "locator",
+                      "selector": "[id=\"rows\"]"
+                    },
+                    {
                       "m": "getByRole",
-                      "name": "Thandi Mokoena",
                       "role": "cell"
-                    }
-                  ],
-                  "rung": "L2"
-                },
-                {
-                  "display": "getByText('Thandi Mokoena', { exact: true })",
-                  "expr": [
+                    },
                     {
-                      "exact": true,
-                      "m": "getByText",
-                      "text": "Thandi Mokoena"
+                      "index": 0,
+                      "m": "nth"
                     }
                   ],
-                  "rung": "L6"
+                  "rung": "L7"
                 }
               ],
               "name": "Thandi Mokoena",
@@ -1027,27 +1022,22 @@
               },
               "locators": [
                 {
-                  "display": "getByRole('cell', { name: 'Active', exact: true })",
+                  "display": "locator('[id=\"rows\"]').getByRole('cell').nth(2)",
                   "expr": [
                     {
-                      "exact": true,
+                      "m": "locator",
+                      "selector": "[id=\"rows\"]"
+                    },
+                    {
                       "m": "getByRole",
-                      "name": "Active",
                       "role": "cell"
-                    }
-                  ],
-                  "rung": "L2"
-                },
-                {
-                  "display": "getByText('Active', { exact: true })",
-                  "expr": [
+                    },
                     {
-                      "exact": true,
-                      "m": "getByText",
-                      "text": "Active"
+                      "index": 2,
+                      "m": "nth"
                     }
                   ],
-                  "rung": "L6"
+                  "rung": "L7"
                 }
               ],
               "name": "Active",
@@ -1090,27 +1080,22 @@
               },
               "locators": [
                 {
-                  "display": "getByRole('cell', { name: 'Sipho Dlamini', exact: true })",
+                  "display": "locator('[id=\"rows\"]').getByRole('cell').nth(3)",
                   "expr": [
                     {
-                      "exact": true,
+                      "m": "locator",
+                      "selector": "[id=\"rows\"]"
+                    },
+                    {
                       "m": "getByRole",
-                      "name": "Sipho Dlamini",
                       "role": "cell"
-                    }
-                  ],
-                  "rung": "L2"
-                },
-                {
-                  "display": "getByText('Sipho Dlamini', { exact: true })",
-                  "expr": [
+                    },
                     {
-                      "exact": true,
-                      "m": "getByText",
-                      "text": "Sipho Dlamini"
+                      "index": 3,
+                      "m": "nth"
                     }
                   ],
-                  "rung": "L6"
+                  "rung": "L7"
                 }
               ],
               "name": "Sipho Dlamini",
@@ -1153,27 +1138,22 @@
               },
               "locators": [
                 {
-                  "display": "getByRole('cell', { name: 'Disabled', exact: true })",
+                  "display": "locator('[id=\"rows\"]').getByRole('cell').nth(5)",
                   "expr": [
                     {
-                      "exact": true,
+                      "m": "locator",
+                      "selector": "[id=\"rows\"]"
+                    },
+                    {
                       "m": "getByRole",
-                      "name": "Disabled",
                       "role": "cell"
-                    }
-                  ],
-                  "rung": "L2"
-                },
-                {
-                  "display": "getByText('Disabled', { exact: true })",
-                  "expr": [
+                    },
                     {
-                      "exact": true,
-                      "m": "getByText",
-                      "text": "Disabled"
+                      "index": 5,
+                      "m": "nth"
                     }
                   ],
-                  "rung": "L6"
+                  "rung": "L7"
                 }
               ],
               "name": "Disabled",
@@ -1193,7 +1173,7 @@
               "clickCount": 1,
               "modifiers": null
             },
-            "intent": "Open settings menu",
+            "intent": "Open Settings menu",
             "target": {
               "fingerprint": {
                 "ancestors": [
@@ -1335,7 +1315,7 @@
           "urlPattern": "http://localhost:5173/app"
         },
         "recordedWith": {
-          "at": "2026-11-02T16:50:54.705Z",
+          "at": "2026-11-03T17:32:55.060Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -1579,7 +1559,7 @@
           "urlPattern": "http://localhost:5173/login"
         },
         "recordedWith": {
-          "at": "2026-11-02T16:50:41.725Z",
+          "at": "2026-11-03T17:32:39.715Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
@@ -1921,7 +1901,7 @@
         "instruction": "Thandi Mokoena is Active and Sipho Dlamini is Disabled",
         "kind": "assert",
         "recordedWith": {
-          "at": "2026-11-02T16:51:04.796Z",
+          "at": "2026-11-03T17:33:01.872Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
