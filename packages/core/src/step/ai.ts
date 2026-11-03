@@ -620,7 +620,7 @@ export class Ai {
               (outcome.failure?.kind ?? 'unexpected_state') as StepFailureKind,
               outcome.failure?.reason ?? outcome.summary,
               { stepId: ctx.id, callsite: ctx.callsite },
-              { trajectory: trajectory(outcome), snapshot: outcome.lastSnapshot },
+              { trajectory: trajectory(outcome).map((l) => this.redactor.redact(l)), snapshot: outcome.lastSnapshot },
             );
           }
           if (cache && mode !== 'ai-only') {

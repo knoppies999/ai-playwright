@@ -155,6 +155,17 @@ describe('ai.act', () => {
     expect(error).toBeInstanceOf(AiStepError);
     expect(error).toMatchObject({ kind: 'not_found', reason: 'No export button' });
     expect(error.details.trajectory[0]).toMatch(/^#1 click button "Save" \[e\d+\]/);
+    // Playwright prints only the message, so what the AI did is in it.
+    expect(error.message).toMatch(
+      /^AI step failed \(not_found\): No export button\nWhat the AI did:\n {2}#1 click button "Save"/,
+    );
+  });
+
+  it('ends an AI failure message with the nudge command for its line', () => {
+    const callsite = { file: 'tests/users.spec.ts', line: 12, column: 3 };
+    expect(new AiStepError('blocked', 'No access', { callsite }).message).toBe(
+      'AI step failed (blocked): No access\nStep through it: npx aipw nudge tests/users.spec.ts:12',
+    );
   });
 
   it('stops when the model repeats itself', async () => {

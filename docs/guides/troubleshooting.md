@@ -13,6 +13,9 @@
 
 ## Steps that fail
 
+Every AI failure message ends with `Step through it: npx aipw nudge <spec>:<line>`, and a failed `ai.act` lists what
+the AI did before it gave up (the last 8 actions, secrets redacted). The HTML report has the full decision log.
+
 | Symptom | Cause and fix |
 |---|---|
 | `AI step failed (not_found)` | The element isn't in the accessibility tree: a closed menu, a collapsed section, or a widget without a role or label. Say how to reach it, add a site hint, or run the step in nudge mode and `p`ick it ([writing instructions](writing-instructions.md)) |
