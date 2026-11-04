@@ -1,5 +1,763 @@
 {
   "tests": {
+    "a multi-step calculator": {
+      "6f4f6c18ef8905ca": {
+        "compiled": [
+          {
+            "args": [
+              "The statutory holiday entitlement is 28 days"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.034722222222222224,
+                  "w": 0.4921875,
+                  "x": 0.125,
+                  "y": 0.8486111111111111
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "paragraph",
+                "siblingIndex": 0,
+                "tag": "p",
+                "testIds": {},
+                "text": "The statutory holiday entitlement is 28 days holiday."
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"result-info\"]').locator('p').first()",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"result-info\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "p"
+                    },
+                    {
+                      "index": 0,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "paragraph"
+            }
+          }
+        ],
+        "instruction": "The result says the statutory holiday entitlement is 28 days",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-11-04T11:55:04.265Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "c116f8c3ca695037": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Click Start now",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "region"
+                  },
+                  {
+                    "name": null,
+                    "role": "article"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.059722222222222225,
+                  "w": 0.123193359375,
+                  "x": 0.125,
+                  "y": 1.175
+                },
+                "label": null,
+                "name": "Start now",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Start now"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Start now', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Start now",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Start now",
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Start the calculator",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://www.gov.uk/calculate-your-holiday-entitlement/y"
+        },
+        "pre": {
+          "urlPattern": "https://www.gov.uk/calculate-your-holiday-entitlement"
+        },
+        "recordedWith": {
+          "at": "2026-11-04T11:54:07.971Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "f2a4ca9ffb91ec48": {
+        "actions": [
+          {
+            "args": {
+              "checked": true
+            },
+            "intent": "Select No",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": "response-1",
+                  "name": "response",
+                  "type": "radio"
+                },
+                "box": {
+                  "h": 0.06111111111111111,
+                  "w": 0.034375,
+                  "x": 0.125,
+                  "y": 1.0902777777777777
+                },
+                "label": "No",
+                "name": "No",
+                "placeholder": null,
+                "role": "radio",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('radio', { name: 'No', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "No",
+                      "role": "radio"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('No', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "No"
+                    }
+                  ],
+                  "rung": "L3"
+                },
+                {
+                  "display": "locator('[id=\"response-1\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"response-1\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "No",
+              "role": "radio"
+            },
+            "tool": "set_checked"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Continue to next question",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "submit"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.07757568359375,
+                  "x": 0.125,
+                  "y": 0.5722222222222222
+                },
+                "label": null,
+                "name": "Continue",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Continue"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Continue', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Continue",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Continue', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Continue"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Continue",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "checked": true
+            },
+            "intent": "Select days worked per week",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": "response-0",
+                  "name": "response",
+                  "type": "radio"
+                },
+                "box": {
+                  "h": 0.06111111111111111,
+                  "w": 0.034375,
+                  "x": 0.125,
+                  "y": 0.8902777777777777
+                },
+                "label": "days worked per week",
+                "name": "days worked per week",
+                "placeholder": null,
+                "role": "radio",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('radio', { name: 'days worked per week', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "days worked per week",
+                      "role": "radio"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('days worked per week', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "days worked per week"
+                    }
+                  ],
+                  "rung": "L3"
+                },
+                {
+                  "display": "locator('[id=\"response-0\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"response-0\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "days worked per week",
+              "role": "radio"
+            },
+            "tool": "set_checked"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Continue to next question",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "submit"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.07757568359375,
+                  "x": 0.125,
+                  "y": 1.2930555555555556
+                },
+                "label": null,
+                "name": "Continue",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Continue"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Continue', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Continue",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Continue', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Continue"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Continue",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "checked": true
+            },
+            "intent": "Select full leave year",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": "response-0",
+                  "name": "response",
+                  "type": "radio"
+                },
+                "box": {
+                  "h": 0.06111111111111111,
+                  "w": 0.034375,
+                  "x": 0.125,
+                  "y": 0.8069444444444445
+                },
+                "label": "for a full leave year",
+                "name": "for a full leave year",
+                "placeholder": null,
+                "role": "radio",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('radio', { name: 'for a full leave year', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "for a full leave year",
+                      "role": "radio"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('for a full leave year', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "for a full leave year"
+                    }
+                  ],
+                  "rung": "L3"
+                },
+                {
+                  "display": "locator('[id=\"response-0\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"response-0\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "for a full leave year",
+              "role": "radio"
+            },
+            "tool": "set_checked"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Continue to next question",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "submit"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.07757568359375,
+                  "x": 0.125,
+                  "y": 1.1347222222222222
+                },
+                "label": null,
+                "name": "Continue",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Continue"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Continue', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Continue",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Continue', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Continue"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Continue",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "value": "5"
+            },
+            "intent": "Enter 5 days per week",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": "response",
+                  "name": "response",
+                  "type": "text"
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.170703125,
+                  "x": 0.125,
+                  "y": 0.8694444444444445
+                },
+                "label": "Number of days worked per week?",
+                "name": "Number of days worked per week?",
+                "placeholder": null,
+                "role": "textbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('textbox', { name: 'Number of days worked per week?', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Number of days worked per week?",
+                      "role": "textbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Number of days worked per week?', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Number of days worked per week?"
+                    }
+                  ],
+                  "rung": "L3"
+                },
+                {
+                  "display": "locator('input[name=\"response\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "input[name=\"response\"]"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Number of days worked per week?",
+              "role": "textbox"
+            },
+            "tool": "fill"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Continue to result",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "submit"
+                },
+                "box": {
+                  "h": 0.05277777777777778,
+                  "w": 0.07757568359375,
+                  "x": 0.125,
+                  "y": 0.9666666666666667
+                },
+                "label": null,
+                "name": "Continue",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Continue"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Continue', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Continue",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Continue', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Continue"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Continue",
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Answer the questions: the job has irregular hours or is not part-year? No, it is a regular job; the entitlement is based on days worked per week; work out holiday for a full leave year; the person works 5 days a week. Continue after each answer until the result is shown",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://www.gov.uk/calculate-your-holiday-entitlement/y/regular/days-worked-per-week/full-year/5.0"
+        },
+        "pre": {
+          "urlPattern": "https://www.gov.uk/calculate-your-holiday-entitlement/y"
+        },
+        "recordedWith": {
+          "at": "2026-11-04T11:54:59.588Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
     "bank holidays in Scotland": {
       "46ae12fd1fdce5c9": {
         "instruction": "the next bank holiday in Scotland: its name and date as shown",
@@ -528,6 +1286,298 @@
         },
         "recordedWith": {
           "at": "2026-11-03T19:01:50.848Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "page through search results": {
+      "5f009c825d3ead1c": {
+        "compiled": [
+          {
+            "args": [
+              "keywords=driving+licence&page=2"
+            ],
+            "expect": "toHaveURL"
+          },
+          {
+            "args": [
+              "driving licence"
+            ],
+            "expect": "toHaveValue",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": "Sitewide",
+                    "role": "search"
+                  },
+                  {
+                    "name": null,
+                    "role": "form"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": "search-main-59845dc7",
+                  "name": "keywords",
+                  "type": "search"
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.4609375,
+                  "x": 0.125,
+                  "y": 0.7513888888888889
+                },
+                "label": "Search all content on GOV.UK",
+                "name": "Search all content on GOV.UK",
+                "placeholder": "",
+                "role": "combobox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('combobox', { name: 'Search all content on GOV.UK', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Search all content on GOV.UK",
+                      "role": "combobox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Search all content on GOV.UK', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Search all content on GOV.UK"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Search all content on GOV.UK",
+              "role": "combobox"
+            }
+          },
+          {
+            "args": [
+              "1 of 1,395"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": "Pagination",
+                    "role": "navigation"
+                  },
+                  {
+                    "name": null,
+                    "role": "form"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06944444444444445,
+                  "w": 0.1171630859375,
+                  "x": 0.125,
+                  "y": 2.6569444444444446
+                },
+                "label": null,
+                "name": "Previous page : 1 of 1,395",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Previous page : 1 of 1,395"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('link', { name: 'Previous page : 1 of 1,395', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Previous page : 1 of 1,395",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Previous page : 1 of 1,395",
+              "role": "link"
+            }
+          },
+          {
+            "args": [
+              "3 of 1,395"
+            ],
+            "expect": "toContainText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": "Pagination",
+                    "role": "navigation"
+                  },
+                  {
+                    "name": null,
+                    "role": "form"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06944444444444445,
+                  "w": 0.09254150390625,
+                  "x": 0.125,
+                  "y": 2.7555555555555555
+                },
+                "label": null,
+                "name": "Next page : 3 of 1,395",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Next page : 3 of 1,395"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('link', { name: 'Next page : 3 of 1,395', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Next page : 3 of 1,395",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Next page : 3 of 1,395",
+              "role": "link"
+            }
+          }
+        ],
+        "instruction": "The results are page 2 of the search for driving licence",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-11-04T11:55:29.022Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "fc863d1dd8c5afcf": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Go to next page of results",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": "Pagination",
+                    "role": "navigation"
+                  },
+                  {
+                    "name": null,
+                    "role": "form"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06944444444444445,
+                  "w": 0.09254150390625,
+                  "x": 0.125,
+                  "y": 2.636111111111111
+                },
+                "label": null,
+                "name": "Next page : 2 of 1,395",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Next page : 2 of 1,395"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('link', { name: 'Next page : 2 of 1,395', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Next page : 2 of 1,395",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Next page : 2 of 1,395",
+              "role": "link"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Go to the next page of search results",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://www.gov.uk/search/all"
+        },
+        "pre": {
+          "urlPattern": "https://www.gov.uk/search/all"
+        },
+        "recordedWith": {
+          "at": "2026-11-04T11:55:23.271Z",
           "model": "claude-sonnet-5-5",
           "provider": "claude-code"
         },
