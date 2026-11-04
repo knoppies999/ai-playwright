@@ -11,7 +11,7 @@ import {
   type AipwConfigInput,
 } from '@aipw/core';
 import { existsSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 export interface Check {
@@ -29,6 +29,8 @@ const fail = (label: string, detail: string): Check => ({ status: 'fail', label,
  * require.resolve would wrongly say they are missing. Tries the project first, then the CLI's own location.
  */
 export function canResolve(pkg: string, from = process.cwd()): boolean {
+  // A local provider file (docs/05 §7.1), relative to the project root like the loader resolves it.
+  if (pkg.startsWith('.') || isAbsolute(pkg)) return existsSync(resolve(from, pkg));
   for (const parent of [pathToFileURL(join(from, 'noop.js')).href, import.meta.url]) {
     try {
       import.meta.resolve(pkg, parent);

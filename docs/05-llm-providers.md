@@ -418,6 +418,34 @@ export default defineAipwConfig({
 
 Optional: a different model for cheap sub-tasks (`assertModel`, `extractModel`), configured per provider. Off by default.
 
+### 7.1 Adding a provider
+
+**Any OpenAI-compatible endpoint** (OpenRouter, Groq, Mistral, vLLM, LM Studio, a company gateway…) needs no code,
+only an entry that reuses the OpenAI adapter:
+
+```ts
+providers: {
+  openrouter: {
+    package: '@aipw/provider-openai',
+    preset: 'openai',                         // request shape; baseURL below replaces the endpoint
+    baseURL: 'https://openrouter.ai/api/v1',
+    apiKeyEnv: 'OPENROUTER_API_KEY',
+    model: 'anthropic/claude-sonnet-5.5',
+  },
+},
+```
+
+**Anything else** is a module that exports `createProvider(options): LlmProvider` (§2): `decide` returns one tool
+call, `structured` returns one JSON value, both with usage. The built-in adapters are 200–330 lines each and are the
+best templates. `package` is either an npm package installed in the project or a path relative to the project root:
+
+```ts
+providers: { gemini: { package: './providers/gemini.ts', model: 'gemini-x' } },   // every key reaches createProvider
+```
+
+Then `AIPW_PROVIDER=gemini npx aipw doctor --probe` checks one live call, and `npx aipw conformance --provider gemini`
+(§8) measures it on the usability suite.
+
 ## 8. Provider conformance suite
 
 `examples/tests/conformance/` runs the demo-app scenarios with `AIPW_CACHE=ai-only` against each provider and
