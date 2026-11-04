@@ -5,7 +5,7 @@ import type { Frame, Locator, Page } from 'playwright-core';
 import { buildLocator, type LocatorExpr } from './expr.js';
 import { DEFAULT_REJECT_ID_PATTERNS, isGeneratedId, isStableText } from './generated.js';
 import { isConfiguredTestIdAttribute, isRejectedTestIdValue, looksLikeTestIdAttribute } from './test-ids.js';
-import { stableNamePrefix } from './volatile.js';
+import { stableNamePrefix, withoutShortcutHint } from './volatile.js';
 
 export type Rung = 'L1' | 'L2' | 'L3' | 'L4' | 'L5' | 'L6' | 'L7';
 
@@ -59,7 +59,7 @@ interface ElementFacts {
   /** The element itself when it is a repeated item (a todo row, a product card), with its unique text lines. */
   self: { selector: string; anchors: string[] } | null;
   /** Ancestors (closest first) that could scope a structural L7 locator: their test ids and id. */
-  scopes: { testIds: Attr[]; id: string | null; tagIndex: number }[];
+  scopes: { testIds: Attr[]; id: string | null; landmark: string | null; tagIndex: number }[];
 }
 
 /** Runs in the page. Must stay self-contained (it is serialised). */
@@ -105,10 +105,15 @@ function gatherFacts(el: Element, args: { marker: string; token: string; testIdN
   }
 
   const scopes: ElementFacts['scopes'] = [];
-  for (let a = el.parentElement, depth = 0; a && depth < 6 && scopes.length < 3; a = a.parentElement, depth++) {
+  // A landmark element that is the only one of its kind on the page (<main>) scopes too: pages without ids have them.
+  const landmarkOf = (a: Element) => {
+    const tag = a.tagName.toLowerCase();
+    return ['main', 'article'].includes(tag) && a.ownerDocument.querySelectorAll(tag).length === 1 ? tag : null;
+  };
+  for (let a = el.parentElement, depth = 0; a && depth < 12 && scopes.length < 3; a = a.parentElement, depth++) {
     const tagIndex = Array.from(a.querySelectorAll(el.tagName.toLowerCase())).indexOf(el);
-    const scope = { testIds: testIdsOf(a), id: a.getAttribute('id'), tagIndex };
-    if (scope.testIds.length || scope.id) scopes.push(scope);
+    const scope = { testIds: testIdsOf(a), id: a.getAttribute('id'), landmark: landmarkOf(a), tagIndex };
+    if ((scope.testIds.length || scope.id || scope.landmark) && (depth < 6 || scope.landmark)) scopes.push(scope);
   }
 
   const input = el as HTMLInputElement;
@@ -227,8 +232,8 @@ export async function synthesizeLocators(page: Page, target: Locator, opts: Synt
           : [{ m: 'locator', selector: css(t.attr, t.value) }],
       });
     }
-    // A name with a price in it changes with the data: use its stable start instead (not exact).
-    const stableName = opts.name ? stableNamePrefix(opts.name) : undefined;
+    // A name with a price or a keyboard-shortcut hint in it changes with the data or the platform: match its stable part.
+    const stableName = opts.name ? (stableNamePrefix(opts.name) ?? withoutShortcutHint(opts.name)) : undefined;
     if (opts.role && !NO_ROLE_LOCATOR.has(opts.role) && stableName) {
       bases.push({ rung: 'L2', expr: [{ m: 'getByRole', role: opts.role, name: stableName }] });
     } else if (opts.role && !NO_ROLE_LOCATOR.has(opts.role) && opts.name && opts.name.length <= 80) {
@@ -303,6 +308,7 @@ export async function synthesizeLocators(page: Page, target: Locator, opts: Synt
           ...(sc.id && !isGeneratedId(sc.id, opts.rejectIdPatterns ?? DEFAULT_REJECT_ID_PATTERNS)
             ? [css('id', sc.id)]
             : []),
+          ...(sc.landmark ? [sc.landmark] : []),
         ].map((selector) => ({ selector, tagIndex: sc.tagIndex })),
       );
       const byRole = opts.role && !NO_ROLE_LOCATOR.has(opts.role);

@@ -66,6 +66,14 @@ describe('synthesizeLocators', () => {
     expect(found).toEqual(["L7 locator('[id=\"checkboxes\"]').getByRole('checkbox').nth(1)"]);
   });
 
+  it('scopes a position to the page landmark when no ancestor has an id', async () => {
+    const page = await open(
+      `<main><div><h1>useEffect</h1><p>Intro text</p><p>More</p></div></main><footer><p>x</p></footer>`,
+    );
+    const found = await synth(page, page.locator('main p').first(), { role: 'paragraph', readsValue: 'Intro text' });
+    expect(found).toEqual(["L7 locator('main').locator('p').first()"]);
+  });
+
   it('finds nothing when there is no stable ancestor to scope a position to', async () => {
     const page = await open(`<div><input type="checkbox"><input type="checkbox"></div>`);
     expect(await synth(page, page.getByRole('checkbox').nth(1), { role: 'checkbox' })).toEqual([]);

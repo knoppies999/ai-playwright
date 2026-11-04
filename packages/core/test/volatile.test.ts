@@ -34,3 +34,14 @@ describe('volatile values (docs/12 §5)', () => {
     expect(stableNamePrefix('$9.99')).toBeUndefined();
   });
 });
+
+describe('keyboard-shortcut hints in names', () => {
+  it('drops a trailing shortcut hint, on any platform', async () => {
+    const { withoutShortcutHint } = await import('../src/locators/volatile.js');
+    expect(withoutShortcutHint('Search Ctrl K')).toBe('Search');
+    expect(withoutShortcutHint('Search ⌘ K')).toBe('Search');
+    expect(withoutShortcutHint('Command palette Ctrl+Shift+P')).toBe('Command palette');
+    expect(withoutShortcutHint('Search')).toBeUndefined();
+    expect(withoutShortcutHint('Shift schedule')).toBeUndefined();
+  });
+});
