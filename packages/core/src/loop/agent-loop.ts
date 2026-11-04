@@ -91,7 +91,7 @@ export async function decideWithRepair(
 
 /** The tool, its target and its arguments (not the intent): typing different text into one box is different work. */
 const actionKey = (r: ActionRecord) => {
-  const { intent: _intent, ref: _ref, ...args } = r.args;
+  const { intent: _intent, ref: _ref, last: _last, ...args } = r.args;
   // The element as the snapshot names it, not its ref (a re-render gives the same Save button a new ref) and not
   // its best locator (synthesis under load can pick a different one for the same element). Unnamed: the ref.
   const t = r.target;
@@ -375,6 +375,23 @@ export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<S
     if (!deps.isAllowedUrl(url)) {
       const reason = `navigated to ${url}, outside the allowed origins. ${allowHint(url)}`.trim();
       return finish('failed', reason, { failure: { kind: 'blocked', reason } });
+    }
+
+    // docs/04 §3.3: the model marked this as the action that completes the task. Trust it only when the action
+    // worked and the page visibly changed; otherwise go round once more and let the model look at the result.
+    if (record.result === 'ok' && (record.args as { last?: unknown }).last === true) {
+      const after = await deps.session.observer.observe(step.options.scope);
+      if (sameContent(after.snapshot) !== sameContent(execObs.snapshot)) {
+        lastSnapshot = after.snapshot;
+        deps.events.emit({
+          type: 'observation',
+          stepId: step.id,
+          url: after.url,
+          snapshot: after.snapshot,
+          snapshotHash: after.snapshotHash,
+        });
+        return finish('done', record.intent ?? `${record.tool} done`);
+      }
     }
   }
   return failLimit(`maxActions (${deps.maxActions}) reached`);

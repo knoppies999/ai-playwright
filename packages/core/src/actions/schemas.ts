@@ -5,6 +5,13 @@ import type { JsonSchema, ToolSpec } from '../llm/provider.js';
 
 const ref = z.string().describe('Element ref from the current snapshot, e.g. "e12" or "f1e3"');
 const intent = z.string().describe('What this action is trying to do, in at most 15 words');
+/** Ends the step after a successful action that visibly changed the page, saving the done turn (docs/04 §3.3). */
+const last = z
+  .boolean()
+  .nullable()
+  .describe(
+    'true if you expect this action to complete the task. The step then ends without another turn, unless the action failed or changed nothing. null when more actions are needed',
+  );
 
 export const TOOL_SCHEMAS = {
   click: z.strictObject({
@@ -16,18 +23,21 @@ export const TOOL_SCHEMAS = {
       .describe('Keys held during the click'),
     clickCount: z.number().int().min(1).max(3).nullable().describe('2 for a double click'),
     intent,
+    last,
   }),
-  hover: z.strictObject({ ref, intent }),
+  hover: z.strictObject({ ref, intent, last }),
   fill: z.strictObject({
     ref,
     value: z.string().describe('Text to put in the field. May contain {{data.x}} or {{secret.x}} placeholders'),
     intent,
+    last,
   }),
   type: z.strictObject({
     ref,
     text: z.string().describe('Typed key by key, for widgets that need key events (comboboxes)'),
     submit: z.boolean().nullable().describe('Press Enter afterwards'),
     intent,
+    last,
   }),
   fill_form: z.strictObject({
     fields: z
@@ -35,17 +45,20 @@ export const TOOL_SCHEMAS = {
       .min(1)
       .describe('Several simple fields at once'),
     intent,
+    last,
   }),
   select_option: z.strictObject({
     ref,
     values: z.array(z.string()).min(1).describe('Option labels or values of a native <select>'),
     intent,
+    last,
   }),
-  set_checked: z.strictObject({ ref, checked: z.boolean(), intent }),
+  set_checked: z.strictObject({ ref, checked: z.boolean(), intent, last }),
   press: z.strictObject({
     key: z.string().describe('A key or chord, e.g. "Enter", "Escape", "Control+A"'),
     ref: ref.nullable().describe('Element to focus first, or null for the focused element'),
     intent,
+    last,
   }),
   scroll: z.strictObject({
     ref: ref.nullable().describe('Scrollable element, or null for the page'),
@@ -65,10 +78,11 @@ export const TOOL_SCHEMAS = {
     accept: z.boolean(),
     promptText: z.string().nullable(),
     intent,
+    last,
   }),
-  switch_tab: z.strictObject({ index: z.number().int().min(0), intent }),
-  go_back: z.strictObject({ intent }),
-  navigate: z.strictObject({ url: z.string().describe('Absolute URL on an allowed origin'), intent }),
+  switch_tab: z.strictObject({ index: z.number().int().min(0), intent, last }),
+  go_back: z.strictObject({ intent, last }),
+  navigate: z.strictObject({ url: z.string().describe('Absolute URL on an allowed origin'), intent, last }),
   generate_value: z.strictObject({
     kind: z
       .string()
@@ -124,6 +138,22 @@ export const TOOL_DESCRIPTIONS: Record<ToolName, string> = {
   ask_human:
     'Ask the person running the test (nudge mode only) when the instruction is ambiguous. Their answer appears in the history.',
 };
+
+/** Page actions that may carry `last: true` and so end the step themselves. */
+export const FINISHING_TOOLS = new Set<ToolName>([
+  'click',
+  'hover',
+  'fill',
+  'type',
+  'fill_form',
+  'select_option',
+  'set_checked',
+  'press',
+  'handle_dialog',
+  'switch_tab',
+  'go_back',
+  'navigate',
+]);
 
 /** Tools that end a step. They don't take `intent` and are never executed on the page. */
 export const TERMINAL_TOOLS = new Set<ToolName>(['done', 'fail', 'ask_human']);
@@ -184,6 +214,9 @@ export type ValidatedCall = { ok: true; call: AnyToolCall } | { ok: false; error
  * on SauceDemo needed a repair turn (~4 s) for 5 of 90 done calls; evidence as one string is the usual cause.
  */
 function normaliseArgs(tool: string, args: unknown): unknown {
+  // `last` is optional in spirit: older scripted calls and models that leave it out mean "not the last action".
+  if (FINISHING_TOOLS.has(tool as ToolName) && args && typeof args === 'object' && !('last' in args))
+    return { ...args, last: null };
   if (tool === 'done' && args && typeof args === 'object') {
     const a = args as Record<string, unknown>;
     if (typeof a.evidence === 'string') return { ...a, evidence: [a.evidence] };

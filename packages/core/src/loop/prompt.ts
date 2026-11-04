@@ -32,7 +32,7 @@ function describeTarget(r: ActionRecord): string {
 /** One line per action already taken in this step, e.g. `#2 hover button "Settings" [e7] → ok`. */
 export function historyLine(index: number, r: ActionRecord): string {
   const args = Object.entries(r.args)
-    .filter(([k, v]) => !['ref', 'intent'].includes(k) && v !== null)
+    .filter(([k, v]) => !['ref', 'intent', 'last'].includes(k) && v !== null)
     .map(([k, v]) => `${k}=${JSON.stringify(v)}`)
     .join(' ');
   const intent = r.intent ? ` (${r.intent})` : '';
