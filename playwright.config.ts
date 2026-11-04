@@ -93,6 +93,14 @@ export default defineConfig(
         use: { ...devices['Desktop Chrome'], baseURL: theInternet.baseURL },
       },
       {
+        // Real public sites, read-only: Wikipedia and GOV.UK. npm run e2e:real-sites. One worker, light load.
+        name: 'real-sites',
+        testDir: 'examples/tests/real-sites',
+        fullyParallel: false,
+        expect: { timeout: 15_000 },
+        use: { ...devices['Desktop Chrome'] },
+      },
+      {
         // TodoMVC on Playwright's CDN: loads in ~0.1 s, never sleeps. All real AI calls.
         // npm run e2e:todomvc, or add --headed / --ui to watch.
         name: 'todomvc',

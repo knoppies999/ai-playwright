@@ -262,6 +262,8 @@ describe('extract replay', () => {
             { title: 'Buy milk', completed: true },
             { title: 'Walk the dog', completed: false },
           ],
+          found: true,
+          expand: null,
           note: null,
           sources: [
             { path: '0.title', ref: refOf(req.prompt, 'listitem', 0) },
@@ -295,6 +297,8 @@ describe('extract replay', () => {
             { name: 'Thandi Mokoena', status: 'Active' },
             { name: 'Sipho Dlamini', status: 'Disabled' },
           ],
+          found: true,
+          expand: null,
           note: null,
           sources: [
             { path: '0.name', ref: refOf(req.prompt, 'cell "Thandi Mokoena"') },
@@ -319,10 +323,47 @@ describe('extract replay', () => {
     expect(replayer.structuredRequests).toHaveLength(0);
   });
 
+  it('expands a collapsed list or truncated subtree when the model says the value is inside it', async () => {
+    // Many sections of nested content: over budget, pruning cuts subtrees ("… N nodes truncated (call expand …)").
+    const section = (i: number, extra = '') =>
+      `<section aria-label="Part ${i}"><h2>Part ${i}</h2><ul>${Array.from({ length: 6 }, (_, j) => `<li><a href="#p${i}-${j}">Detail ${i}.${j} about the mountain range</a></li>`).join('')}${extra}</ul></section>`;
+    const parts = Array.from({ length: 40 }, (_, i) => section(i, i === 30 ? '<li>Elevation: 1,085 m</li>' : ''));
+    const page = await open(`<main>${parts.join('')}</main>`);
+    // A model that follows the expand hints: "Part 30" is first hidden in a collapsed list ("… 28 more region items
+    // (call expand with ref=…)"), then its own items are truncated.
+    const model = (req: { prompt: string }) => {
+      const answer = { expand: null as string | null, value: 1085, note: null, sources: [] };
+      if (req.prompt.includes('1,085 m')) return { ...answer, found: true };
+      const lines = req.prompt.split('\n');
+      const part30 = lines.findIndex((l) => l.includes('"Part 30"'));
+      const where =
+        part30 >= 0 ? lines.slice(part30).join('\n') : (lines.find((l) => l.includes('more region items')) ?? '');
+      return { ...answer, found: false, expand: /call expand with ref=(e\d+)/.exec(where)?.[1] ?? null };
+    };
+    const provider = new FakeProvider([], [model, model, model]);
+    const ai = new Ai({
+      page,
+      provider,
+      config: resolveConfig({ snapshot: { maxTokens: 500 }, settle: { maxMs: 300, networkQuietMs: 0 } }),
+    });
+    await expect(ai.extract('the elevation in metres', z.number())).resolves.toBe(1085);
+    expect(provider.structuredRequests.length).toBeGreaterThan(1);
+  });
+
+  it('fails clearly when the value is not on the page, instead of returning a placeholder', async () => {
+    const provider = new FakeProvider(
+      [],
+      [{ found: false, expand: null, value: 0, note: 'No elevation row in the snapshot', sources: [] }],
+    );
+    await expect(
+      makeAi(await openTodos(), provider, new MemoryPlanStore()).extract('the elevation', z.number()),
+    ).rejects.toThrow(/AI extract failed: the elevation\nNot on the page: No elevation row in the snapshot/);
+  });
+
   it('does not rewrite an AI-only extract plan on every run', async () => {
     const store = new MemoryPlanStore();
     const page = await openTodos();
-    const answer = { value: 2, note: null, sources: [] };
+    const answer = { value: 2, found: true, expand: null, note: null, sources: [] };
     await makeAi(page, new FakeProvider([], [answer]), store).extract('items left', z.number());
     const before = JSON.stringify(store.file);
     const events: string[] = [];

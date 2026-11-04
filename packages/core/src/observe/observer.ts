@@ -2,7 +2,14 @@
 import { createHash } from 'node:crypto';
 import type { Locator, Page } from 'playwright-core';
 import type { PageState } from './page-state.js';
-import { maskSnapshot, parseSnapshot, pruneSnapshot, type PruneOptions, type SnapNode } from './snapshot.js';
+import {
+  hiddenWithControls,
+  maskSnapshot,
+  parseSnapshot,
+  pruneSnapshot,
+  type PruneOptions,
+  type SnapNode,
+} from './snapshot.js';
 
 export interface Observation {
   url: string;
@@ -90,6 +97,32 @@ export class Observer {
     return previous;
   }
 
+  /**
+   * Which of these aria-hidden subtrees are on screen: inside the viewport and not invisible. Sites mark open hover
+   * menus aria-hidden (python.org); a closed off-canvas menu (SauceDemo's, translated off screen) stays hidden.
+   */
+  private async onScreen(refs: string[]): Promise<Set<string>> {
+    const shown = new Set<string>();
+    for (const ref of refs.slice(0, 20)) {
+      const visible = await this.page
+        .locator(`aria-ref=${ref}`)
+        .evaluate(
+          (el) => {
+            const r = el.getBoundingClientRect();
+            const style = getComputedStyle(el);
+            const inView =
+              r.width > 0 && r.height > 0 && r.right > 0 && r.bottom > 0 && r.left < innerWidth && r.top < innerHeight;
+            return inView && style.visibility !== 'hidden' && Number(style.opacity) > 0;
+          },
+          undefined,
+          { timeout: 1000 },
+        )
+        .catch(() => false);
+      if (visible) shown.add(ref);
+    }
+    return shown;
+  }
+
   async observe(scope?: Locator): Promise<Observation> {
     const page = this.page;
     // A pending native dialog blocks page scripts, so the snapshot can't be taken until it's handled.
@@ -100,7 +133,8 @@ export class Observer {
     // Credential fields are already masked in the page; resolved secrets are scrubbed wherever else they appear.
     const sensitive = this.options.secrets();
     const tree = maskSnapshot(parseSnapshot(raw), sensitive);
-    const pruned = pruneSnapshot(tree, this.options.prune);
+    const shownHidden = blocked ? new Set<string>() : await this.onScreen(hiddenWithControls(tree));
+    const pruned = pruneSnapshot(tree, { ...this.options.prune, shownHidden });
     const pages = page.context().pages();
     return {
       url: page.url(),
@@ -116,9 +150,10 @@ export class Observer {
       dialogs: this.state.dialogs.map(({ type, message }) => ({ type, message })),
       notices: blocked ? [] : await this.state.drainNotices(),
       snapshot: pruned.text,
-      // Without the refs: a re-rendered element gets a new ref, but the page hasn't changed for the user.
+      // Without refs and focus: a re-rendered element gets a new ref, and focus moves with every click, but the page
+      // hasn't changed for the user (the no-progress guard and one-judgement-per-state rely on this).
       snapshotHash: createHash('sha1')
-        .update(pruned.text.replace(/ ?\[ref=[^\]]+\]/g, ''))
+        .update(pruned.text.replace(/ ?\[(ref=[^\]]+|active)\]/g, ''))
         .digest('hex'),
       refs: new Set(pruned.refs),
       truncated: pruned.truncated,

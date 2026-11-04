@@ -130,4 +130,17 @@ describe('pruneSnapshot', () => {
     expect(expanded?.text).toContain('Sauce Labs Backpack');
     expect(expanded?.refs).toContain('e47');
   });
+
+  it('expands a long table to its first rows in full when every row would only fit with cells cut', () => {
+    const cells = (r: number) =>
+      Array.from(
+        { length: 8 },
+        (_, c) => `      - cell "Row ${r} column ${c} with a fairly long text value" [ref=c${r}x${c}]`,
+      );
+    const rows = Array.from({ length: 100 }, (_, r) => [`    - row [ref=r${r}]:`, ...cells(r)].join('\n'));
+    const nodes = parseSnapshot(`- table [ref=t1]:\n  - rowgroup [ref=g1]:\n${rows.join('\n')}`);
+    const expanded = expandRef(nodes, 'g1', 2500)!;
+    expect(expanded.text).toContain('Row 2 column 7');
+    expect(expanded.text).toMatch(/more row items \(call expand with ref=g1/);
+  });
 });

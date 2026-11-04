@@ -20,6 +20,7 @@ import { startRecording } from '../nudge/recorder.js';
 import type { NudgeCommand, PauseState, PickTool } from '../nudge/protocol.js';
 import type { Observation } from '../observe/observer.js';
 import { findByRef, refsIn } from '../observe/snapshot.js';
+import { allowHint } from '../step/origins.js';
 import type { StepSession } from '../step/session.js';
 import type { ActionRecord, StepContext, StepOutcome } from '../types.js';
 import { buildContext, buildObservation, historyLine, SYSTEM_PROMPTS } from './prompt.js';
@@ -36,6 +37,8 @@ export interface LoopDeps {
   secretPlaceholders: string[];
   isAllowedUrl: (url: string) => boolean;
   maxActions: number;
+  /** After an action that changed nothing, how long to wait for a late change before the next decision. */
+  unchangedWaitMs?: number;
   /** Epoch ms after which the step stops. */
   deadline: number;
   signal?: AbortSignal;
@@ -88,9 +91,16 @@ export async function decideWithRepair(
 
 /** The tool, its target and its arguments (not the intent): typing different text into one box is different work. */
 const actionKey = (r: ActionRecord) => {
-  const { intent: _intent, ...args } = r.args;
-  return `${r.tool}:${r.target?.ref ?? ''}:${JSON.stringify(args)}`;
+  const { intent: _intent, ref: _ref, ...args } = r.args;
+  // The element as the snapshot names it, not its ref (a re-render gives the same Save button a new ref) and not
+  // its best locator (synthesis under load can pick a different one for the same element). Unnamed: the ref.
+  const t = r.target;
+  const target = t ? (t.name ? `${t.role ?? ''} "${t.name}"` : t.ref) : '';
+  return `${r.tool}:${target}:${JSON.stringify(args)}`;
 };
+/** A snapshot without refs and focus: a click that only moved focus didn't change what the page shows. */
+const sameContent = (snapshot: string) => snapshot.replace(/ \[(ref=[^\]]+|active)\]/g, '');
+
 /** Actions that don't act on the page (and code tools, which work off-page) never count as 'no progress'. */
 const PASSIVE = new Set(['expand', 'wait_for', 'generate_value', 'ask_human']);
 const isPassive = (r: ActionRecord) => PASSIVE.has(r.tool) || !(r.tool in TOOL_SCHEMAS);
@@ -141,7 +151,19 @@ export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<S
     if (Date.now() > deps.deadline) return failLimit('step timeout reached');
     if (deps.signal?.aborted) return failLimit('aborted');
 
-    const obs = await deps.session.observer.observe(step.options.scope);
+    let obs = await deps.session.observer.observe(step.options.scope);
+    // The last action left the page exactly as it was. Widgets that load their code on first use (Wikipedia's
+    // language menu) appear after the page looked settled; asking the model now gets the same action again, which
+    // often toggles the widget shut. Give the page one more settle window to change first.
+    const prev = history[history.length - 1];
+    const before = lastSnapshot === undefined ? undefined : sameContent(lastSnapshot);
+    if (prev?.result === 'ok' && !isPassive(prev) && before === sameContent(obs.snapshot)) {
+      const until = Math.min(Date.now() + (deps.unchangedWaitMs ?? 0), deps.deadline);
+      while (Date.now() < until && before === sameContent(obs.snapshot)) {
+        await new Promise((r) => setTimeout(r, 250));
+        obs = await deps.session.observer.observe(step.options.scope);
+      }
+    }
     expandedRefs.forEach((r) => obs.refs.add(r));
     lastSnapshot = obs.snapshot;
     deps.events.emit({
@@ -351,9 +373,8 @@ export async function runAgentLoop(step: StepContext, deps: LoopDeps): Promise<S
 
     const url = deps.session.page.url();
     if (!deps.isAllowedUrl(url)) {
-      return finish('failed', `navigated to a URL outside the allowed origins: ${url}`, {
-        failure: { kind: 'blocked', reason: `navigated to ${url}` },
-      });
+      const reason = `navigated to ${url}, outside the allowed origins. ${allowHint(url)}`.trim();
+      return finish('failed', reason, { failure: { kind: 'blocked', reason } });
     }
   }
   return failLimit(`maxActions (${deps.maxActions}) reached`);

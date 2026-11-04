@@ -147,6 +147,11 @@ export interface PruneOptions {
   collapseSiblingsOver: number;
   /** Text values longer than this are truncated. */
   maxTextLength: number;
+  /**
+   * Refs of aria-hidden subtrees that are on screen anyway (python.org keeps its open hover menu aria-hidden):
+   * they are shown as usable instead of collapsed.
+   */
+  shownHidden?: ReadonlySet<string>;
 }
 
 export const DEFAULT_PRUNE_OPTIONS: PruneOptions = { maxTokens: 6000, collapseSiblingsOver: 15, maxTextLength: 300 };
@@ -183,8 +188,11 @@ function countNodes(list: SnapNode[]): number {
 }
 
 /** Hidden subtrees (aria-hidden) become one line that names what is inside, without refs. */
-function collapseHidden(list: SnapNode[]): SnapNode[] {
+function collapseHidden(list: SnapNode[], shown: ReadonlySet<string> = new Set()): SnapNode[] {
   return list.map((n) => {
+    if (n.attrs.includes('aria-hidden') && n.ref && shown.has(n.ref)) {
+      return { ...n, attrs: n.attrs.filter((a) => a !== 'aria-hidden'), children: collapseHidden(n.children, shown) };
+    }
     if (n.attrs.includes('aria-hidden')) {
       const inside: string[] = [];
       const walk = (l: SnapNode[]) =>
@@ -202,8 +210,22 @@ function collapseHidden(list: SnapNode[]): SnapNode[] {
         children: [],
       };
     }
-    return { ...n, children: collapseHidden(n.children) };
+    return { ...n, children: collapseHidden(n.children, shown) };
   });
+}
+
+/** Refs of aria-hidden subtrees that contain controls the page gave refs to: candidates for an on-screen check. */
+export function hiddenWithControls(nodes: SnapNode[]): string[] {
+  const out: string[] = [];
+  const hasControl = (l: SnapNode[]): boolean =>
+    l.some((c) => (INTERACTIVE.has(c.role) && !!c.ref) || hasControl(c.children));
+  const walk = (l: SnapNode[]) =>
+    l.forEach((n) => {
+      if (n.attrs.includes('aria-hidden') && n.ref && hasControl(n.children)) out.push(n.ref);
+      else walk(n.children);
+    });
+  walk(nodes);
+  return out;
 }
 
 const isWrapper = (n: SnapNode) =>
@@ -237,8 +259,11 @@ function dropNoise(list: SnapNode[], maxTextLength: number): SnapNode[] {
   return out;
 }
 
-/** Long runs of same-role siblings keep the first 10 and last 2. */
-function collapseRuns(list: SnapNode[], over: number): SnapNode[] {
+/**
+ * Long runs of same-role siblings keep the first 10 and last 2. The collapsed line names the parent's ref, whose
+ * expand shows every sibling: otherwise item 14 of a long list could never be seen, not even by one-shot steps.
+ */
+function collapseRuns(list: SnapNode[], over: number, parentRef?: string): SnapNode[] {
   const out: SnapNode[] = [];
   let i = 0;
   while (i < list.length) {
@@ -246,17 +271,19 @@ function collapseRuns(list: SnapNode[], over: number): SnapNode[] {
     while (j < list.length && list[j]!.role === list[i]!.role && list[i]!.verbatim === undefined) j++;
     const run = list.slice(i, Math.max(j, i + 1));
     if (run.length > over) {
-      out.push(...run.slice(0, 10).map((n) => ({ ...n, children: collapseRuns(n.children, over) })));
+      out.push(...run.slice(0, 10).map((n) => ({ ...n, children: collapseRuns(n.children, over, n.ref) })));
       out.push({
         role: '…',
         attrs: [],
         colon: false,
-        value: `${run.length - 12} more ${run[0]!.role} items (scroll, filter or use a more specific instruction)`,
+        value: parentRef
+          ? `${run.length - 12} more ${run[0]!.role} items (call expand with ref=${parentRef} to see them all)`
+          : `${run.length - 12} more ${run[0]!.role} items (scroll, filter or use a more specific instruction)`,
         children: [],
       });
-      out.push(...run.slice(-2).map((n) => ({ ...n, children: collapseRuns(n.children, over) })));
+      out.push(...run.slice(-2).map((n) => ({ ...n, children: collapseRuns(n.children, over, n.ref) })));
     } else {
-      out.push(...run.map((n) => ({ ...n, children: collapseRuns(n.children, over) })));
+      out.push(...run.map((n) => ({ ...n, children: collapseRuns(n.children, over, n.ref) })));
     }
     i += run.length;
   }
@@ -317,7 +344,7 @@ export interface PrunedSnapshot {
 export function pruneSnapshot(nodes: SnapNode[], options: Partial<PruneOptions> = {}): PrunedSnapshot {
   const opts = { ...DEFAULT_PRUNE_OPTIONS, ...options };
   const base = collapseRuns(
-    dropNoise(collapseHidden(focusModal(nodes)), opts.maxTextLength),
+    dropNoise(collapseHidden(focusModal(nodes), opts.shownHidden), opts.maxTextLength),
     opts.collapseSiblingsOver,
   );
   let text = renderSnapshot(base);
@@ -346,5 +373,10 @@ export function pruneSnapshot(nodes: SnapNode[], options: Partial<PruneOptions> 
 export function expandRef(nodes: SnapNode[], ref: string, maxTokens: number): PrunedSnapshot | undefined {
   const found = findByRef(nodes, ref);
   if (!found) return undefined;
-  return pruneSnapshot([found.node], { maxTokens, collapseSiblingsOver: Number.MAX_SAFE_INTEGER });
+  const all = pruneSnapshot([found.node], { maxTokens, collapseSiblingsOver: Number.MAX_SAFE_INTEGER });
+  if (!all.truncated) return all;
+  // Every item of a long list (a 100-row table) only fits with their contents cut, which hides what was asked for.
+  // The first items in full are then more useful: keep the usual first-10-and-last-2 view if that fits whole.
+  const firstItems = pruneSnapshot([found.node], { maxTokens });
+  return firstItems.truncated ? all : firstItems;
 }
