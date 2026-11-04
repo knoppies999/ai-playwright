@@ -212,7 +212,7 @@ Watch provider rate limits; the adapters back off on 429.
 | `aipw nudge <spec[:line]> [--break] [--at] [--fresh] [--verify]` | Nudge mode ([07](07-nudge-mode.md)) |
 | `aipw doctor [--provider x] [--probe]` | Check the config, the provider's package and credentials, secret variables, hints and budgets. `--probe` adds one live tool-calling and structured-output call. (Not built: `--url` site checks) |
 | `aipw cache stats\|show\|code\|prune\|refresh\|accept` | Cache maintenance ([06](06-caching-and-replay.md) §8). `code` prints a spec's plans as plain Playwright; `accept` merges healed plans from `.aipw/healed/` (e.g. a CI artifact) into the committed plans |
-| `aipw init` | Sets up aipw in a project: config, an example spec, Playwright config if missing, `.gitignore` |
+| `aipw init` | Sets up aipw in a project: config, an example spec, Playwright config if missing, `.gitignore`, and Copilot instructions for writing aipw tests (`.github/instructions/aipw-tests.instructions.md`, applied to spec files) |
 | `aipw try <url> "<step>" … [--headed] [--save spec]` | Runs English steps on a page with no test file: what the AI did, the locators, the Playwright code and the cost. `--save` writes a spec (values read become expectations) |
 | `aipw hints lint [dir]` | Check hints files for duplicates, repeated sections, hints outside a section, and size |
 | `aipw summary [--max-llm-calls N] [--max-cost USD]` | Print the last run summary; fail when the run used the model more than allowed (the PR gate uses `--max-llm-calls 0`) |

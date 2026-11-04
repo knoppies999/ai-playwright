@@ -11,7 +11,13 @@ describe('aipw init', () => {
     const root = fresh();
     const res = init(root);
     expect(res).toMatchObject({
-      written: ['aipw.config.ts', join('tests', 'aipw-example.spec.ts'), 'playwright.config.ts', '.gitignore'],
+      written: [
+        'aipw.config.ts',
+        join('tests', 'aipw-example.spec.ts'),
+        join('.github', 'instructions', 'aipw-tests.instructions.md'),
+        'playwright.config.ts',
+        '.gitignore',
+      ],
       skipped: [],
     });
     expect(readFileSync(join(root, 'aipw.config.ts'), 'utf8')).toContain("provider: 'claude-code'");
@@ -30,7 +36,13 @@ describe('aipw init', () => {
     const res = init(root, { provider: 'foundry', dir: 'e2e' });
     if ('error' in res) throw new Error(res.error);
     expect(res.skipped).toEqual(['aipw.config.ts']);
-    expect(res.written).toEqual([join('e2e', 'aipw-example.spec.ts')]);
+    expect(res.written).toEqual([
+      join('e2e', 'aipw-example.spec.ts'),
+      join('.github', 'instructions', 'aipw-tests.instructions.md'),
+    ]);
+    expect(readFileSync(join(root, '.github', 'instructions', 'aipw-tests.instructions.md'), 'utf8')).toContain(
+      "applyTo: 'e2e/**/*.spec.ts'",
+    );
     expect(res.messages[0]).toMatch(/playwright\.config\.ts exists[\s\S]*withAipw/);
     expect(readFileSync(join(root, 'aipw.config.ts'), 'utf8')).toBe('// mine\n');
     expect(readFileSync(join(root, '.gitignore'), 'utf8')).toBe('node_modules/\n.aipw/\n');

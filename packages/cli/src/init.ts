@@ -38,6 +38,32 @@ export default defineAipwConfig({
 `;
 }
 
+/** GitHub Copilot path-specific instructions: how to write aipw tests well, for whoever (or whatever) writes them. */
+export function assistantInstructions(dir: string): string {
+  return `---
+applyTo: '${dir}/**/*.spec.ts'
+---
+
+# Writing aipw tests
+
+These are Playwright tests with English steps from \`@aipw/test\`: \`ai.act\`, \`ai.assert\`, \`ai.extract\`, \`ai.locate\`,
+\`ai.run\`. The first run asks the model and records a plan in \`__aipw__/\`; later runs replay it without the model.
+
+- Import \`test\` and \`expect\` from \`@aipw/test\`, never from \`@playwright/test\`. Use \`z\` from \`zod\` for extract schemas.
+- One goal per \`ai.act\`, naming what is on screen in quotes: \`ai.act('Click "Save" in the Notifications section')\`.
+- Values go in \`data\`, passwords in \`secrets\` (names from \`aipw.config.ts\`), never in the instruction text:
+  \`ai.act('Log in as the admin', { data: { username: 'admin' }, secrets: ['password'] })\`.
+- Negative paths start with "Try to": \`ai.act('Try to sign in with this password', { data })\`.
+- Assertions are specific and visible: \`ai.assert('The status says "Profile saved"')\`, not "it worked".
+- Extract exactly what the page shows and derive the rest in code (so it replays without the model):
+  \`const label = await ai.extract('the text of the download button', z.string())\`, then a regex in code.
+- Setup that isn't under test (API logins, seeding) is plain Playwright code. Add a cheap code assertion next to
+  an AI assertion where you can.
+- Never edit \`__aipw__/*.plans.json\` by hand. To try a step on a page first: \`npx aipw try <url> "<step>"\`. To see
+  what a spec replays: \`npx aipw cache show <spec>\`. A failing step prints \`npx aipw nudge <spec>:<line>\` to step through it.
+`;
+}
+
 export function exampleSpec(): string {
   return `// An aipw example on Playwright's public TodoMVC demo. Run: npx playwright test ${'{dir}'}/aipw-example.spec.ts
 // The first run asks the model; it records a plan in __aipw__/ next to this file. Commit that plan: later runs
@@ -113,6 +139,8 @@ export function init(
 
   write('aipw.config.ts', configFile(provider));
   write(join(dir, 'aipw-example.spec.ts'), exampleSpec().replace('{dir}', dir.replace(/\\/g, '/')));
+  // For GitHub Copilot in VS Code (and any assistant that reads it): how to write these tests well.
+  write(join('.github', 'instructions', 'aipw-tests.instructions.md'), assistantInstructions(dir.replace(/\\/g, '/')));
 
   const existing = PLAYWRIGHT_CONFIGS.find((c) => existsSync(join(root, c)));
   if (!existing) write('playwright.config.ts', playwrightConfig(dir.replace(/\\/g, '/')));

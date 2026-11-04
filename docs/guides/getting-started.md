@@ -23,7 +23,8 @@ npm i -D $AIPW/dist-packages/aipw-core-0.0.0.tgz $AIPW/dist-packages/aipw-test-0
   $AIPW/dist-packages/aipw-cli-0.0.0.tgz $AIPW/dist-packages/aipw-provider-claude-code-0.0.0.tgz \
   @playwright/test zod
 npx playwright install chromium
-npx aipw init           # aipw.config.ts, an example spec, playwright.config.ts if you have none, .gitignore
+npx aipw init           # aipw.config.ts, an example spec, playwright.config.ts if you have none, .gitignore,
+                        # and .github/instructions/aipw-tests.instructions.md so Copilot writes good aipw tests
 ```
 
 For pipelines, also install `aipw-provider-openai` (Foundry/OpenAI); for the Copilot CLI, `aipw-provider-copilot`.
