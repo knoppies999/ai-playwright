@@ -79,6 +79,25 @@ as an `ai.run` script) four times. A live run on Sonnet 5.5 (the table is also s
 
 Add `--headed` to watch: `npm run demo -- --headed`. The spec is [examples/tests/showcase/admin.spec.ts](examples/tests/showcase/admin.spec.ts).
 
+### Try steps before writing a test
+
+`npx aipw try <url> "<step>" …` runs English steps on a page and shows what the AI did, the locators it found, the
+Playwright code and the cost. `--save` turns them into a spec that records once and then replays without the model:
+
+```text
+$ npx aipw try https://www.gov.uk/bank-holidays "Show the bank holidays for Northern Ireland" \
+    "Verify that the Northern Ireland tab is selected" "Read the name of the next bank holiday as nextHoliday" \
+    --save e2e/ni-holidays.spec.ts
+1. act: Show the bank holidays for Northern Ireland
+   click tab "Northern Ireland" → getByRole('tab', { name: 'Northern Ireland', exact: true })
+   (16.8 s, 3 model calls)
+2. assert: the Northern Ireland tab is selected
+   ✓ The Northern Ireland tab is marked active and selected, and its tabpanel is the one shown.
+3. extract: the name of the next bank holiday
+nextHoliday = "Christmas Day"
+Wrote e2e/ni-holidays.spec.ts. Run it once to record its plan: npx playwright test e2e/ni-holidays.spec.ts
+```
+
 ### See what was recorded
 
 Plans are committed JSON, readable with `aipw cache show`:

@@ -73,6 +73,14 @@ export default defineConfig(
 
 ## 4. Write a test (3 minutes)
 
+Not sure how to phrase a step? Try it on the real page first, and save what works as a spec:
+
+```bash
+npx aipw try https://your.app/login "Log in as the admin" "Verify that the dashboard is shown" --headed --save tests/login.spec.ts
+```
+
+Or write one by hand:
+
 ```ts
 // tests/users.spec.ts
 import { expect, test } from '@aipw/test';
