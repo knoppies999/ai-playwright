@@ -124,10 +124,10 @@ export function doctorChecks(
   return checks;
 }
 
-/** aipw.config.{ts,mjs,js}, walking up from `from`. */
+/** aipw.config.{ts,mts,mjs,js}, walking up from `from`. */
 export async function loadConfigFile(from = process.cwd()): Promise<{ file?: string; config: AipwConfigInput }> {
   for (let dir = resolve(from); ; dir = dirname(dir)) {
-    for (const name of ['aipw.config.ts', 'aipw.config.mjs', 'aipw.config.js']) {
+    for (const name of ['aipw.config.ts', 'aipw.config.mts', 'aipw.config.mjs', 'aipw.config.js']) {
       const file = join(dir, name);
       if (existsSync(file)) {
         const mod = (await import(pathToFileURL(file).href)) as { default?: AipwConfigInput };

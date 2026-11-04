@@ -21,8 +21,7 @@ describe('aipw try', () => {
       ["Add a todo named O'Brien", 'Verify that 1 item is left', 'Read the item counter as counter'],
       { counter: '1 item left' },
     );
-    expect(spec).toContain("import { expect, test } from '@aipw/test';");
-    expect(spec).toContain("import { z } from 'zod';");
+    expect(spec).toContain("import { expect, test, z } from 'aipw';");
     expect(spec).toContain("  await ai.act('Add a todo named O\\'Brien');");
     expect(spec).toContain("  await ai.assert('1 item is left');");
     expect(spec).toContain("  const counter = await ai.extract('the item counter', z.string());");

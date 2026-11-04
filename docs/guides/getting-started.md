@@ -3,33 +3,35 @@
 aipw adds an `ai` fixture to Playwright Test. You write steps in English (`ai.act`, `ai.assert`, `ai.extract`), the
 model works them out the first time, and later runs replay the recorded locators without the model.
 
-> The packages are not on npm yet. Build tarballs from this repository and install those (below).
+> Not on npm yet: the first release is pending. Until then, use the tarball install at the end of this section.
 
 ## 1. Install (2 minutes)
 
-Build the packages once:
+In your project folder:
 
 ```bash
-git clone https://github.com/knoppies999/ai-playwright.git
-cd ai-playwright
-npm ci
-npm run pack            # writes dist-packages/aipw-*.tgz
+npm init aipw@latest       # or: pnpm create aipw · yarn create aipw
 ```
 
-Then, in your own project (`AIPW` is the path to the clone):
+It asks which model provider to use, then installs `aipw`, that provider's package and `@playwright/test` with your
+package manager, downloads Chromium and runs `npx aipw init`. That writes `aipw.config.ts` (`.mts` in a CommonJS
+project), an example spec, `playwright.config.ts` if you have none, a `.gitignore` line, and
+`.github/instructions/aipw-tests.instructions.md` so Copilot writes good aipw tests. It never overwrites a file; for
+an existing Playwright config it prints the two lines to change. Add `-- --dry-run` to see the commands first.
+
+By hand, the same thing is:
 
 ```bash
-npm i -D $AIPW/dist-packages/aipw-core-0.0.0.tgz $AIPW/dist-packages/aipw-test-0.0.0.tgz \
-  $AIPW/dist-packages/aipw-cli-0.0.0.tgz $AIPW/dist-packages/aipw-provider-claude-code-0.0.0.tgz \
-  @playwright/test zod
+npm i -D aipw @aipw/provider-claude-code @playwright/test
 npx playwright install chromium
-npx aipw init           # aipw.config.ts, an example spec, playwright.config.ts if you have none, .gitignore,
-                        # and .github/instructions/aipw-tests.instructions.md so Copilot writes good aipw tests
+npx aipw init
 ```
 
-For pipelines, also install `aipw-provider-openai` (Foundry/OpenAI); for the Copilot CLI, `aipw-provider-copilot`.
-`aipw init` never overwrites a file (unless `--force`); for an existing Playwright config it prints the two lines to
-change. Steps 3–5 below show what it sets up.
+Steps 3–5 below show what `aipw init` sets up.
+
+**Before the first release:** build tarballs from a clone of this repository (`npm ci && npm run pack` writes
+`dist-packages/*.tgz`) and install them together in your project:
+`npm i -D <clone>/dist-packages/{aipw,aipw-core,aipw-test,aipw-cli,aipw-provider-claude-code}-0.0.0.tgz @playwright/test`.
 
 ## 2. Pick a model (2 minutes)
 
@@ -41,15 +43,42 @@ claude auth login      # once, in a terminal; the desktop app's sign-in does not
 ```
 
 Leave `ANTHROPIC_API_KEY` unset: if it is set, the SDK bills the key instead of your plan. Choose the model with
-`AIPW_MODEL` (for example `claude-sonnet-5-5`). Other providers (Foundry, OpenAI, Anthropic API, Copilot CLI) are in
-[05](../05-llm-providers.md).
+`AIPW_MODEL` (for example `claude-sonnet-5-5`).
+
+### Switching providers
+
+Each provider is its own package, so you only download the SDK you use. To switch:
+
+1. Install its package (table below).
+2. Set `provider` in `aipw.config.ts`, or set `AIPW_PROVIDER` for one run (`AIPW_MODEL` picks the model).
+3. Check it: `npx aipw doctor --provider <name> --probe` makes one tiny live call.
+
+| `provider` | Package | Needs |
+|---|---|---|
+| `claude-code` | `@aipw/provider-claude-code` | `claude auth login` once |
+| `foundry` | `@aipw/provider-openai` | `AZURE_FOUNDRY_RESOURCE`, `AIPW_FOUNDRY_DEPLOYMENT`; keyless via `az login`, or `AZURE_FOUNDRY_API_KEY` |
+| `openai` | `@aipw/provider-openai` | `OPENAI_API_KEY`, `AIPW_OPENAI_MODEL` |
+| `anthropic` | `@aipw/provider-anthropic` | `ANTHROPIC_API_KEY` |
+| `copilot` | `@aipw/provider-copilot` | Copilot CLI signed in on this machine |
+| `ollama`, `github-models` | `@aipw/provider-openai` | A local Ollama; `GITHUB_TOKEN` |
+
+For example, a pipeline on Foundry while you develop on your Claude plan:
+
+```bash
+npm i -D @aipw/provider-openai
+AIPW_PROVIDER=foundry npx aipw doctor --probe
+AIPW_PROVIDER=foundry npx playwright test
+```
+
+Any other OpenAI-compatible endpoint (OpenRouter, Groq, a company gateway) is a config entry, and a provider of your
+own is a small module: [05 §7.1](../05-llm-providers.md).
 
 ## 3. Configure (1 minute)
 
 `aipw.config.ts` at the repository root:
 
 ```ts
-import { defineAipwConfig } from '@aipw/core';
+import { defineAipwConfig } from 'aipw';
 
 export default defineAipwConfig({
   provider: 'claude-code',
@@ -61,12 +90,12 @@ export default defineAipwConfig({
 
 ```ts
 import { defineConfig } from '@playwright/test';
-import { withAipw } from '@aipw/test';
+import { withAipw } from 'aipw';
 
 export default defineConfig(
   withAipw({
     testDir: 'tests',
-    reporter: [['list'], ['html', { open: 'never' }], ['@aipw/test/reporter']],
+    reporter: [['list'], ['html', { open: 'never' }], ['aipw/reporter']],
     use: { baseURL: 'http://localhost:5173', testIdAttribute: 'data-testid' },
   }),
 );
@@ -84,7 +113,7 @@ Or write one by hand:
 
 ```ts
 // tests/users.spec.ts
-import { expect, test } from '@aipw/test';
+import { expect, test } from 'aipw';
 
 test('admin can create a user', async ({ page, ai, gen }) => {
   await page.goto('/login');

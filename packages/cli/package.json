@@ -7,12 +7,14 @@
     ".": {
       "source": "./src/index.ts",
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     },
     "./cli": {
       "source": "./src/cli.ts",
       "types": "./dist/cli.d.ts",
-      "import": "./dist/cli.js"
+      "import": "./dist/cli.js",
+      "default": "./dist/cli.js"
     }
   },
   "files": [
@@ -30,6 +32,6 @@
     "playwright-core": "^1.64.0"
   },
   "engines": {
-    "node": ">=22"
+    "node": ">=22.12"
   }
 }

@@ -4,7 +4,7 @@
   "type": "module",
   "description": "AI-driven Playwright testing (monorepo root)",
   "engines": {
-    "node": ">=22"
+    "node": ">=22.12"
   },
   "workspaces": [
     "packages/*"

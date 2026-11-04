@@ -110,6 +110,12 @@ const PLAYWRIGHT_CHANGES = `  1. Wrap the config:   export default defineConfig(
 
 const GITIGNORE_LINES = ['.aipw/'];
 
+function isEsmProject(root: string): boolean {
+  const manifest = join(root, 'package.json');
+  if (!existsSync(manifest)) return false;
+  return (JSON.parse(readFileSync(manifest, 'utf8')) as { type?: string }).type === 'module';
+}
+
 export interface InitResult {
   written: string[];
   skipped: string[];
@@ -136,7 +142,10 @@ export function init(
     result.written.push(path);
   };
 
-  write('aipw.config.ts', configFile(provider));
+  // Outside "type": "module" projects (npm init -y writes "commonjs"), Node runs a .ts file as CommonJS and the
+  // config's `import` fails when aipw doctor or try loads it; .mts is ESM everywhere.
+  const existingConfig = ['aipw.config.ts', 'aipw.config.mts'].find((c) => existsSync(join(root, c)));
+  write(existingConfig ?? (isEsmProject(root) ? 'aipw.config.ts' : 'aipw.config.mts'), configFile(provider));
   write(join(dir, 'aipw-example.spec.ts'), exampleSpec().replace('{dir}', dir.replace(/\\/g, '/')));
   // For GitHub Copilot in VS Code (and any assistant that reads it): how to write these tests well.
   write(join('.github', 'instructions', 'aipw-tests.instructions.md'), assistantInstructions(dir.replace(/\\/g, '/')));
