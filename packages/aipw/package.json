@@ -19,7 +19,7 @@
     }
   },
   "bin": {
-    "aipw": "./dist/bin.js"
+    "aipw": "dist/bin.js"
   },
   "files": [
     "dist"
