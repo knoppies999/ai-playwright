@@ -1,14 +1,21 @@
 {
   "name": "@aipw/cli",
   "version": "0.0.0",
-  "private": true,
   "description": "aipw command line: nudge, doctor, cache, conformance.",
+  "license": "MIT",
   "type": "module",
   "exports": {
     ".": {
       "source": "./src/index.ts",
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./cli": {
+      "source": "./src/cli.ts",
+      "types": "./dist/cli.d.ts",
+      "import": "./dist/cli.js",
+      "default": "./dist/cli.js"
     }
   },
   "files": [
@@ -16,10 +23,8 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts src/cli.ts --format esm --dts --clean --sourcemap --target node22",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
-  },
-  "bin": {
-    "aipw": "./dist/cli.js"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "prepack": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\""
   },
   "dependencies": {
     "@aipw/core": "0.0.0",
@@ -27,5 +32,8 @@
   },
   "peerDependencies": {
     "playwright-core": "^1.64.0"
+  },
+  "engines": {
+    "node": ">=22.12"
   }
 }

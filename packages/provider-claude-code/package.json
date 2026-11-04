@@ -1,14 +1,15 @@
 {
   "name": "@aipw/provider-claude-code",
   "version": "0.0.0",
-  "private": true,
   "description": "Claude Agent SDK adapter for aipw: runs on a signed-in Claude Code subscription (development on this machine).",
+  "license": "MIT",
   "type": "module",
   "exports": {
     ".": {
       "source": "./src/index.ts",
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "files": [
@@ -16,11 +17,15 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean --sourcemap --target node22",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "prepack": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\""
   },
   "dependencies": {
     "@aipw/core": "0.0.0",
     "@anthropic-ai/claude-agent-sdk": "^0.3.295",
     "zod": "^4.6.5"
+  },
+  "engines": {
+    "node": ">=22.12"
   }
 }

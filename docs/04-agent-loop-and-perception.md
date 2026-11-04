@@ -170,6 +170,17 @@ Playwright's own auto-waiting covers actionability before each action, so settli
 - **Navigation guard**: if the page navigates to a non-allowed origin, stop the step with `blocked`.
 - **Budget guard**: per-step and per-run token/cost ceilings from config → `AiStepError(kind: 'limit')`.
 
+### 3.3 Last actions: no separate `done` turn
+
+Most steps are one or two actions ("Open the users page", "Enter the email"), and a `done` call after the last one
+used to cost a full model turn (a fresh snapshot in, a summary out) for nothing the next step or `ai.assert` wouldn't
+check anyway. Every page action therefore takes a nullable `last` flag. When the model sets `last: true`, the loop ends
+the step right after the action **if** the action succeeded and the page's content (refs and focus ignored) changed.
+An action that changed nothing falls back to the normal loop, so the model looks at the result before finishing.
+
+`last` is part of the decision, not the plan: plans don't store it and replays ignore it. Steps whose instruction
+asks to wait for or confirm something still end with `done` and quoted evidence, per the act prompt.
+
 ## 4. Prompt design
 
 The prompt is **rebuilt every turn** (decision D6). Layout, from most stable to most volatile,

@@ -11,7 +11,7 @@ import {
   type AipwConfigInput,
 } from '@aipw/core';
 import { existsSync } from 'node:fs';
-import { dirname, join, resolve } from 'node:path';
+import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 export interface Check {
@@ -29,6 +29,8 @@ const fail = (label: string, detail: string): Check => ({ status: 'fail', label,
  * require.resolve would wrongly say they are missing. Tries the project first, then the CLI's own location.
  */
 export function canResolve(pkg: string, from = process.cwd()): boolean {
+  // A local provider file (docs/05 §7.1), relative to the project root like the loader resolves it.
+  if (pkg.startsWith('.') || isAbsolute(pkg)) return existsSync(resolve(from, pkg));
   for (const parent of [pathToFileURL(join(from, 'noop.js')).href, import.meta.url]) {
     try {
       import.meta.resolve(pkg, parent);
@@ -122,10 +124,10 @@ export function doctorChecks(
   return checks;
 }
 
-/** aipw.config.{ts,mjs,js}, walking up from `from`. */
+/** aipw.config.{ts,mts,mjs,js}, walking up from `from`. */
 export async function loadConfigFile(from = process.cwd()): Promise<{ file?: string; config: AipwConfigInput }> {
   for (let dir = resolve(from); ; dir = dirname(dir)) {
-    for (const name of ['aipw.config.ts', 'aipw.config.mjs', 'aipw.config.js']) {
+    for (const name of ['aipw.config.ts', 'aipw.config.mts', 'aipw.config.mjs', 'aipw.config.js']) {
       const file = join(dir, name);
       if (existsSync(file)) {
         const mod = (await import(pathToFileURL(file).href)) as { default?: AipwConfigInput };

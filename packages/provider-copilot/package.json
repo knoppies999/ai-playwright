@@ -1,14 +1,15 @@
 {
   "name": "@aipw/provider-copilot",
   "version": "0.0.0",
-  "private": true,
   "description": "GitHub Copilot SDK adapter for aipw (local runs).",
+  "license": "MIT",
   "type": "module",
   "exports": {
     ".": {
       "source": "./src/index.ts",
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "files": [
@@ -16,9 +17,13 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean --sourcemap --target node22",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "prepack": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\""
   },
   "dependencies": {
     "@aipw/core": "0.0.0"
+  },
+  "engines": {
+    "node": ">=22.12"
   }
 }

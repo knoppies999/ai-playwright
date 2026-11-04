@@ -90,6 +90,13 @@
             "intent": {
               "type": "string",
               "description": "What this action is trying to do, in at most 15 words"
+            },
+            "last": {
+              "description": "true if you expect this action to complete the task. The step then ends without another turn, unless the action failed or changed nothing. null when more actions are needed",
+              "type": [
+                "boolean",
+                "null"
+              ]
             }
           },
           "required": [
@@ -97,7 +104,8 @@
             "button",
             "modifiers",
             "clickCount",
-            "intent"
+            "intent",
+            "last"
           ],
           "additionalProperties": false
         },
@@ -123,12 +131,20 @@
             "intent": {
               "type": "string",
               "description": "What this action is trying to do, in at most 15 words"
+            },
+            "last": {
+              "description": "true if you expect this action to complete the task. The step then ends without another turn, unless the action failed or changed nothing. null when more actions are needed",
+              "type": [
+                "boolean",
+                "null"
+              ]
             }
           },
           "required": [
             "ref",
             "value",
-            "intent"
+            "intent",
+            "last"
           ],
           "additionalProperties": false
         },

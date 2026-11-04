@@ -7,8 +7,9 @@ import { init } from '../src/init.js';
 const fresh = () => mkdtempSync(join(tmpdir(), 'aipw-init-'));
 
 describe('aipw init', () => {
-  it('sets up an empty project', () => {
+  it('sets up an empty ESM project', () => {
     const root = fresh();
+    writeFileSync(join(root, 'package.json'), '{"type":"module"}');
     const res = init(root);
     expect(res).toMatchObject({
       written: [
@@ -26,6 +27,15 @@ describe('aipw init', () => {
       'npx playwright test tests/aipw-example.spec.ts',
     );
     expect(readFileSync(join(root, '.gitignore'), 'utf8')).toContain('.aipw/');
+  });
+
+  it('writes aipw.config.mts in a CommonJS project, so Node loads it as ESM', () => {
+    const root = fresh();
+    writeFileSync(join(root, 'package.json'), '{"type":"commonjs"}');
+    const res = init(root);
+    if ('error' in res) throw new Error(res.error);
+    expect(res.written[0]).toBe('aipw.config.mts');
+    expect(readFileSync(join(root, 'aipw.config.mts'), 'utf8')).toContain("from 'aipw'");
   });
 
   it('leaves existing files alone and explains how to change a Playwright config', () => {

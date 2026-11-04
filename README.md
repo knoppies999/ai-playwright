@@ -6,8 +6,7 @@ A TypeScript framework on top of **Playwright Test**. You write end-to-end tests
 plain English steps with ordinary Playwright code:
 
 ```ts
-import { test, expect } from '@aipw/test';
-import { z } from 'zod';
+import { test, expect, z } from 'aipw';
 
 test('admin can create a user', async ({ page, ai, gen }) => {
   await loginAs(page, 'admin');                       // plain Playwright code
@@ -55,6 +54,16 @@ Guides: [Getting started in 10 minutes](docs/guides/getting-started.md) ·
 [Writing good instructions](docs/guides/writing-instructions.md) · [Troubleshooting](docs/guides/troubleshooting.md)
 
 Implementers (human, Copilot or Claude) start with [AGENTS.md](AGENTS.md).
+
+## Use it in your project
+
+```bash
+npm init aipw@latest     # installs aipw, a provider and Playwright, then writes the config and an example spec
+```
+
+Specs then `import { test, expect, z } from 'aipw'`. Not on npm yet: until the first release, the
+[getting started guide](docs/guides/getting-started.md) shows the tarball install. Releases are published by CI
+([releasing](docs/guides/releasing.md)).
 
 ## Try it
 
@@ -144,14 +153,14 @@ occasional heals there.
 
 ## Providers
 
-| Provider | Use it for | Set up |
-|---|---|---|
-| `claude-code` (default) | Local development on your Claude subscription, no API key | `claude auth login` |
-| `foundry` / `openai` | Pipelines (Azure Pipelines, OpenAI models on Microsoft Foundry, keyless via Entra) | [09](docs/09-configuration-reporting-ci.md) §3 |
-| `anthropic` | Claude with an API key | `ANTHROPIC_API_KEY` |
-| `copilot` | GitHub Copilot CLI on a machine that has it | [05](docs/05-llm-providers.md) §5 |
+| Provider | Use it for | Package | Set up |
+|---|---|---|---|
+| `claude-code` (default) | Local development on your Claude subscription, no API key | `@aipw/provider-claude-code` | `claude auth login` |
+| `foundry` / `openai` | Pipelines (Azure Pipelines, OpenAI models on Microsoft Foundry, keyless via Entra) | `@aipw/provider-openai` | [09](docs/09-configuration-reporting-ci.md) §3 |
+| `anthropic` | Claude with an API key | `@aipw/provider-anthropic` | `ANTHROPIC_API_KEY` |
+| `copilot` | GitHub Copilot CLI on a machine that has it | `@aipw/provider-copilot` | [05](docs/05-llm-providers.md) §5 |
 
-Pick one per run with `AIPW_PROVIDER` and `AIPW_MODEL`; `npx aipw doctor --provider <name> --probe` checks the setup.
+To switch: install its package, set `provider` in `aipw.config.ts` (or `AIPW_PROVIDER` for one run, `AIPW_MODEL` for the model), then check it with `npx aipw doctor --provider <name> --probe`. More, including any OpenAI-compatible endpoint or a provider of your own: [getting started §2](docs/guides/getting-started.md#switching-providers) and [05 §7.1](docs/05-llm-providers.md).
 
 ## Status
 
@@ -166,3 +175,7 @@ All phases in [docs/10](docs/10-implementation-plan.md) are implemented. What ha
   but not yet driven by a person at a keyboard.
 
 Development: `npm run check` (lint, typecheck, unit tests) and `npm run e2e` (FakeProvider suites, no AI).
+
+## License
+
+[MIT](LICENSE)

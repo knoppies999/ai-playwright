@@ -1,14 +1,15 @@
 {
   "name": "@aipw/core",
   "version": "0.0.0",
-  "private": true,
   "description": "aipw engine: step runner, agent loop, observer, executor, locators, cache. No provider SDK or test-runner dependency.",
+  "license": "MIT",
   "type": "module",
   "exports": {
     ".": {
       "source": "./src/index.ts",
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
     }
   },
   "files": [
@@ -16,12 +17,16 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean --sourcemap --target node22 --loader .md=text",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "prepack": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\""
   },
   "dependencies": {
     "zod": "^4.6.5"
   },
   "peerDependencies": {
     "playwright-core": "^1.64.0"
+  },
+  "engines": {
+    "node": ">=22.12"
   }
 }

@@ -35,7 +35,7 @@ export function planArgs(
 ): Record<string, unknown> {
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(args)) {
-    if (k === 'ref' || k === 'intent') continue;
+    if (k === 'ref' || k === 'intent' || k === 'last') continue;
     if (VALUE_FIELDS.has(k) && typeof v === 'string') out[k] = toPlaceholder(v, data, generated);
     else if (k === 'values' && Array.isArray(v))
       out[k] = v.map((x) => (typeof x === 'string' ? toPlaceholder(x, data, generated) : x));

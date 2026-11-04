@@ -45,7 +45,7 @@ describe('validateCall', () => {
   it('accepts a valid call', () => {
     expect(validateCall({ tool: 'hover', args: { ref: 'e7', intent: 'open menu' } }, offered)).toEqual({
       ok: true,
-      call: { tool: 'hover', args: { ref: 'e7', intent: 'open menu' } },
+      call: { tool: 'hover', args: { ref: 'e7', intent: 'open menu', last: null } },
     });
   });
 

@@ -69,8 +69,7 @@ export function specFor(url: string, steps: string[], values: Record<string, unk
   const usesZ = lines.some((l) => l.includes('z.string()'));
   const usesExpect = lines.some((l) => l.includes('expect('));
   return [
-    `import { ${usesExpect ? 'expect, ' : ''}test } from '@aipw/test';`,
-    ...(usesZ ? ["import { z } from 'zod';"] : []),
+    `import { ${usesExpect ? 'expect, ' : ''}test${usesZ ? ', z' : ''} } from 'aipw';`,
     '',
     `// Written by aipw try. Run it once to record the plan; later runs replay it without the model.`,
     `test(${quote(steps[0]!.slice(0, 80))}, async ({ page, ai }) => {`,

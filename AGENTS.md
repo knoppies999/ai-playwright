@@ -40,7 +40,9 @@ npm run lint && npm run typecheck
 | Public test API (`ai`, `gen` fixtures) | `packages/test` |
 | Engine | `packages/core/src/{step,loop,observe,actions,locators,cache,data,hints,nudge,llm,events}` |
 | Provider adapters | `packages/provider-{claude-code,anthropic,openai,copilot}` |
-| CLI (`aipw`) | `packages/cli` |
+| CLI (`aipw`) | `packages/cli` (the `aipw` bin ships in `packages/aipw`) |
+| What users install (`aipw`), `npm init aipw` | `packages/aipw` (re-exports), `packages/create-aipw` |
+| Releases to npm | `scripts/release-version.mjs`, `scripts/publish.mjs`, `.github/workflows/release.yml` ([guide](docs/guides/releasing.md)) |
 | Public target profiles + usability scenarios | `examples/targets/<name>` |
 | Hard-UI-pattern test app (Phase 4) | `examples/demo-app` |
 | Example + conformance specs | `examples/tests` |
