@@ -1,0 +1,836 @@
+{
+  "tests": {
+    "MDN: search the docs and read a method page": {
+      "be09fac29b7c4e1e": {
+        "compiled": [
+          {
+            "args": [
+              "Array.prototype.map()"
+            ],
+            "expect": "toHaveText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06944444444444445,
+                  "w": 0.53828125,
+                  "x": 0.225,
+                  "y": 0.2847222222222222
+                },
+                "label": null,
+                "name": "Array.prototype.map()",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h1",
+                "testIds": {},
+                "text": "Array.prototype.map()"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'Array.prototype.map()', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Array.prototype.map()",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Array.prototype.map()', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Array.prototype.map()"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Array.prototype.map()",
+              "role": "heading"
+            }
+          }
+        ],
+        "instruction": "The page heading is \"Array.prototype.map()\"",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-11-04T11:39:03.780Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "cbe571488365f04a": {
+        "instruction": "what the method returns, from the \"Return value\" section, as one sentence",
+        "kind": "extract",
+        "recordedWith": {
+          "at": "2026-11-04T11:39:10.031Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "sources": [
+          {
+            "path": "",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "region"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.03888888888888889,
+                  "w": 0.53828125,
+                  "x": 0.225,
+                  "y": 2.3631944444444444
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "paragraph",
+                "siblingIndex": 0,
+                "tag": "p",
+                "testIds": {},
+                "text": "A new array with each element being the result of the callback function."
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"content\"]').locator('p').nth(7)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"content\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "p"
+                    },
+                    {
+                      "index": 7,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "paragraph"
+            }
+          }
+        ],
+        "stats": {
+          "heals": 0
+        }
+      },
+      "fbfc4ab1813fb0e6": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open search",
+            "target": {
+              "fingerprint": {
+                "ancestors": [],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.10885416666666667,
+                  "w": 0.12354736328125,
+                  "x": 0.3633056640625,
+                  "y": 0.5738932291666666
+                },
+                "label": null,
+                "name": "Search",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Search"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Search', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Search",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByText('Search', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByText",
+                      "text": "Search"
+                    }
+                  ],
+                  "rung": "L6"
+                }
+              ],
+              "name": "Search",
+              "role": "button"
+            },
+            "tool": "click"
+          },
+          {
+            "args": {
+              "submit": false,
+              "text": "Array.prototype.map"
+            },
+            "intent": "Type search query",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  },
+                  {
+                    "name": null,
+                    "role": "dialog"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": "q",
+                  "type": "search"
+                },
+                "box": {
+                  "h": 0.03888888888888889,
+                  "w": 0.5609375,
+                  "x": 0.226171875,
+                  "y": 0.18611111111111112
+                },
+                "label": "Search",
+                "name": "Search",
+                "placeholder": "Search",
+                "role": "combobox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('combobox', { name: 'Search', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Search",
+                      "role": "combobox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByLabel('Search', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByLabel",
+                      "text": "Search"
+                    }
+                  ],
+                  "rung": "L3"
+                },
+                {
+                  "display": "getByPlaceholder('Search', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByPlaceholder",
+                      "text": "Search"
+                    }
+                  ],
+                  "rung": "L3"
+                }
+              ],
+              "name": "Search",
+              "role": "combobox"
+            },
+            "tool": "type"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open Array.prototype.map() reference page",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "option"
+                  },
+                  {
+                    "name": "Search results",
+                    "role": "listbox"
+                  },
+                  {
+                    "name": null,
+                    "role": "dialog"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.09887152777777777,
+                  "w": 0.609375,
+                  "x": 0.190234375,
+                  "y": 0.25277777777777777
+                },
+                "label": null,
+                "name": "JavaScript / Reference / Global Objects / Array Array.prototype.map()",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "JavaScript / Reference / Global Objects / Array Array.prototype.map()"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('link', { name: 'JavaScript / Reference / Global Objects / Array Array.prototype.map()', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "JavaScript / Reference / Global Objects / Array Array.prototype.map()",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "JavaScript / Reference / Global Objects / Array Array.prototype.map()",
+              "role": "link"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Search the docs for \"Array.prototype.map\" and open the reference page for that method",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/map"
+        },
+        "pre": {
+          "urlPattern": "https://developer.mozilla.org/en-US/"
+        },
+        "recordedWith": {
+          "at": "2026-11-04T11:38:54.559Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "Wikipedia: read the top of a long table": {
+      "c09975b025d48753": {
+        "instruction": "the names of the three tallest buildings in the first ranked table, in rank order",
+        "kind": "extract",
+        "recordedWith": {
+          "at": "2026-11-04T11:40:18.700Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "sources": [
+          {
+            "path": "0",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": "mw0A",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.02361111111111111,
+                  "w": 0.07015380859375,
+                  "x": 0.2366943359375,
+                  "y": 3.6628038194444446
+                },
+                "label": null,
+                "name": "Burj Khalifa",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Burj Khalifa"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"mw0A\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"mw0A\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "Burj Khalifa",
+              "role": "link"
+            }
+          },
+          {
+            "path": "1",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": "mw5g",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.09583333333333334,
+                  "w": 0.05072021484375,
+                  "x": 0.2366943359375,
+                  "y": 3.868185763888889
+                },
+                "label": null,
+                "name": "Merdeka Maybank Tower",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Merdeka Maybank Tower"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"mw5g\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"mw5g\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "Merdeka Maybank Tower",
+              "role": "link"
+            }
+          },
+          {
+            "path": "2",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "row"
+                  },
+                  {
+                    "name": null,
+                    "role": "table"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": "mw_Q",
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.059722222222222225,
+                  "w": 0.05283203125,
+                  "x": 0.2366943359375,
+                  "y": 4.295095486111111
+                },
+                "label": null,
+                "name": "Shanghai Tower",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Shanghai Tower"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"mw_Q\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"mw_Q\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "Shanghai Tower",
+              "role": "link"
+            }
+          }
+        ],
+        "stats": {
+          "heals": 0
+        }
+      }
+    },
+    "python.org: a hover-only menu": {
+      "3af12e6674dea53c": {
+        "actions": [
+          {
+            "args": {},
+            "intent": "Hover Downloads in main navigation",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  },
+                  {
+                    "name": "Main Navigation",
+                    "role": "menubar"
+                  },
+                  {
+                    "name": null,
+                    "role": "navigation"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.07337239583333334,
+                  "w": 0.102294921875,
+                  "x": 0.23284912109375,
+                  "y": 0.22467447916666666
+                },
+                "label": null,
+                "name": "Downloads",
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Downloads"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"downloads\"]').getByRole('link').first()",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"downloads\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "link"
+                    },
+                    {
+                      "index": 0,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "name": "Downloads",
+              "role": "link"
+            },
+            "tool": "hover"
+          }
+        ],
+        "instruction": "Hover over Downloads in the main navigation so its menu opens",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://www.python.org/"
+        },
+        "pre": {
+          "urlPattern": "https://www.python.org/"
+        },
+        "recordedWith": {
+          "at": "2026-11-04T11:47:00.059Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "a229863449beb343": {
+        "instruction": "the first three links in the open Downloads menu",
+        "kind": "extract",
+        "recordedWith": {
+          "at": "2026-11-04T11:47:05.267Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "sources": [
+          {
+            "path": "0",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "menuitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "menu"
+                  },
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.0580078125,
+                  "w": 0.17801513671875,
+                  "x": 0.23284912109375,
+                  "y": 0.2994357638888889
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "All releases"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"downloads\"]').locator('a').nth(1)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"downloads\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "a"
+                    },
+                    {
+                      "index": 1,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "link"
+            }
+          },
+          {
+            "path": "1",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "menuitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "menu"
+                  },
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.0580078125,
+                  "w": 0.17801513671875,
+                  "x": 0.23284912109375,
+                  "y": 0.3574435763888889
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Source code"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"downloads\"]').locator('a').nth(2)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"downloads\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "a"
+                    },
+                    {
+                      "index": 2,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "link"
+            }
+          },
+          {
+            "path": "2",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "menuitem"
+                  },
+                  {
+                    "name": null,
+                    "role": "menu"
+                  },
+                  {
+                    "name": null,
+                    "role": "listitem"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.0580078125,
+                  "w": 0.17801513671875,
+                  "x": 0.23284912109375,
+                  "y": 0.4154513888888889
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "Windows"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"downloads\"]').locator('a').nth(3)",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"downloads\"]"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "a"
+                    },
+                    {
+                      "index": 3,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "link"
+            }
+          }
+        ],
+        "stats": {
+          "heals": 0
+        }
+      }
+    }
+  },
+  "version": 1
+}

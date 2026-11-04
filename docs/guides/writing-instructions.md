@@ -46,6 +46,15 @@ phone, dates). Prefer `gen` when the value must be valid.
   assertion next to it when you can.
 - Where a code check is cheap, add one next to the AI assertion to catch a false pass.
 
+## Extracts: read what the page shows, derive in code
+
+`ai.extract` replays by reading the same elements again, which only works when the value is the element's text.
+
+- Good: `the text of the download button` → `"Download Python 3.14.0"`, then `/Python (\S+)/` in code.
+- Weak: `the latest Python version` → `"Python 3.14.0"`. The model had to cut it out of a longer text, so it can't be
+  read back without the model, and `aipw cache show` says `sources: none (read by AI on every run)`.
+- If the value isn't on the page, extract fails with `Not on the page: …` instead of inventing one.
+
 ## Hidden things: say where they are, or add a hint
 
 Menus that open on hover, items inside collapsed sections, and virtualised lists are the most common failures. Either

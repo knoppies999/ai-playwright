@@ -91,8 +91,12 @@ export async function decideWithRepair(
 
 /** The tool, its target and its arguments (not the intent): typing different text into one box is different work. */
 const actionKey = (r: ActionRecord) => {
-  const { intent: _intent, ...args } = r.args;
-  return `${r.tool}:${r.target?.ref ?? ''}:${JSON.stringify(args)}`;
+  const { intent: _intent, ref: _ref, ...args } = r.args;
+  // The element as the snapshot names it, not its ref (a re-render gives the same Save button a new ref) and not
+  // its best locator (synthesis under load can pick a different one for the same element). Unnamed: the ref.
+  const t = r.target;
+  const target = t ? (t.name ? `${t.role ?? ''} "${t.name}"` : t.ref) : '';
+  return `${r.tool}:${target}:${JSON.stringify(args)}`;
 };
 /** A snapshot without refs and focus: a click that only moved focus didn't change what the page shows. */
 const sameContent = (snapshot: string) => snapshot.replace(/ \[(ref=[^\]]+|active)\]/g, '');
