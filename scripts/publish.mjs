@@ -29,6 +29,21 @@ const visit = (p) => {
 };
 packages.forEach(visit);
 
+// Manifest mistakes npm only reports (or silently "fixes") at publish time. Checked on every run, so CI's
+// `publish.mjs --dry-run` catches them long before a release.
+const manifestProblems = [];
+for (const { pkg } of ordered) {
+  if (!pkg.license) manifestProblems.push(`${pkg.name}: no "license" field`);
+  // npm 11 drops bin entries written as "./dist/bin.js" on publish: the command would be missing.
+  for (const [name, path] of Object.entries(pkg.bin ?? {}))
+    if (path.startsWith('./'))
+      manifestProblems.push(`${pkg.name}: bin "${name}" must be "${path.slice(2)}", not "${path}"`);
+}
+if (manifestProblems.length) {
+  console.error(`Package manifests need fixing:\n  ${manifestProblems.join('\n  ')}`);
+  process.exit(1);
+}
+
 // A merge to main without a release version is normal: nothing to publish.
 if (ordered.every(({ pkg }) => pkg.version === '0.0.0')) {
   console.log('Dev version 0.0.0: nothing to publish.');
@@ -37,12 +52,22 @@ if (ordered.every(({ pkg }) => pkg.version === '0.0.0')) {
 const problems = [];
 for (const { pkg, dir } of ordered) {
   if (pkg.version === '0.0.0') problems.push(`${pkg.name}: still 0.0.0; run scripts/release-version.mjs`);
-  if (!pkg.license) problems.push(`${pkg.name}: no "license" field`);
   if (!existsSync(join(dir, 'dist'))) problems.push(`${pkg.name}: not built (npm run build)`);
 }
 if (problems.length) {
   console.error(`Not publishing:\n  ${problems.join('\n  ')}`);
   process.exit(1);
+}
+
+// Who the token publishes as: a 404 on PUT @scope/name usually means this user can't create packages in that org.
+let user = '(unknown)';
+if (!dryRun) {
+  try {
+    user = npm(['whoami'], { stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+    console.log(`npm user: ${user}`);
+  } catch {
+    console.log('npm whoami failed: with trusted publishing that is expected; with NPM_TOKEN the token is not valid.');
+  }
 }
 
 let published = 0;
@@ -63,7 +88,20 @@ for (const { pkg } of ordered) {
   if (provenance) args.push('--provenance');
   if (dryRun) args.push('--dry-run');
   console.log(`publish  ${id} (${tag})${dryRun ? ' [dry run]' : ''}`);
-  npm(args, { stdio: 'inherit' });
+  try {
+    npm(args, { stdio: 'inherit' });
+  } catch {
+    const scope = pkg.name.startsWith('@') ? pkg.name.split('/')[0] : undefined;
+    console.error(
+      `\nnpm refused ${id}.` +
+        (scope
+          ? ` A 404 or 403 here means npm user "${user}" can't publish to ${scope}: make them an owner or admin of ` +
+            `the npm org "${scope.slice(1)}", and give the token "Read and write" on all packages or on the ${scope} scope.`
+          : '') +
+        (published ? ` ${published} package(s) were published before this one; re-running skips them.` : ''),
+    );
+    process.exit(1);
+  }
   published++;
 }
 console.log(`\n${published} package(s) ${dryRun ? 'would be ' : ''}published.`);

@@ -33,3 +33,5 @@ jobs:
       # The showcase's committed plans replay in replay-only mode: any step that would need AI fails.
       - run: node scripts/demo.mjs --replay
       - run: node scripts/leak-check.mjs DEMO_INITIAL_PASSWORD
+      # Package manifests are publishable (license, bin paths npm would drop); a no-op publish at 0.0.0.
+      - run: node scripts/publish.mjs --dry-run
