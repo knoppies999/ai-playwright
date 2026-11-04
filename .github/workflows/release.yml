@@ -1,0 +1,47 @@
+# Publishes the aipw packages to npm when a release version lands on main (docs/guides/releasing.md).
+# A release PR runs `node scripts/release-version.mjs <version>`; merging it runs this workflow, which publishes
+# every package whose version isn't on npm yet. Merges that keep the dev version 0.0.0 publish nothing.
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths: ['packages/*/package.json']
+  workflow_dispatch:
+
+permissions:
+  contents: write # tag the release
+  id-token: write # npm trusted publishing (OIDC) and provenance
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      # Trusted publishing needs npm 11.5.1 or later.
+      - run: npm install -g npm@latest
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npm test
+      - run: npx playwright test --project fixtures --project demo
+      - name: Publish new versions
+        # With trusted publishing configured on npmjs.com no token is needed; otherwise set the NPM_TOKEN secret.
+        run: node scripts/publish.mjs ${{ github.event.repository.private == false && '--provenance' || '' }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Tag the release
+        run: |
+          version=$(node -p "require('./packages/aipw/package.json').version")
+          if [ "$version" != "0.0.0" ] && ! git ls-remote --exit-code --tags origin "v$version" >/dev/null; then
+            git tag "v$version" && git push origin "v$version"
+          fi

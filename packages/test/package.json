@@ -1,7 +1,6 @@
 {
   "name": "@aipw/test",
   "version": "0.0.0",
-  "private": true,
   "description": "Playwright Test fixtures for aipw (ai, gen), the run summary reporter and config loader.",
   "type": "module",
   "exports": {
@@ -35,5 +34,8 @@
   },
   "peerDependencies": {
     "@playwright/test": "^1.64.0"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

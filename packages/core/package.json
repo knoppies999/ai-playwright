@@ -1,7 +1,6 @@
 {
   "name": "@aipw/core",
   "version": "0.0.0",
-  "private": true,
   "description": "aipw engine: step runner, agent loop, observer, executor, locators, cache. No provider SDK or test-runner dependency.",
   "type": "module",
   "exports": {
@@ -23,5 +22,8 @@
   },
   "peerDependencies": {
     "playwright-core": "^1.64.0"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

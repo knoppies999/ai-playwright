@@ -10,7 +10,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w @aipw/core && npm run build -w @aipw/test -w @aipw/provider-claude-code -w @aipw/provider-anthropic -w @aipw/provider-openai -w @aipw/provider-copilot -w @aipw/cli",
+    "build": "npm run build -w @aipw/core && npm run build -w @aipw/test -w @aipw/provider-claude-code -w @aipw/provider-anthropic -w @aipw/provider-openai -w @aipw/provider-copilot -w @aipw/cli && npm run build -w aipw -w create-aipw",
     "test": "vitest run",
     "test:watch": "vitest",
     "e2e": "npm run build && playwright test --project fixtures --project demo --project saucedemo",
@@ -25,7 +25,7 @@
     "e2e:todomvc": "npm run build && playwright test --project todomvc --workers=1",
     "demo": "npm run build && node scripts/demo.mjs",
     "demo:replay": "npm run build && node scripts/demo.mjs --replay",
-    "pack": "npm run build && node -e \"require('fs').mkdirSync('dist-packages',{recursive:true})\" && npm pack -w @aipw/core -w @aipw/test -w @aipw/cli -w @aipw/provider-claude-code -w @aipw/provider-anthropic -w @aipw/provider-openai -w @aipw/provider-copilot --pack-destination dist-packages",
+    "pack": "npm run build && node -e \"require('fs').mkdirSync('dist-packages',{recursive:true})\" && npm pack -w @aipw/core -w @aipw/test -w @aipw/cli -w @aipw/provider-claude-code -w @aipw/provider-anthropic -w @aipw/provider-openai -w @aipw/provider-copilot -w aipw -w create-aipw --pack-destination dist-packages",
     "e2e:real-sites": "npm run build && playwright test --project real-sites --workers=1"
   },
   "devDependencies": {

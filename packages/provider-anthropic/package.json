@@ -1,7 +1,6 @@
 {
   "name": "@aipw/provider-anthropic",
   "version": "0.0.0",
-  "private": true,
   "description": "Anthropic API adapter for aipw (API key).",
   "type": "module",
   "exports": {
@@ -20,5 +19,8 @@
   },
   "dependencies": {
     "@aipw/core": "0.0.0"
+  },
+  "engines": {
+    "node": ">=22"
   }
 }

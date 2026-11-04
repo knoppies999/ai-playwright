@@ -24,7 +24,7 @@ const PLAYWRIGHT_CONFIGS = [
 ];
 
 export function configFile(provider: Provider): string {
-  return `import { defineAipwConfig } from '@aipw/core';
+  return `import { defineAipwConfig } from 'aipw';
 
 export default defineAipwConfig({
   // ${PROVIDER_NOTES[provider]}
@@ -46,10 +46,10 @@ applyTo: '${dir}/**/*.spec.ts'
 
 # Writing aipw tests
 
-These are Playwright tests with English steps from \`@aipw/test\`: \`ai.act\`, \`ai.assert\`, \`ai.extract\`, \`ai.locate\`,
+These are Playwright tests with English steps from \`aipw\`:\`ai.act\`, \`ai.assert\`, \`ai.extract\`, \`ai.locate\`,
 \`ai.run\`. The first run asks the model and records a plan in \`__aipw__/\`; later runs replay it without the model.
 
-- Import \`test\` and \`expect\` from \`@aipw/test\`, never from \`@playwright/test\`. Use \`z\` from \`zod\` for extract schemas.
+- Import \`test\`, \`expect\` and \`z\` (for extract schemas) from \`aipw\`, never from \`@playwright/test\`.
 - One goal per \`ai.act\`, naming what is on screen in quotes: \`ai.act('Click "Save" in the Notifications section')\`.
 - Values go in \`data\`, passwords in \`secrets\` (names from \`aipw.config.ts\`), never in the instruction text:
   \`ai.act('Log in as the admin', { data: { username: 'admin' }, secrets: ['password'] })\`.
@@ -68,8 +68,7 @@ export function exampleSpec(): string {
   return `// An aipw example on Playwright's public TodoMVC demo. Run: npx playwright test ${'{dir}'}/aipw-example.spec.ts
 // The first run asks the model; it records a plan in __aipw__/ next to this file. Commit that plan: later runs
 // replay it with no model calls, and heal it if the page changes.
-import { expect, test } from '@aipw/test';
-import { z } from 'zod';
+import { expect, test, z } from 'aipw';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('https://demo.playwright.dev/todomvc/');
@@ -94,20 +93,20 @@ test('add, complete and count todos', async ({ page, ai }) => {
 
 export function playwrightConfig(dir: string): string {
   return `import { defineConfig, devices } from '@playwright/test';
-import { withAipw } from '@aipw/test';
+import { withAipw } from 'aipw';
 
 export default defineConfig(
   withAipw({
     testDir: '${dir}',
-    reporter: [['list'], ['html', { open: 'never' }], ['@aipw/test/reporter']],
+    reporter: [['list'], ['html', { open: 'never' }], ['aipw/reporter']],
     use: { ...devices['Desktop Chrome'], trace: 'retain-on-failure' },
   }),
 );
 `;
 }
 
-const PLAYWRIGHT_CHANGES = `  1. Wrap the config:   export default defineConfig(withAipw({ … }))   with   import { withAipw } from '@aipw/test';
-  2. Add the reporter:  reporter: [['list'], ['@aipw/test/reporter']]`;
+const PLAYWRIGHT_CHANGES = `  1. Wrap the config:   export default defineConfig(withAipw({ … }))   with   import { withAipw } from 'aipw';
+  2. Add the reporter:  reporter: [['list'], ['aipw/reporter']]`;
 
 const GITIGNORE_LINES = ['.aipw/'];
 
