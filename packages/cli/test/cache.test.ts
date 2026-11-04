@@ -81,4 +81,9 @@ describe('aipw cache', () => {
     expect(removed).toEqual(['users > gone']);
     expect(Object.keys(pruned.tests)).toEqual(['users > create']);
   });
+
+  it('keeps per-project plans (cache.byProject) of live tests', () => {
+    const perProject = { ...file, tests: { 'mobile › users > create': file.tests['users > create']! } };
+    expect(prunePlans(perProject, new Set(['users > create'])).removed).toEqual([]);
+  });
 });

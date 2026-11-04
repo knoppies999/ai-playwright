@@ -12,6 +12,17 @@ export function isIdSegment(seg: string): boolean {
   return /^\d+$|^[0-9a-f]{8}-[0-9a-f-]{27,}$|^[0-9a-f]{16,}$/i.test(seg) || MIXED_ID_TOKEN.test(seg);
 }
 
+/** A trailing keyboard-shortcut hint: "Search Ctrl K" on Windows is "Search ⌘ K" on a Mac. */
+const SHORTCUT_HINT = /\s+(?:(?:ctrl|control|cmd|command|alt|option|shift|meta|win|⌘|⌥|⇧|⌃)\s*\+?\s*)+\S{1,3}$/i;
+
+/** The name without a trailing keyboard-shortcut hint, or undefined when it has none (or nothing would be left). */
+export function withoutShortcutHint(name: string): string | undefined {
+  const m = SHORTCUT_HINT.exec(name);
+  if (!m) return undefined;
+  const rest = name.slice(0, m.index).trim();
+  return rest.length >= 3 ? rest : undefined;
+}
+
 /** A price or amount in a name: "$14.15", "R 1 299,00" (rand), "12.50". */
 const PRICE = /[$€£¥₹]\s?\d|\bR\s?\d[\d\s]*[.,]\d{2}\b|\b\d+[.,]\d{2}\b/;
 

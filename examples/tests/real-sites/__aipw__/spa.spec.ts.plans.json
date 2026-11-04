@@ -1,0 +1,389 @@
+{
+  "tests": {
+    "search modal on a single-page app": {
+      "13fca78752ddb35c": {
+        "actions": [
+          {
+            "args": {
+              "submit": false,
+              "text": "useEffect"
+            },
+            "intent": "Type search query",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "form"
+                  },
+                  {
+                    "name": null,
+                    "role": "banner"
+                  },
+                  {
+                    "name": null,
+                    "role": "button"
+                  }
+                ],
+                "attrs": {
+                  "id": "docsearch-input",
+                  "name": null,
+                  "type": "search"
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.53203125,
+                  "x": 0.24296875,
+                  "y": 0.03888888888888889
+                },
+                "label": "Search",
+                "name": "Search",
+                "placeholder": "Search docs",
+                "role": "searchbox",
+                "siblingIndex": 0,
+                "tag": "input",
+                "testIds": {},
+                "text": ""
+              },
+              "locators": [
+                {
+                  "display": "getByRole('searchbox', { name: 'Search', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Search",
+                      "role": "searchbox"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByPlaceholder('Search docs', { exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByPlaceholder",
+                      "text": "Search docs"
+                    }
+                  ],
+                  "rung": "L3"
+                },
+                {
+                  "display": "locator('[id=\"docsearch-input\"]')",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"docsearch-input\"]"
+                    }
+                  ],
+                  "rung": "L4"
+                }
+              ],
+              "name": "Search",
+              "role": "searchbox"
+            },
+            "tool": "type"
+          },
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open useEffect reference result",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "option"
+                  },
+                  {
+                    "name": null,
+                    "role": "listbox"
+                  },
+                  {
+                    "name": null,
+                    "role": "region"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06666666666666667,
+                  "w": 0.584375,
+                  "x": 0.2,
+                  "y": 0.15555555555555556
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "link",
+                "siblingIndex": 0,
+                "tag": "a",
+                "testIds": {},
+                "text": "useEffect"
+              },
+              "locators": [
+                {
+                  "display": "locator('[id=\"docsearch-hits0-item-0\"]').getByRole('link').first()",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "[id=\"docsearch-hits0-item-0\"]"
+                    },
+                    {
+                      "m": "getByRole",
+                      "role": "link"
+                    },
+                    {
+                      "index": 0,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "link"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Search for \"useEffect\" and open the API reference page for it",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://react.dev/reference/react/useEffect"
+        },
+        "pre": {
+          "urlPattern": "https://react.dev/"
+        },
+        "recordedWith": {
+          "at": "2026-11-04T14:10:29.059Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "18fa4e2d9f6cc2c1": {
+        "instruction": "the text of the first paragraph under the heading",
+        "kind": "extract",
+        "recordedWith": {
+          "at": "2026-11-04T14:11:01.033Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "sources": [
+          {
+            "path": "",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "article"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.04513888888888889,
+                  "w": 0.675,
+                  "x": 0.2875,
+                  "y": 0.2611111111111111
+                },
+                "label": null,
+                "name": null,
+                "placeholder": null,
+                "role": "paragraph",
+                "siblingIndex": 0,
+                "tag": "p",
+                "testIds": {},
+                "text": "useEffect is a React Hook that lets you synchronize a component with an external"
+              },
+              "locators": [
+                {
+                  "display": "locator('article').locator('p').first()",
+                  "expr": [
+                    {
+                      "m": "locator",
+                      "selector": "article"
+                    },
+                    {
+                      "m": "locator",
+                      "selector": "p"
+                    },
+                    {
+                      "index": 0,
+                      "m": "nth"
+                    }
+                  ],
+                  "rung": "L7"
+                }
+              ],
+              "role": "paragraph"
+            }
+          }
+        ],
+        "stats": {
+          "heals": 0
+        }
+      },
+      "82f4d1fb1d7ac4d9": {
+        "compiled": [
+          {
+            "args": [
+              "useEffect"
+            ],
+            "expect": "toHaveText",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "article"
+                  },
+                  {
+                    "name": null,
+                    "role": "main"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": null
+                },
+                "box": {
+                  "h": 0.06944444444444445,
+                  "w": 0.675,
+                  "x": 0.2875,
+                  "y": 0.16944444444444445
+                },
+                "label": null,
+                "name": "useEffect",
+                "placeholder": null,
+                "role": "heading",
+                "siblingIndex": 0,
+                "tag": "h1",
+                "testIds": {},
+                "text": "useEffect"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('heading', { name: 'useEffect', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "useEffect",
+                      "role": "heading"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "useEffect",
+              "role": "heading"
+            }
+          }
+        ],
+        "instruction": "The page heading is \"useEffect\"",
+        "kind": "assert",
+        "recordedWith": {
+          "at": "2026-11-04T14:10:36.664Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      },
+      "c302f028da5fa71b": {
+        "actions": [
+          {
+            "args": {
+              "button": "left",
+              "clickCount": 1,
+              "modifiers": null
+            },
+            "intent": "Open site search",
+            "target": {
+              "fingerprint": {
+                "ancestors": [
+                  {
+                    "name": null,
+                    "role": "navigation"
+                  }
+                ],
+                "attrs": {
+                  "id": null,
+                  "name": null,
+                  "type": "button"
+                },
+                "box": {
+                  "h": 0.05555555555555555,
+                  "w": 0.48204345703125,
+                  "x": 0.08865966796875,
+                  "y": 0.016666666666666666
+                },
+                "label": null,
+                "name": "Search Ctrl K",
+                "placeholder": null,
+                "role": "button",
+                "siblingIndex": 0,
+                "tag": "button",
+                "testIds": {},
+                "text": "Search Ctrl K"
+              },
+              "locators": [
+                {
+                  "display": "getByRole('button', { name: 'Search' })",
+                  "expr": [
+                    {
+                      "m": "getByRole",
+                      "name": "Search",
+                      "role": "button"
+                    }
+                  ],
+                  "rung": "L2"
+                }
+              ],
+              "name": "Search Ctrl K",
+              "role": "button"
+            },
+            "tool": "click"
+          }
+        ],
+        "instruction": "Open the site search",
+        "kind": "act",
+        "post": {
+          "urlPattern": "https://react.dev/"
+        },
+        "pre": {
+          "urlPattern": "https://react.dev/"
+        },
+        "recordedWith": {
+          "at": "2026-11-04T14:10:03.367Z",
+          "model": "claude-sonnet-5-5",
+          "provider": "claude-code"
+        },
+        "stats": {
+          "heals": 0
+        }
+      }
+    }
+  },
+  "version": 1
+}

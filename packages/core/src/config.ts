@@ -80,6 +80,11 @@ export const AipwConfigSchema = z.object({
       mode: z.enum(['auto', 'replay-only', 'ai-only', 'refresh']).default('auto'),
       /** Plan files live in this folder next to each spec. */
       dir: z.string().default('__aipw__'),
+      /**
+       * Each Playwright project keeps its own plans. Turn on when projects show different pages for the same test
+       * (a mobile layout), or their heals undo each other on every run.
+       */
+      byProject: z.boolean().default(false),
     })
     .prefault({}),
   heal: z

@@ -145,7 +145,11 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     // Under `aipw nudge` (AIPW_NUDGE_PORT set), connect to the driver so the human can step through (docs/07).
     const nudge = await NudgeController.fromEnv({ file: specFile, title: testInfo.titlePath.slice(1).join(' > ') });
     const planStore = new FilePlanStore(planFilePath(testInfo.file, config.cache.dir));
-    const testTitle = testInfo.titlePath.slice(1).join(' > ');
+    const project = testInfo.project.name || undefined;
+    // cache.byProject: each project's plans live under its own title ("mobile › users > create").
+    const title = testInfo.titlePath.slice(1).join(' > ');
+    const testTitle = config.cache.byProject && project ? `${project} › ${title}` : title;
+    const warned = new Set<string>();
     const ai = new Ai({
       page,
       provider: aipwProvider,
@@ -168,6 +172,13 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       wrapAction: (title, fn) => base.step(title, fn),
       captureCallsite,
       idPrefix: testInfo.testId,
+      ...(project && { project }),
+      warn: (message) => {
+        if (warned.has(message)) return;
+        warned.add(message);
+        testInfo.annotations.push({ type: 'warning', description: message });
+        console.warn(message);
+      },
     });
     ai.events.on((e) => {
       events.push(e);

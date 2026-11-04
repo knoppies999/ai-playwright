@@ -76,7 +76,13 @@ const UrlCheckSchema = z.strictObject({ urlPattern: z.string() });
 const StepPlanBase = z.strictObject({
   kind: z.enum(['act', 'assert', 'extract', 'locate']),
   instruction: z.string(),
-  recordedWith: z.strictObject({ provider: z.string(), model: z.string(), at: z.string() }),
+  recordedWith: z.strictObject({
+    provider: z.string(),
+    model: z.string(),
+    at: z.string(),
+    /** The Playwright project that recorded it, to notice projects sharing (and fighting over) one plan. */
+    project: z.string().optional(),
+  }),
   pre: UrlCheckSchema.optional(),
   post: UrlCheckSchema.optional(),
   /** act */

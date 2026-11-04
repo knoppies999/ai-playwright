@@ -114,6 +114,30 @@ describe('plan cache', () => {
     const variantB = (s: string) => s.replace('data-test="login-button">Login<', 'data-test="sign-in">Sign in<');
     const healScript = () => [pick('button "Sign in"', 'click', click), done];
 
+    it('says so when a plan recorded in one project heals in another', async () => {
+      const store = new MemoryPlanStore();
+      const withProject = (page: Page, provider: FakeProvider, project: string, warnings: string[]) =>
+        new Ai({
+          page,
+          provider,
+          baseURL: ORIGIN,
+          playwrightTestIdAttribute: 'data-test',
+          config: resolveConfig({
+            secrets: { map: { password: 'AIPW_TEST_PASSWORD' } },
+            settle: { maxMs: 600, networkQuietMs: 50, snapshotIntervalMs: 50 },
+            heal: { policy: 'accept' },
+          }),
+          cache: { store, testTitle: TEST },
+          project,
+          warn: (m) => warnings.push(m),
+        });
+      await login(withProject(await openApp(), new FakeProvider(loginScript()), 'desktop', []));
+      expect(Object.values(store.file.tests[TEST]!)[0]!.recordedWith.project).toBe('desktop');
+      const warnings: string[] = [];
+      await login(withProject(await openApp(variantB), new FakeProvider(healScript()), 'mobile', warnings));
+      expect(warnings[0]).toMatch(/recorded in project "desktop" and healed in "mobile".*byProject: true/);
+    });
+
     it('heals through the AI and replaces the plan (accept)', async () => {
       const store = new MemoryPlanStore();
       await login(makeAi(await openApp(), new FakeProvider(loginScript()), store).ai);

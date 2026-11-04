@@ -71,6 +71,10 @@ export interface AiDeps {
   captureCallsite?: () => Callsite | undefined;
   /** Prefix for step ids, e.g. the test id. */
   idPrefix?: string;
+  /** The Playwright project running the test: stored in plans, and compared when a plan heals. */
+  project?: string;
+  /** A notice for the person running the test (the fixture prints it once and annotates the test). */
+  warn?: (message: string) => void;
   events?: EventBus;
   redactor?: Redactor;
   /** Shared by ai.on(page) instances, so steps on any page count as used. */
@@ -465,6 +469,14 @@ export class Ai {
     instruction: string,
     ctx: StepContext,
   ) {
+    const recordedIn = before.recordedWith.project;
+    if (recordedIn && this.deps.project && recordedIn !== this.deps.project && !this.config.cache.byProject) {
+      this.deps.warn?.(
+        `aipw: "${instruction}" was recorded in project "${recordedIn}" and healed in "${this.deps.project}". If the ` +
+          'projects show different pages (a mobile layout), set cache: { byProject: true } in aipw.config.ts so each ' +
+          'keeps its own plans; otherwise their heals undo each other on every run.',
+      );
+    }
     const policy = this.config.heal.policy;
     if (policy === 'accept') await cache.store.put(cache.testTitle, key, after, { healed: true });
     else if (policy === 'report') await cache.healedStore?.put(cache.testTitle, key, after, { healed: true });
@@ -560,7 +572,11 @@ export class Ai {
                 if (replay.healed.length) {
                   const healedPlan = {
                     ...applyHeals(plan, replay.healed),
-                    recordedWith: { ...plan.recordedWith, at: new Date().toISOString() },
+                    recordedWith: {
+                      ...plan.recordedWith,
+                      at: new Date().toISOString(),
+                      ...(this.deps.project && { project: this.deps.project }),
+                    },
                   };
                   const describe = (t: { role?: string; name?: string; locators: { display: string }[] }) =>
                     `${t.role ?? 'element'} "${t.name ?? ''}" (${t.locators[0]?.display ?? 'no locator'})`;
@@ -644,6 +660,7 @@ export class Ai {
               provider: this.deps.provider.id,
               model: this.deps.provider.model,
               now: new Date(),
+              ...(this.deps.project && { project: this.deps.project }),
               startUrl,
               endUrl: session.page.url(),
             });
@@ -725,7 +742,12 @@ export class Ai {
     return {
       kind,
       instruction,
-      recordedWith: { provider: this.deps.provider.id, model: this.deps.provider.model, at: new Date().toISOString() },
+      recordedWith: {
+        provider: this.deps.provider.id,
+        model: this.deps.provider.model,
+        at: new Date().toISOString(),
+        ...(this.deps.project && { project: this.deps.project }),
+      },
       stats: { heals: 0 },
       ...extra,
     };

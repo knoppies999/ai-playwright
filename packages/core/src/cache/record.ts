@@ -97,6 +97,7 @@ export function planActions(records: ActionRecord[], data: Record<string, unknow
 export interface RecordContext {
   provider: string;
   model: string;
+  project?: string;
   now: Date;
   startUrl: string;
   endUrl: string;
@@ -111,7 +112,12 @@ export function planFromAct(
   return {
     kind: 'act',
     instruction,
-    recordedWith: { provider: ctx.provider, model: ctx.model, at: ctx.now.toISOString() },
+    recordedWith: {
+      provider: ctx.provider,
+      model: ctx.model,
+      at: ctx.now.toISOString(),
+      ...(ctx.project && { project: ctx.project }),
+    },
     pre: { urlPattern: urlPattern(ctx.startUrl) },
     post: { urlPattern: urlPattern(ctx.endUrl) },
     actions: planActions(records, data),
