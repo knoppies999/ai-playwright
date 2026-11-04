@@ -30,8 +30,10 @@ Check locally first: `npm run build && node scripts/publish.mjs --dry-run`.
    `LICENSE` into its tarball when packed (`prepack`). `publish.mjs` refuses to publish a package without a license.
    A new package needs both.
 4. **First publish.** npm's trusted publishing can only be set up for packages that already exist, so publish the
-   first version with a token: create a granular access token on npmjs.com (read and write, the `aipw` org plus the
-   two unscoped packages) and save it as the repository secret `NPM_TOKEN`.
+   first version with a token: a granular access token on npmjs.com with **Read and write** on all packages (not
+   "Read and write (stage only)", which can only stage a publish for approval: CI then fails with E404 on
+   `PUT @aipw/core`) and **Bypass 2FA**. Save it as the repository secret `NPM_TOKEN`. npm plans to stop direct
+   publishing with bypass-2FA tokens (announced for around January 2027), so move to trusted publishing next.
 5. **Then, optionally, trusted publishing.** For each package on npmjs.com: Settings → Trusted publishing → GitHub
    Actions, repository `knoppies999/ai-playwright`, workflow `release.yml`. CI then publishes through OIDC with no
    token, and you can delete `NPM_TOKEN`. If the repository is public, releases also get provenance statements.

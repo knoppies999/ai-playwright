@@ -29,6 +29,21 @@ const visit = (p) => {
 };
 packages.forEach(visit);
 
+// Manifest mistakes npm only reports (or silently "fixes") at publish time. Checked on every run, so CI's
+// `publish.mjs --dry-run` catches them long before a release.
+const manifestProblems = [];
+for (const { pkg } of ordered) {
+  if (!pkg.license) manifestProblems.push(`${pkg.name}: no "license" field`);
+  // npm 11 drops bin entries written as "./dist/bin.js" on publish: the command would be missing.
+  for (const [name, path] of Object.entries(pkg.bin ?? {}))
+    if (path.startsWith('./'))
+      manifestProblems.push(`${pkg.name}: bin "${name}" must be "${path.slice(2)}", not "${path}"`);
+}
+if (manifestProblems.length) {
+  console.error(`Package manifests need fixing:\n  ${manifestProblems.join('\n  ')}`);
+  process.exit(1);
+}
+
 // A merge to main without a release version is normal: nothing to publish.
 if (ordered.every(({ pkg }) => pkg.version === '0.0.0')) {
   console.log('Dev version 0.0.0: nothing to publish.');
@@ -37,7 +52,6 @@ if (ordered.every(({ pkg }) => pkg.version === '0.0.0')) {
 const problems = [];
 for (const { pkg, dir } of ordered) {
   if (pkg.version === '0.0.0') problems.push(`${pkg.name}: still 0.0.0; run scripts/release-version.mjs`);
-  if (!pkg.license) problems.push(`${pkg.name}: no "license" field`);
   if (!existsSync(join(dir, 'dist'))) problems.push(`${pkg.name}: not built (npm run build)`);
 }
 if (problems.length) {
