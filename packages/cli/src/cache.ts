@@ -119,8 +119,10 @@ export function showPlans(file: PlanFile, grep?: string, specSource?: string): s
 
 /** Removes tests that no longer exist. `liveTitles`: spec file (relative) → "describe > title" set. */
 export function prunePlans(file: PlanFile, live: Set<string>): { file: PlanFile; removed: string[] } {
-  const removed = Object.keys(file.tests).filter((t) => !live.has(t));
-  const tests = Object.fromEntries(Object.entries(file.tests).filter(([t]) => live.has(t)));
+  // cache.byProject titles are "project › describe > title": the test is live if its title without the project is.
+  const isLive = (t: string) => live.has(t) || (t.includes(' › ') && live.has(t.slice(t.indexOf(' › ') + 3)));
+  const removed = Object.keys(file.tests).filter((t) => !isLive(t));
+  const tests = Object.fromEntries(Object.entries(file.tests).filter(([t]) => isLive(t)));
   return { file: { ...file, tests }, removed };
 }
 
