@@ -1,6 +1,6 @@
 {
   "name": "@aipw/cli",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "aipw command line: nudge, doctor, cache, conformance.",
   "license": "MIT",
   "type": "module",
@@ -27,7 +27,7 @@
     "prepack": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\""
   },
   "dependencies": {
-    "@aipw/core": "0.0.0",
+    "@aipw/core": "0.1.0",
     "typescript": "~6.0.3"
   },
   "peerDependencies": {

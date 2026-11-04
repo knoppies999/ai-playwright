@@ -1,6 +1,6 @@
 {
   "name": "aipw",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "AI-driven Playwright testing: English steps that record once and replay without the model.",
   "license": "MIT",
   "type": "module",
@@ -30,9 +30,9 @@
     "prepack": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\""
   },
   "dependencies": {
-    "@aipw/cli": "0.0.0",
-    "@aipw/core": "0.0.0",
-    "@aipw/test": "0.0.0",
+    "@aipw/cli": "0.1.0",
+    "@aipw/core": "0.1.0",
+    "@aipw/test": "0.1.0",
     "zod": "^4.6.5"
   },
   "peerDependencies": {

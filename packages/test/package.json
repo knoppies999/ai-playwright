@@ -1,6 +1,6 @@
 {
   "name": "@aipw/test",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Playwright Test fixtures for aipw (ai, gen), the run summary reporter and config loader.",
   "license": "MIT",
   "type": "module",
@@ -33,7 +33,7 @@
     "prepack": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\""
   },
   "dependencies": {
-    "@aipw/core": "0.0.0"
+    "@aipw/core": "0.1.0"
   },
   "peerDependencies": {
     "@playwright/test": "^1.64.0"
