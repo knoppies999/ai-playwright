@@ -82,7 +82,8 @@ Add `--headed` to watch: `npm run demo -- --headed`. The spec is [examples/tests
 ### Try steps before writing a test
 
 `npx aipw try <url> "<step>" …` runs English steps on a page and shows what the AI did, the locators it found, the
-Playwright code and the cost. `--save` turns them into a spec that records once and then replays without the model:
+Playwright code and the cost. `--save` turns them into a spec that records once and then replays without the model.
+With no steps, `npx aipw try <url>` is interactive: type a step, see what happened, type the next, `save <file>` when done:
 
 ```text
 $ npx aipw try https://www.gov.uk/bank-holidays "Show the bank holidays for Northern Ireland" \

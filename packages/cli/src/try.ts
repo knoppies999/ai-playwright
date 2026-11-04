@@ -14,6 +14,7 @@ import {
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
 import { loadConfigFile } from './doctor.js';
+import { LineReader } from './nudge.js';
 
 export interface TryArgs {
   url: string;
@@ -32,8 +33,10 @@ export function parseTryArgs(argv: string[]): TryArgs | { error: string } {
     else if (!out.url) out.url = a;
     else out.steps.push(a);
   }
-  if (!/^https?:\/\//.test(out.url) || !out.steps.length) {
-    return { error: 'Usage: aipw try <url> "<step>" ["<step>" …] [--headed] [--save tests/new.spec.ts]' };
+  if (!/^https?:\/\//.test(out.url)) {
+    return {
+      error: 'Usage: aipw try <url> ["<step>" …] [--headed] [--save tests/new.spec.ts]   (no steps: one at a time)',
+    };
   }
   if (out.save === '') return { error: '--save needs a file path' };
   return out;
@@ -144,8 +147,31 @@ export async function runTry(argv: string[]): Promise<number> {
         console.log(`   (${(log.ms / 1000).toFixed(1)} s, ${log.calls} model call${log.calls === 1 ? '' : 's'})\n`);
       }
     });
-    ({ values } = await ai.run(args.steps.map((s) => `- ${s}`).join('\n')));
-    for (const [name, value] of Object.entries(values)) console.log(`${name} = ${JSON.stringify(value)}`);
+    if (args.steps.length) {
+      ({ values } = await ai.run(args.steps.map((s) => `- ${s}`).join('\n')));
+      for (const [name, value] of Object.entries(values)) console.log(`${name} = ${JSON.stringify(value)}`);
+    } else {
+      // Interactive: one step at a time on the same page; steps that fail aren't kept.
+      console.log('Type a step and press Enter. "save <file>" writes the steps that worked as a spec; "q" quits.\n');
+      const reader = new LineReader();
+      for (;;) {
+        const line = (await reader.ask('step> '))?.trim();
+        if (line === undefined || line === 'q' || line === 'quit') break;
+        const save = /^save\s+(\S.*)$/.exec(line);
+        if (save) saveSpec(save[1]!, args.url, args.steps, values);
+        else if (line) {
+          try {
+            Object.assign(values, (await ai.run(`- ${line}`)).values);
+            args.steps.push(line);
+          } catch (error) {
+            console.error(
+              `${error instanceof Error ? error.message : String(error)}\n(not kept; try another phrasing)\n`,
+            );
+          }
+        }
+      }
+      reader.close();
+    }
   } catch (error) {
     failed = true;
     console.error(`\n${error instanceof Error ? error.message : String(error)}\n`);
@@ -156,10 +182,14 @@ export async function runTry(argv: string[]): Promise<number> {
 
   const code = logs.flatMap((l) => (l.kind === 'act' ? codeRemedy(l.actions) : []));
   if (code.length) console.log(`Playwright code for the actions:\n${code.map((l) => `  ${l}`).join('\n')}\n`);
-  if (args.save && !failed) {
-    mkdirSync(dirname(args.save), { recursive: true });
-    writeFileSync(args.save, specFor(args.url, args.steps, values));
-    console.log(`Wrote ${args.save}. Run it once to record its plan: npx playwright test ${args.save}`);
-  }
+  if (args.save && !failed && args.steps.length) saveSpec(args.save, args.url, args.steps, values);
   return failed ? 1 : 0;
+}
+
+function saveSpec(path: string, url: string, steps: string[], values: Record<string, unknown>): void {
+  if (!steps.length) return console.log('Nothing to save yet.');
+  if (existsSync(path)) return console.log(`${path} exists; pick another file (aipw try never overwrites).`);
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, specFor(url, steps, values));
+  console.log(`Wrote ${path}. Run it once to record its plan: npx playwright test ${path}`);
 }

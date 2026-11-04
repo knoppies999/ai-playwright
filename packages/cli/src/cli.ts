@@ -15,7 +15,7 @@ const HELP = `aipw ${VERSION}
 Usage: aipw <command> [options]
 
 Commands:
-  try          <url> "<step>" ["<step>" …] [--headed] [--save tests/new.spec.ts]
+  try          <url> ["<step>" …] [--headed] [--save tests/new.spec.ts]   (no steps: interactive)
   init         [--provider claude-code|foundry|openai|anthropic|copilot] [--dir tests] [--force]
   nudge        <spec[:line]> [--break step|action|fail|none] [--at N] [--fresh] [--verify all|none]
   cache        stats | show <spec> | code <spec> | prune [--dry-run] | refresh <spec> [--grep x] | accept [dir] [--dry-run]

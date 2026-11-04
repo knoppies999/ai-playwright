@@ -12,7 +12,7 @@ describe('aipw try', () => {
       save: 'a.spec.ts',
     });
     expect(parseTryArgs(['not-a-url', 'step'])).toMatchObject({ error: expect.stringContaining('Usage') });
-    expect(parseTryArgs(['https://x.test'])).toMatchObject({ error: expect.stringContaining('Usage') });
+    expect(parseTryArgs(['https://x.test'])).toMatchObject({ url: 'https://x.test', steps: [] });
   });
 
   it('writes a spec with the steps as ai calls, and what was read as expectations', () => {
