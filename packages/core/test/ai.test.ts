@@ -170,6 +170,9 @@ describe('ai.act', () => {
 
   it('stops when the model repeats itself', async () => {
     const page = await openApp();
+    // Save shows a toast that removes itself after 300 ms; depending on machine speed toasts pile up, and each click
+    // then really does change the page. Here Save does nothing visible, so the outcome doesn't depend on timing.
+    await page.evaluate(() => ((window as unknown as { toast: () => void }).toast = () => undefined));
     const click = pick('button "Save"', 'click', { button: null, modifiers: null, clickCount: null });
     const provider = new FakeProvider([click, click, click, click, click]);
     const error = await makeAi(page, provider)
