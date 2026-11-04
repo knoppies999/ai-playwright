@@ -45,6 +45,17 @@ if (problems.length) {
   process.exit(1);
 }
 
+// Who the token publishes as: a 404 on PUT @scope/name usually means this user can't create packages in that org.
+let user = '(unknown)';
+if (!dryRun) {
+  try {
+    user = npm(['whoami'], { stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+    console.log(`npm user: ${user}`);
+  } catch {
+    console.log('npm whoami failed: with trusted publishing that is expected; with NPM_TOKEN the token is not valid.');
+  }
+}
+
 let published = 0;
 for (const { pkg } of ordered) {
   const id = `${pkg.name}@${pkg.version}`;
@@ -63,7 +74,20 @@ for (const { pkg } of ordered) {
   if (provenance) args.push('--provenance');
   if (dryRun) args.push('--dry-run');
   console.log(`publish  ${id} (${tag})${dryRun ? ' [dry run]' : ''}`);
-  npm(args, { stdio: 'inherit' });
+  try {
+    npm(args, { stdio: 'inherit' });
+  } catch {
+    const scope = pkg.name.startsWith('@') ? pkg.name.split('/')[0] : undefined;
+    console.error(
+      `\nnpm refused ${id}.` +
+        (scope
+          ? ` A 404 or 403 here means npm user "${user}" can't publish to ${scope}: make them an owner or admin of ` +
+            `the npm org "${scope.slice(1)}", and give the token "Read and write" on all packages or on the ${scope} scope.`
+          : '') +
+        (published ? ` ${published} package(s) were published before this one; re-running skips them.` : ''),
+    );
+    process.exit(1);
+  }
   published++;
 }
 console.log(`\n${published} package(s) ${dryRun ? 'would be ' : ''}published.`);
