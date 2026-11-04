@@ -1,6 +1,6 @@
 {
   "name": "create-aipw",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "npm init aipw: adds aipw (AI-driven Playwright testing) to a project in one command.",
   "license": "MIT",
   "type": "module",

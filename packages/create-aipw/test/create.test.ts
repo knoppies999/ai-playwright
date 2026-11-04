@@ -3,7 +3,10 @@ import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { detectPackageManager, parseArgs, plan } from '../src/index.js';
+import { detectPackageManager, parseArgs, plan, VERSION } from '../src/index.js';
+
+// By default it installs the aipw version it was released with; a 0.0.0 dev build installs latest.
+const v = VERSION === '0.0.0' ? 'latest' : VERSION;
 
 const folder = (withPackageJson: boolean) => {
   const root = mkdtempSync(join(tmpdir(), 'create-aipw-'));
@@ -25,7 +28,7 @@ describe('create-aipw', () => {
     const commands = plan(folder(false), 'pnpm', { provider: 'claude-code', dir: 'tests', skipBrowsers: true });
     expect(commands.map((c) => c.join(' '))).toEqual([
       'pnpm init',
-      'pnpm add -D aipw@latest @aipw/provider-claude-code@latest @playwright/test',
+      `pnpm add -D aipw@${v} @aipw/provider-claude-code@${v} @playwright/test`,
       'pnpm exec aipw init --provider claude-code --dir tests',
     ]);
   });
