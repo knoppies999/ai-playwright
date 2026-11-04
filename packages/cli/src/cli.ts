@@ -8,12 +8,14 @@ import { runInit } from './init.js';
 import { VERSION } from './index.js';
 import { runNudge } from './nudge.js';
 import { runSummaryCommand } from './summary.js';
+import { runTry } from './try.js';
 
 const HELP = `aipw ${VERSION}
 
 Usage: aipw <command> [options]
 
 Commands:
+  try          <url> ["<step>" …] [--headed] [--save tests/new.spec.ts]   (no steps: interactive)
   init         [--provider claude-code|foundry|openai|anthropic|copilot] [--dir tests] [--force]
   nudge        <spec[:line]> [--break step|action|fail|none] [--at N] [--fresh] [--verify all|none]
   cache        stats | show <spec> | code <spec> | prune [--dry-run] | refresh <spec> [--grep x] | accept [dir] [--dry-run]
@@ -33,6 +35,8 @@ if (command === undefined || command === '--help' || command === 'help') {
   console.log(HELP);
 } else if (command === '--version') {
   console.log(VERSION);
+} else if (command === 'try') {
+  process.exitCode = await runTry(rest);
 } else if (command === 'init') {
   process.exitCode = runInit(rest);
 } else if (command === 'nudge') {
