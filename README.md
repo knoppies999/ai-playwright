@@ -81,9 +81,9 @@ as an `ai.run` script) four times. A live run on Sonnet 5.5 (the table is also s
 
 | Phase | What happens | From cache | LLM calls | Time |
 |---|---|---|---|---|
-| Record | The model works out every English step; aipw stores durable locators | 0/15 | 30 | ~3 min |
+| Record | The model works out every English step; aipw stores durable locators | 0/15 | 22 | ~2.5 min |
 | Replay | Same UI: plain Playwright, no model | 15/15 | 0 | ~8 s |
-| Redesign | Test ids renamed (healed by fingerprint, free), menu moved and renamed (healed by the model) | 12/15, 3 healed | 6 | ~55 s |
+| Redesign | Test ids renamed (healed by fingerprint, free), menu moved and renamed (healed by the model) | 12/15, 3 healed | 4 | ~50 s |
 | Replay the redesign | The healed plan, no model | 15/15 | 0 | ~8 s |
 
 Add `--headed` to watch: `npm run demo -- --headed`. The spec is [examples/tests/showcase/admin.spec.ts](examples/tests/showcase/admin.spec.ts).

@@ -106,6 +106,13 @@ export interface ActResult {
   usage: Usage;
 }
 
+/** A broken replay to heal: the plan, why it broke, and the actions that replayed before it broke. */
+interface ActHealing {
+  plan: StepPlan;
+  reason: string;
+  done: PlanAction[];
+}
+
 export interface Verdict {
   pass: boolean;
   reason: string;
@@ -517,109 +524,15 @@ export class Ai {
       async (ctx) => {
         const session = await this.openSession();
         try {
-          const data = new DataResolver(
-            options.data ?? {},
-            options.secrets ?? [],
-            secretSource(this.config.secrets.provider, this.config.secrets.map),
-            this.values,
-            this.redactor,
-            this.gen,
-          );
-          const isAllowedUrl = this.isAllowed(this.allowedOrigins(this._page.url()));
-          const executor = new ActionExecutor(session, {
-            data,
-            synth: {
-              testIdAttributes: this.config.testIds.attributes,
-              playwrightTestIdAttribute: this.deps.playwrightTestIdAttribute ?? 'data-testid',
-              rejectTestIdValues: this.config.testIds.rejectValues,
-            },
-            actionTimeoutMs: this.config.steps.actionTimeoutMs,
-            settle: this.config.settle,
-            expandMaxTokens: this.config.snapshot.maxTokens,
-            allowSecretsAnywhere: this.config.secrets.allowAnyField,
-            secretFillMode: this.config.secrets.fillMode,
-            isAllowedUrl,
-            codeTools: this.codeTools,
-          });
-          const stepTools = new Map(
-            [...this.codeTools].filter(([name]) => !options.tools || options.tools.includes(name)),
-          );
-          // Plan cache (docs/06): replay on a hit, record on a miss, heal through the AI loop on a broken replay.
-          const cache = this.deps.cache;
+          const { executor, data, isAllowedUrl } = this.actExecutor(session, options);
           const mode = this.cacheMode(options);
           const key = this.stepKeyFor('act', instruction, options);
           const startUrl = this._page.url();
-          /** A broken replay: the plan, why it broke, and the actions that replayed before it broke. */
-          let healing: { plan: StepPlan; reason: string; done: PlanAction[] } | undefined;
-          if (cache && (mode === 'auto' || mode === 'replay-only')) {
-            const plan = cache.store.get(cache.testTitle, key);
-            if (plan) {
-              const replay = await replayAct(plan, {
-                page: () => session.page,
-                executor,
-                events: this.events,
-                stepId: ctx.id,
-                waitMs: this.config.settle.maxMs,
-                codeTools: this.codeTools,
-                // Fingerprint heals cost nothing and are deterministic, so replay-only may use them too (docs/12 §6).
-                ...((mode === 'auto' || this.config.heal.fingerprintInReplayOnly) && {
-                  fingerprintHeal: { synth: this.synthOptions() },
-                }),
-              });
-              this._page = session.page;
-              if (replay.ok) {
-                this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'hit', key });
-                if (replay.healed.length) {
-                  const healedPlan = {
-                    ...applyHeals(plan, replay.healed),
-                    recordedWith: {
-                      ...plan.recordedWith,
-                      at: new Date().toISOString(),
-                      ...(this.deps.project && { project: this.deps.project }),
-                    },
-                  };
-                  const describe = (t: { role?: string; name?: string; locators: { display: string }[] }) =>
-                    `${t.role ?? 'element'} "${t.name ?? ''}" (${t.locators[0]?.display ?? 'no locator'})`;
-                  for (const h of replay.healed) {
-                    this.events.emit({
-                      type: 'heal',
-                      stepId: ctx.id,
-                      key,
-                      source: 'fingerprint',
-                      policy: this.config.heal.policy,
-                      before: describe(h.before),
-                      after: describe(h.after),
-                      reason: `all stored locators failed; fingerprint score ${h.score.toFixed(2)}`,
-                    });
-                  }
-                  await this.storeHealed(cache, key, plan, healedPlan, instruction, ctx);
-                }
-                return {
-                  summary: 'Replayed from the plan cache',
-                  evidence: [],
-                  actions: replay.records,
-                  values: this.values,
-                  source: replay.healed.length ? 'healed' : 'cache',
-                  usage: emptyUsage(),
-                };
-              }
-              this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'broken', key, reason: replay.reason });
-              if (mode === 'replay-only') {
-                throw new AiStepError(
-                  'unexpected_state',
-                  `Replay failed at action ${replay.failedAt + 1}: ${replay.reason}. Re-record with AIPW_CACHE=auto (or refresh).`,
-                  { stepId: ctx.id, callsite: ctx.callsite },
-                );
-              }
-              // Actions before the failure already ran: they stay in the healed plan, ahead of the AI's.
-              const done = (applyHeals(plan, replay.healed).actions ?? []).slice(0, replay.failedAt);
-              healing = { plan, reason: replay.reason, done };
-            } else if (mode === 'replay-only') {
-              throw new AiCacheReplayOnlyMiss(instruction, { stepId: ctx.id, callsite: ctx.callsite });
-            } else {
-              this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'miss', key });
-            }
-          }
+          // Plan cache (docs/06): replay on a hit, record on a miss, heal through the AI loop on a broken replay.
+          const replayed = await this.replayActPlan(ctx, session, executor, key, mode, instruction);
+          if ('result' in replayed) return replayed.result;
+          const { healing } = replayed;
+
           const healingHint = healing
             ? [
                 `HEALING: a previously recorded plan for this step no longer works. Recorded plan: ${describePlan(healing.plan)}. ` +
@@ -637,7 +550,7 @@ export class Ai {
             tools: actTools({ allowNavigation: options.allowNavigation ?? false, askHuman: !!this.deps.nudge }),
             nudge: this.deps.nudge,
             ...(this.deps.wrapAction && { wrapAction: this.deps.wrapAction }),
-            codeTools: stepTools,
+            codeTools: new Map([...this.codeTools].filter(([name]) => !options.tools || options.tools.includes(name))),
             hints: [...loadHints(resolve(this.config.hints.dir), startUrl), ...healingHint, ...(options.hints ?? [])],
             secretPlaceholders: data.secretPlaceholders,
             isAllowedUrl,
@@ -655,33 +568,8 @@ export class Ai {
               { trajectory: trajectory(outcome).map((l) => this.redactor.redact(l)), snapshot: outcome.lastSnapshot },
             );
           }
-          if (cache && mode !== 'ai-only') {
-            const plan = planFromAct(instruction, outcome.actions, options.data ?? {}, {
-              provider: this.deps.provider.id,
-              model: this.deps.provider.model,
-              now: new Date(),
-              ...(this.deps.project && { project: this.deps.project }),
-              startUrl,
-              endUrl: session.page.url(),
-            });
-            if (healing) plan.actions = [...healing.done, ...(plan.actions ?? [])];
-            if (!healing) {
-              await cache.store.put(cache.testTitle, key, plan);
-              this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'stored', key });
-            } else {
-              this.events.emit({
-                type: 'heal',
-                stepId: ctx.id,
-                key,
-                source: 'ai',
-                policy: this.config.heal.policy,
-                before: describePlan(healing.plan),
-                after: describePlan(plan),
-                reason: healing.reason,
-              });
-              await this.storeHealed(cache, key, healing.plan, plan, instruction, ctx);
-            }
-          }
+          if (mode !== 'ai-only')
+            await this.recordActPlan(ctx, key, instruction, options, outcome, healing, startUrl, session.page.url());
           // A hint or edit given before the step is a correction too (docs/07 §6).
           const human = [...(nudged.correction ? [nudged.correction] : []), ...(outcome.human ?? [])];
           if (this.deps.nudge && human.length) await this.offerRemedies(written, { ...outcome, human }, startUrl);
@@ -699,6 +587,157 @@ export class Ai {
       },
       options,
     );
+  }
+
+  /** The executor for one act step, with its data resolver and the origins it may navigate to. */
+  private actExecutor(session: StepSession, options: StepOptions) {
+    const data = new DataResolver(
+      options.data ?? {},
+      options.secrets ?? [],
+      secretSource(this.config.secrets.provider, this.config.secrets.map),
+      this.values,
+      this.redactor,
+      this.gen,
+    );
+    const isAllowedUrl = this.isAllowed(this.allowedOrigins(this._page.url()));
+    const executor = new ActionExecutor(session, {
+      data,
+      synth: this.synthOptions(),
+      actionTimeoutMs: this.config.steps.actionTimeoutMs,
+      settle: this.config.settle,
+      expandMaxTokens: this.config.snapshot.maxTokens,
+      allowSecretsAnywhere: this.config.secrets.allowAnyField,
+      secretFillMode: this.config.secrets.fillMode,
+      isAllowedUrl,
+      codeTools: this.codeTools,
+    });
+    return { executor, data, isAllowedUrl };
+  }
+
+  /**
+   * Replays the stored plan for an act step (docs/06). A hit returns the step's result, fingerprint heals included.
+   * A broken replay returns what to heal: the plan, why it broke, and the actions that ran before it broke. No plan
+   * (or no cache) returns nothing to heal. replay-only throws instead of falling back to the model.
+   */
+  private async replayActPlan(
+    ctx: StepContext,
+    session: StepSession,
+    executor: ActionExecutor,
+    key: string,
+    mode: CacheMode,
+    instruction: string,
+  ): Promise<{ result: ActResult } | { healing?: ActHealing }> {
+    const cache = this.deps.cache;
+    if (!cache || (mode !== 'auto' && mode !== 'replay-only')) return {};
+    const plan = cache.store.get(cache.testTitle, key);
+    if (!plan) {
+      if (mode === 'replay-only')
+        throw new AiCacheReplayOnlyMiss(instruction, { stepId: ctx.id, callsite: ctx.callsite });
+      this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'miss', key });
+      return {};
+    }
+    const replay = await replayAct(plan, {
+      page: () => session.page,
+      executor,
+      events: this.events,
+      stepId: ctx.id,
+      waitMs: this.config.settle.maxMs,
+      codeTools: this.codeTools,
+      // Fingerprint heals cost nothing and are deterministic, so replay-only may use them too (docs/12 §6).
+      ...((mode === 'auto' || this.config.heal.fingerprintInReplayOnly) && {
+        fingerprintHeal: { synth: this.synthOptions() },
+      }),
+    });
+    this._page = session.page;
+    if (replay.ok) {
+      this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'hit', key });
+      if (replay.healed.length) {
+        const healedPlan = {
+          ...applyHeals(plan, replay.healed),
+          recordedWith: {
+            ...plan.recordedWith,
+            at: new Date().toISOString(),
+            ...(this.deps.project && { project: this.deps.project }),
+          },
+        };
+        const describe = (t: { role?: string; name?: string; locators: { display: string }[] }) =>
+          `${t.role ?? 'element'} "${t.name ?? ''}" (${t.locators[0]?.display ?? 'no locator'})`;
+        for (const h of replay.healed) {
+          this.events.emit({
+            type: 'heal',
+            stepId: ctx.id,
+            key,
+            source: 'fingerprint',
+            policy: this.config.heal.policy,
+            before: describe(h.before),
+            after: describe(h.after),
+            reason: `all stored locators failed; fingerprint score ${h.score.toFixed(2)}`,
+          });
+        }
+        await this.storeHealed(cache, key, plan, healedPlan, instruction, ctx);
+      }
+      return {
+        result: {
+          summary: 'Replayed from the plan cache',
+          evidence: [],
+          actions: replay.records,
+          values: this.values,
+          source: replay.healed.length ? 'healed' : 'cache',
+          usage: emptyUsage(),
+        },
+      };
+    }
+    this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'broken', key, reason: replay.reason });
+    if (mode === 'replay-only') {
+      throw new AiStepError(
+        'unexpected_state',
+        `Replay failed at action ${replay.failedAt + 1}: ${replay.reason}. Re-record with AIPW_CACHE=auto (or refresh).`,
+        { stepId: ctx.id, callsite: ctx.callsite },
+      );
+    }
+    // Actions before the failure already ran: they stay in the healed plan, ahead of the AI's.
+    const done = (applyHeals(plan, replay.healed).actions ?? []).slice(0, replay.failedAt);
+    return { healing: { plan, reason: replay.reason, done } };
+  }
+
+  /** Stores the plan the AI just worked out, or, after a broken replay, the healed plan under heal.policy. */
+  private async recordActPlan(
+    ctx: StepContext,
+    key: string,
+    instruction: string,
+    options: StepOptions,
+    outcome: StepOutcome,
+    healing: ActHealing | undefined,
+    startUrl: string,
+    endUrl: string,
+  ): Promise<void> {
+    const cache = this.deps.cache;
+    if (!cache) return;
+    const plan = planFromAct(instruction, outcome.actions, options.data ?? {}, {
+      provider: this.deps.provider.id,
+      model: this.deps.provider.model,
+      now: new Date(),
+      ...(this.deps.project && { project: this.deps.project }),
+      startUrl,
+      endUrl,
+    });
+    if (!healing) {
+      await cache.store.put(cache.testTitle, key, plan);
+      this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'stored', key });
+      return;
+    }
+    plan.actions = [...healing.done, ...(plan.actions ?? [])];
+    this.events.emit({
+      type: 'heal',
+      stepId: ctx.id,
+      key,
+      source: 'ai',
+      policy: this.config.heal.policy,
+      before: describePlan(healing.plan),
+      after: describePlan(plan),
+      reason: healing.reason,
+    });
+    await this.storeHealed(cache, key, healing.plan, plan, instruction, ctx);
   }
 
   /** A durable target (verified locators + fingerprint) for a ref the model named. */

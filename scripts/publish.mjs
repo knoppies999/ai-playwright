@@ -91,14 +91,13 @@ for (const { pkg } of ordered) {
   try {
     npm(args, { stdio: 'inherit' });
   } catch {
-    const scope = pkg.name.startsWith('@') ? pkg.name.split('/')[0] : undefined;
+    // The causes seen on the first release (docs/guides/releasing.md): a token that can only stage (E404) or one
+    // without bypass-2FA (E403 "Two-factor authentication … is required"), and a user outside the org (E404).
     console.error(
-      `\nnpm refused ${id}.` +
-        (scope
-          ? ` A 404 or 403 here means npm user "${user}" can't publish to ${scope}: make them an owner or admin of ` +
-            `the npm org "${scope.slice(1)}", and give the token "Read and write" on all packages or on the ${scope} scope.`
-          : '') +
-        (published ? ` ${published} package(s) were published before this one; re-running skips them.` : ''),
+      `\nnpm refused ${id} for npm user "${user}". The error above says why. Usually:\n` +
+        '  E404: the token is "Read and write (stage only)", or the user is not an owner or admin of the org scope.\n' +
+        '  E403 "two-factor authentication … required": the token needs "Bypass two-factor authentication".\n' +
+        (published ? `${published} package(s) were published before this one; re-running skips them.\n` : ''),
     );
     process.exit(1);
   }
