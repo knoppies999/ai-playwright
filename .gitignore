@@ -11,3 +11,6 @@ blob-report/
 spikes/out/
 *.tsbuildinfo
 dist-packages/
+
+# Copied from the root LICENSE when a package is packed
+packages/*/LICENSE

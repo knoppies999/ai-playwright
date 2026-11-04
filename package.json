@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "description": "AI-driven Playwright testing (monorepo root)",
+  "license": "MIT",
   "engines": {
     "node": ">=22.12"
   },

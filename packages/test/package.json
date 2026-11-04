@@ -2,6 +2,7 @@
   "name": "@aipw/test",
   "version": "0.0.0",
   "description": "Playwright Test fixtures for aipw (ai, gen), the run summary reporter and config loader.",
+  "license": "MIT",
   "type": "module",
   "exports": {
     ".": {
@@ -28,7 +29,8 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts src/reporter.ts src/nudge-reporter.ts --format esm --dts --clean --sourcemap --target node22",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "prepack": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\""
   },
   "dependencies": {
     "@aipw/core": "0.0.0"

@@ -175,3 +175,7 @@ All phases in [docs/10](docs/10-implementation-plan.md) are implemented. What ha
   but not yet driven by a person at a keyboard.
 
 Development: `npm run check` (lint, typecheck, unit tests) and `npm run e2e` (FakeProvider suites, no AI).
+
+## License
+
+[MIT](LICENSE)

@@ -2,6 +2,7 @@
   "name": "@aipw/provider-anthropic",
   "version": "0.0.0",
   "description": "Anthropic API adapter for aipw (API key).",
+  "license": "MIT",
   "type": "module",
   "exports": {
     ".": {
@@ -16,7 +17,8 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean --sourcemap --target node22",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "prepack": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\""
   },
   "dependencies": {
     "@aipw/core": "0.0.0"

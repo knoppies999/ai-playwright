@@ -26,8 +26,9 @@ Check locally first: `npm run build && node scripts/publish.mjs --dry-run`.
    want a different one (package names, the `aipw` bin, imports in `aipw init` and `aipw try` templates, docs).
 2. **npm account and scope.** Sign in on npmjs.com and create the free organisation `aipw`, so the `@aipw/*` scope is
    yours. `aipw` and `create-aipw` are unscoped.
-3. **A license.** Add a `LICENSE` file and a `"license"` field to every `packages/*/package.json` (for example
-   `"MIT"`). `publish.mjs` refuses to publish without one.
+3. **License: done.** MIT ([LICENSE](../../LICENSE)). Every package has `"license": "MIT"` and copies the root
+   `LICENSE` into its tarball when packed (`prepack`). `publish.mjs` refuses to publish a package without a license.
+   A new package needs both.
 4. **First publish.** npm's trusted publishing can only be set up for packages that already exist, so publish the
    first version with a token: create a granular access token on npmjs.com (read and write, the `aipw` org plus the
    two unscoped packages) and save it as the repository secret `NPM_TOKEN`.

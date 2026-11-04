@@ -2,6 +2,7 @@
   "name": "@aipw/core",
   "version": "0.0.0",
   "description": "aipw engine: step runner, agent loop, observer, executor, locators, cache. No provider SDK or test-runner dependency.",
+  "license": "MIT",
   "type": "module",
   "exports": {
     ".": {
@@ -16,7 +17,8 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts --format esm --dts --clean --sourcemap --target node22 --loader .md=text",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "prepack": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\""
   },
   "dependencies": {
     "zod": "^4.6.5"

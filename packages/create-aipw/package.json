@@ -2,6 +2,7 @@
   "name": "create-aipw",
   "version": "0.0.0",
   "description": "npm init aipw: adds aipw (AI-driven Playwright testing) to a project in one command.",
+  "license": "MIT",
   "type": "module",
   "exports": {
     ".": {
@@ -19,7 +20,8 @@
   ],
   "scripts": {
     "build": "tsup src/index.ts src/bin.ts --format esm --dts --clean --sourcemap --target node22",
-    "typecheck": "tsc --noEmit -p tsconfig.json"
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "prepack": "node -e \"require('fs').copyFileSync('../../LICENSE','LICENSE')\""
   },
   "engines": {
     "node": ">=22.12"
