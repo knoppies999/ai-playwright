@@ -211,7 +211,7 @@ Every command takes `--help` (options and an example) and never runs when it is 
 
 | Command | Purpose |
 |---|---|
-| `aipw nudge <spec[:line]> [--break] [--at] [--fresh] [--verify]` | Nudge mode ([07](07-nudge-mode.md)) |
+| `aipw nudge <spec[:line]> [--break] [--at] [--fresh] [--verify] [--headless]` | Nudge mode ([07](07-nudge-mode.md)) |
 | `aipw doctor [--provider x] [--probe]` | Check the config, the provider's package and credentials (for `claude-code`: whether Claude Code is signed in, from `claude auth status`), secret variables, hints and budgets. `--probe` adds one live tool-calling and structured-output call. (Not built: `--url` site checks) |
 | `aipw cache stats\|show\|code\|prune\|refresh\|accept` | Cache maintenance ([06](06-caching-and-replay.md) §8). `stats` ends with a total; `show` and `code` say when a spec doesn't exist, has no plans yet, or no title matches `--grep`; `code` prints a spec's plans as plain Playwright; `prune` also deletes a plan file left with no tests; `accept` merges healed plans from `.aipw/healed/` (e.g. a CI artifact) into the committed plans |
 | `aipw init` | Sets up aipw in a project: config, an example spec, Playwright config if missing, `.gitignore` (when it creates one: `node_modules/`, Playwright's output folders and `.env` too), and Copilot instructions for writing aipw tests (`.github/instructions/aipw-tests.instructions.md`, applied to spec files) |

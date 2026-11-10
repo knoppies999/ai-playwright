@@ -33,6 +33,9 @@ export function parseTryArgs(argv: string[]): TryArgs | { error: string } {
     else if (!out.url) out.url = a;
     else out.steps.push(a);
   }
+  // "localhost:5173/login" and "example.com" are URLs as people type them: local hosts get http, the rest https.
+  if (/^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?(\/|$)/.test(out.url)) out.url = `http://${out.url}`;
+  else if (/^[\w-]+(\.[\w-]+)+(:\d+)?(\/|$)/.test(out.url)) out.url = `https://${out.url}`;
   if (!/^https?:\/\//.test(out.url)) {
     return {
       error: 'Usage: aipw try <url> ["<step>" …] [--headed] [--save tests/new.spec.ts]   (no steps: one at a time)',

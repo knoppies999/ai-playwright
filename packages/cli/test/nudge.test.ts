@@ -29,13 +29,16 @@ describe('aipw nudge arguments', () => {
       at: 3,
       fresh: true,
       verify: true,
+      headless: false,
     });
     expect(parseNudgeArgs(['tests/a.spec.ts'])).toEqual({
       spec: 'tests/a.spec.ts',
       breakLevel: 'step',
       fresh: false,
       verify: true,
+      headless: false,
     });
+    expect(parseNudgeArgs(['tests/a.spec.ts', '--headless'])).toMatchObject({ headless: true });
     expect(parseNudgeArgs(['tests/a.spec.ts', '--verify', 'none'])).toMatchObject({ verify: false });
   });
 

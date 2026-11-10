@@ -33,12 +33,15 @@ export const COMMANDS = {
   },
   nudge: {
     about: 'Step through a test, correct the AI, and get back a verified better step',
-    usage: ['aipw nudge <spec[:line]> [--break step|action|fail|none] [--at N] [--fresh] [--verify all|none]'],
+    usage: [
+      'aipw nudge <spec[:line]> [--break step|action|fail|none] [--at N] [--fresh] [--verify all|none] [--headless]',
+    ],
     options: [
       ['--break <level>', 'pause before every step (default), every action, only on failure, or never'],
       ['--at N', 'run to AI step N, then pause'],
       ['--fresh', 'ignore cached plans: the model works out every step again'],
       ['--verify all|none', 'check each suggested fix by re-running the step (default: all)'],
+      ['--headless', 'no browser window (hints and edits work; pick and manual need the window)'],
     ],
     examples: ['aipw nudge tests/users.spec.ts:12'],
   },

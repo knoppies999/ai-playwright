@@ -23,12 +23,14 @@ export interface NudgeArgs {
   fresh: boolean;
   /** Verify remedy candidates before offering them (docs/07 §6.4); --verify none turns it off. */
   verify: boolean;
+  /** No browser window (a remote shell, a scripted session). Pick and manual need the window, so they are refused. */
+  headless: boolean;
 }
 
 const LEVELS: BreakLevel[] = ['step', 'action', 'fail', 'none'];
 
 export function parseNudgeArgs(argv: string[]): NudgeArgs | { error: string } {
-  const args: NudgeArgs = { spec: '', breakLevel: 'step', fresh: false, verify: true };
+  const args: NudgeArgs = { spec: '', breakLevel: 'step', fresh: false, verify: true, headless: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i]!;
     if (a === '--break') {
@@ -44,13 +46,15 @@ export function parseNudgeArgs(argv: string[]): NudgeArgs | { error: string } {
       if (v !== 'all' && v !== 'none') return { error: '--verify must be all or none' };
       args.verify = v === 'all';
     } else if (a === '--fresh') args.fresh = true;
+    else if (a === '--headless') args.headless = true;
     else if (!a.startsWith('--') && !args.spec) args.spec = a;
     else return { error: `Unknown argument ${a}` };
   }
   return args.spec
     ? args
     : {
-        error: 'Usage: aipw nudge <spec[:line]> [--break step|action|fail|none] [--at N] [--fresh] [--verify all|none]',
+        error:
+          'Usage: aipw nudge <spec[:line]> [--break step|action|fail|none] [--at N] [--fresh] [--verify all|none] [--headless]',
       };
 }
 
@@ -273,6 +277,7 @@ export class TerminalUi implements NudgeUi {
   constructor(
     private readonly target?: RemedyTarget,
     private readonly verify = true,
+    private readonly headless = false,
   ) {}
 
   onHello(test: { file: string; title: string }): void {
@@ -297,6 +302,10 @@ export class TerminalUi implements NudgeUi {
       // End of input (Ctrl+D, or the end of a piped script) quits cleanly.
       const parsed = parseCommandLine((await this.rl.ask('nudge> ')) ?? 'q', state);
       if ('local' in parsed) console.log(parsed.local);
+      else if (this.headless && (parsed.cmd === 'pick' || parsed.cmd === 'manual'))
+        console.log(
+          'That needs the browser window: run aipw nudge without --headless. A hint (h) or an edit (e) works here.',
+        );
       else return parsed;
     }
   }
@@ -372,12 +381,13 @@ export async function runNudge(argv: string[]): Promise<number> {
     console.error(`Can't read ${specPath}`);
     return 1;
   }
-  const ui = new TerminalUi({ specPath, specHash, hintsDir: resolve('hints') }, args.verify);
+  const ui = new TerminalUi({ specPath, specHash, hintsDir: resolve('hints') }, args.verify, args.headless);
   const server = new NudgeServer(ui);
   const port = await server.listen();
-  // One headed browser for the whole session; every relaunch gets a fresh context in it (docs/07 §5.3).
+  // One browser for the whole session (headed unless --headless); every relaunch gets a fresh context in it
+  // (docs/07 §5.3).
   const { chromium } = await import('playwright-core');
-  const browser = await chromium.launchServer({ headless: false });
+  const browser = await chromium.launchServer({ headless: args.headless });
   const seed = randomUUID().slice(0, 8); // same generated data across rewinds
   const rewinds: number[] = [];
   let resumeAt = args.at ?? 1;

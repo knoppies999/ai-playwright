@@ -13,6 +13,7 @@ npx aipw nudge tests/users.spec.ts:14 --break action  # pause before every low-l
 npx aipw nudge tests/users.spec.ts:14 --break fail    # run freely, pause only on failure/heal/ambiguity
 npx aipw nudge tests/users.spec.ts:14 --at 3          # fast-forward to AI step 3, then pause
 npx aipw nudge tests/users.spec.ts:14 --fresh         # ignore cached plans (ai-only)
+npx aipw nudge tests/users.spec.ts:14 --headless      # no browser window (remote shell): hints and edits only, no pick/manual
 ```
 
 `aipw nudge` runs Playwright Test with: `--headed`, `--workers=1`, `--retries=0`, test `timeout: 0`,
