@@ -40,6 +40,9 @@ describe('counters in names', () => {
     expect(withoutCounter('Next page : 2 of 1,395')).toBe('Next page');
     expect(withoutCounter('Photo (3 of 12)')).toBe('Photo');
     expect(withoutCounter('Step 2 / 5')).toBe('Step');
+    expect(withoutCounter('Cart (3)')).toBe('Cart');
+    expect(withoutCounter('Notifications (99+)')).toBe('Notifications');
+    expect(withoutCounter('Page 2')).toBeUndefined(); // which page it is, not a count
     expect(withoutCounter('Slide 10 of 10 - Summer sale')).toBeUndefined(); // not at the end
     expect(withoutCounter('2 of 5')).toBeUndefined(); // nothing left
     expect(withoutCounter('Order 1002')).toBeUndefined(); // a record number is not a counter

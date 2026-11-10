@@ -187,7 +187,9 @@ Names that embed a price change with the data too: a product link named `Combina
 its stable start (`getByRole('link', { name: 'Combination Pliers Compare Combination' })`, not exact). Rand amounts
 (`R 1 299,00`) count as prices. A name that ends in an "N of M" counter is treated the same way: GOV.UK's
 `Next page : 2 of 1,395` is located as `getByRole('link', { name: 'Next page' })`, because the total grows with the
-data. Fingerprint healing (§6) also treats two such names with the same start as nearly equal, so a plan recorded with
+data, and so is a count in brackets (`Inbox (3)` → `{ name: 'Inbox' }`). The exact name stays as a later candidate
+for when the start alone is ambiguous (`Cart (3)` next to `Add to cart`). A bare trailing number is left alone:
+`Page 2` and `Order 1002` say which element it is. Fingerprint healing (§6) also treats two such names with the same start as nearly equal, so a plan recorded with
 the full name heals without the model when the total changes.
 
 ## 6. Fingerprint healing (L8): healing without AI

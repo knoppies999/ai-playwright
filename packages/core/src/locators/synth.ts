@@ -239,6 +239,10 @@ export async function synthesizeLocators(page: Page, target: Locator, opts: Synt
       : undefined;
     if (opts.role && !NO_ROLE_LOCATOR.has(opts.role) && stableName) {
       bases.push({ rung: 'L2', expr: [{ m: 'getByRole', role: opts.role, name: stableName }] });
+      // The start of a counted name can be ambiguous where the whole name is not ("Cart" is also in "Add to cart"):
+      // the exact name stays as a later candidate. It breaks when the count changes, and then heals by fingerprint.
+      if (withoutCounter(opts.name!) === stableName && opts.name!.length <= 80)
+        bases.push({ rung: 'L2', expr: [{ m: 'getByRole', role: opts.role, name: opts.name!, exact: true }] });
     } else if (opts.role && !NO_ROLE_LOCATOR.has(opts.role) && opts.name && opts.name.length <= 80) {
       bases.push({ rung: 'L2', expr: [{ m: 'getByRole', role: opts.role, name: opts.name, exact: true }] });
     }

@@ -259,7 +259,7 @@ export function runCacheCommand(args: string[], root = process.cwd()): number {
       if (!existsSync(path)) {
         console.error(
           existsSync(spec)
-            ? `No plans recorded for ${target} yet (no ${relative(root, path)}). Run it once: npx playwright test ${target}`
+            ? `No plans recorded for ${target} yet (no ${relative(root, path).replace(/\\/g, '/')}). Run it once: npx playwright test ${target}`
             : `No such spec: ${target}. Give the path of a spec file, e.g. aipw cache ${sub} tests/login.spec.ts`,
         );
         return 1;

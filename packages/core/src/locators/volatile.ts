@@ -39,8 +39,11 @@ export function stableNamePrefix(name: string): string | undefined {
   return words.length >= 3 ? words : undefined;
 }
 
-/** A trailing "N of M" counter, with whatever joins it to the name: " : 2 of 1,395", " (3 of 12)", " 2 / 5". */
-const COUNTER = /[\s:–—(-]*\b\d[\d,.]*\s*(?:of|\/)\s*\d[\d,.]*\)?\s*$/i;
+/**
+ * A trailing counter, with whatever joins it to the name: "N of M" (" : 2 of 1,395", " (3 of 12)", " 2 / 5"), or a
+ * count in brackets (" (3)", " (99+)"). A bare trailing number is not one: "Page 2" and "Order 1002" are identities.
+ */
+const COUNTER = /[\s:–—(-]*\b\d[\d,.]*\s*(?:of|\/)\s*\d[\d,.]*\)?\s*$|\s*\(\d[\d,.]*\+?\)\s*$/i;
 
 /**
  * For a name that ends in a counter ("Next page : 2 of 1,395", "Photo 3 of 12"), the part before it. The total is
