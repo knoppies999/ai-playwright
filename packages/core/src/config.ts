@@ -122,6 +122,19 @@ export const AipwConfigSchema = z.object({
 
 export type CacheMode = AipwConfig['cache']['mode'];
 
+const CACHE_MODES: CacheMode[] = ['auto', 'replay-only', 'ai-only', 'refresh'];
+
+/**
+ * The cache mode AIPW_CACHE asks for, if it is set. A value that isn't a mode is an error, not a fallback to the
+ * config: a PR gate with AIPW_CACHE=replay_only would otherwise run in auto mode and call the model.
+ */
+export function cacheModeFromEnv(env: NodeJS.ProcessEnv = process.env): CacheMode | undefined {
+  const value = env.AIPW_CACHE?.trim();
+  if (!value) return undefined;
+  if ((CACHE_MODES as string[]).includes(value)) return value as CacheMode;
+  throw new Error(`AIPW_CACHE="${value}" is not a cache mode. Use one of: ${CACHE_MODES.join(', ')}.`);
+}
+
 export type AipwConfigInput = z.input<typeof AipwConfigSchema>;
 export type AipwConfig = z.output<typeof AipwConfigSchema>;
 

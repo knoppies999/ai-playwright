@@ -13,7 +13,7 @@ import { describeCheck, runCompiledCheck } from '../cache/checks.js';
 import { rebuildValue } from '../cache/extract.js';
 import { applyHeals, describePlan, healByFingerprint, replayAct, resolveTarget } from '../cache/replay.js';
 import type { PlanStore } from '../cache/store.js';
-import type { AipwConfig, CacheMode } from '../config.js';
+import { cacheModeFromEnv, type AipwConfig, type CacheMode } from '../config.js';
 import { Redactor } from '../data/redactor.js';
 import { createGenerators, type Generators } from '../data/generators.js';
 import { loadHints } from '../hints/store.js';
@@ -34,6 +34,7 @@ import {
   AiCacheReplayOnlyMiss,
   AiExtractError,
   AiHealedError,
+  AiProviderError,
   AiStepError,
   type Callsite,
   type StepFailureKind,
@@ -244,6 +245,21 @@ const BULLET = /^(?:[-*•]|\d+[.)])\s+/;
 /** Adds a file to the current AI step in the report. */
 export type StepAttach = (name: string, body: string | Buffer, contentType: string) => Promise<void>;
 
+/**
+ * A step with a recorded plan normally needs no model. When its plan broke and the model then couldn't be reached
+ * (signed out, usage limit, network), "Claude Code is not signed in" alone leaves the reader wondering why a cached
+ * step called the model at all: say what broke first.
+ */
+function modelNeededBecause(error: unknown, brokenPlan: string | undefined): unknown {
+  if (!brokenPlan || !(error instanceof AiProviderError)) return error;
+  return new AiProviderError(
+    error.kind,
+    `The recorded plan for this step no longer matches the page (${brokenPlan.replace(/\.$/, '')}), so the step needed the model, and the model call failed.\n${error.message}`,
+    { ...(error.stepId && { stepId: error.stepId }), ...(error.callsite && { callsite: error.callsite }) },
+    { cause: error.cause ?? error, ...(error.retryAfterMs !== undefined && { retryAfterMs: error.retryAfterMs }) },
+  );
+}
+
 export class Ai {
   readonly events: EventBus;
   readonly redactor: Redactor;
@@ -376,6 +392,11 @@ export class Ai {
         attach && kind !== 'run'
           ? this.events.on((e) => 'stepId' in e && e.stepId === ctx.id && stepEvents.push(e))
           : undefined;
+      // Why a cached step went to the model after all, for the message when the model then can't be reached.
+      let brokenPlan: string | undefined;
+      const unsubscribeBroken = this.events.on((e) => {
+        if (e.type === 'cache' && e.stepId === ctx.id && e.outcome === 'broken') brokenPlan = e.reason;
+      });
       this.events.emit({ type: 'step:start', stepId: ctx.id, kind, instruction, callsite });
       if (kind !== 'run') this.budget.startStep();
       const before = this.usage;
@@ -392,7 +413,8 @@ export class Ai {
         });
         if (attach && unsubscribe) await this.attachStepFiles(attach, stepEvents, false);
         return result;
-      } catch (error) {
+      } catch (thrown) {
+        const error = modelNeededBecause(thrown, brokenPlan);
         this.events.emit({
           type: 'step:end',
           stepId: ctx.id,
@@ -406,6 +428,7 @@ export class Ai {
         if (attach && unsubscribe) await this.attachStepFiles(attach, stepEvents, true);
         throw error;
       } finally {
+        unsubscribeBroken();
         unsubscribe?.();
       }
     };
@@ -436,9 +459,7 @@ export class Ai {
   private cacheMode(options: StepOptions): CacheMode {
     if (options.cache === 'off') return 'ai-only';
     if (options.cache === 'refresh') return 'refresh';
-    const env = process.env.AIPW_CACHE;
-    const modes: CacheMode[] = ['auto', 'replay-only', 'ai-only', 'refresh'];
-    return env && (modes as string[]).includes(env) ? (env as CacheMode) : this.config.cache.mode;
+    return cacheModeFromEnv() ?? this.config.cache.mode;
   }
 
   private stepKeyFor(kind: StepKind, instruction: string, options: StepOptions, peek = false): string {
@@ -1034,9 +1055,14 @@ export class Ai {
     const { cache, mode, key, plan } = this.cachedPlan('assert', condition, options, ctx);
     if (plan?.compiled?.length) {
       const checks = plan.compiled;
-      let ok = true;
-      for (const c of checks) ok = ok && (await runCompiledCheck(this._page, c, timeout));
-      if (ok) {
+      // Stops at the first check that fails: the rest would only wait out their timeouts.
+      let failed: CompiledCheck | undefined;
+      for (const c of checks) {
+        if (await runCompiledCheck(this._page, c, timeout)) continue;
+        failed = c;
+        break;
+      }
+      if (!failed) {
         this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'hit', key });
         return {
           pass: true,
@@ -1045,11 +1071,14 @@ export class Ai {
           checks: [],
         };
       }
-      this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'broken', key, reason: 'compiled check failed' });
+      const failure = `compiled check failed: ${describeCheck(failed)}`;
+      this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'broken', key, reason: failure });
       if (mode === 'replay-only') {
         return {
           pass: false,
-          reason: `Compiled check failed: ${checks.map(describeCheck).join('; ')}`,
+          reason:
+            `Compiled check failed: ${describeCheck(failed)}. Either the page is wrong or the recorded check is out ` +
+            'of date; the cache is replay-only, so the model was not asked. Run it locally with AIPW_CACHE=auto to re-judge.',
           evidence: [],
           checks: [],
         };

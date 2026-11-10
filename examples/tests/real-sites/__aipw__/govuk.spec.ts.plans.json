@@ -1540,32 +1540,115 @@
                   "y": 2.636111111111111
                 },
                 "label": null,
-                "name": "Next page : 2 of 1,395",
+                "name": "Next page : 2 of 1,396",
                 "placeholder": null,
                 "role": "link",
                 "siblingIndex": 0,
                 "tag": "a",
                 "testIds": {},
-                "text": "Next page : 2 of 1,395"
+                "text": "Next page : 2 of 1,396"
               },
               "locators": [
                 {
-                  "display": "getByRole('link', { name: 'Next page : 2 of 1,395', exact: true })",
+                  "display": "getByRole('link', { name: 'Next page' })",
                   "expr": [
                     {
-                      "exact": true,
                       "m": "getByRole",
-                      "name": "Next page : 2 of 1,395",
+                      "name": "Next page",
                       "role": "link"
                     }
                   ],
                   "rung": "L2"
                 }
               ],
-              "name": "Next page : 2 of 1,395",
+              "name": "Next page : 2 of 1,396",
               "role": "link"
             },
             "tool": "click"
+          }
+        ],
+        "history": [
+          {
+            "actions": [
+              {
+                "args": {
+                  "button": "left",
+                  "clickCount": 1,
+                  "modifiers": null
+                },
+                "intent": "Go to next page of results",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [
+                      {
+                        "name": "Pagination",
+                        "role": "navigation"
+                      },
+                      {
+                        "name": null,
+                        "role": "form"
+                      },
+                      {
+                        "name": null,
+                        "role": "main"
+                      }
+                    ],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": null
+                    },
+                    "box": {
+                      "h": 0.06944444444444445,
+                      "w": 0.09254150390625,
+                      "x": 0.125,
+                      "y": 2.636111111111111
+                    },
+                    "label": null,
+                    "name": "Next page : 2 of 1,395",
+                    "placeholder": null,
+                    "role": "link",
+                    "siblingIndex": 0,
+                    "tag": "a",
+                    "testIds": {},
+                    "text": "Next page : 2 of 1,395"
+                  },
+                  "locators": [
+                    {
+                      "display": "getByRole('link', { name: 'Next page : 2 of 1,395', exact: true })",
+                      "expr": [
+                        {
+                          "exact": true,
+                          "m": "getByRole",
+                          "name": "Next page : 2 of 1,395",
+                          "role": "link"
+                        }
+                      ],
+                      "rung": "L2"
+                    }
+                  ],
+                  "name": "Next page : 2 of 1,395",
+                  "role": "link"
+                },
+                "tool": "click"
+              }
+            ],
+            "instruction": "Go to the next page of search results",
+            "kind": "act",
+            "post": {
+              "urlPattern": "https://www.gov.uk/search/all"
+            },
+            "pre": {
+              "urlPattern": "https://www.gov.uk/search/all"
+            },
+            "recordedWith": {
+              "at": "2026-11-04T11:55:23.271Z",
+              "model": "claude-sonnet-5-5",
+              "provider": "claude-code"
+            },
+            "stats": {
+              "heals": 0
+            }
           }
         ],
         "instruction": "Go to the next page of search results",
@@ -1577,12 +1660,14 @@
           "urlPattern": "https://www.gov.uk/search/all"
         },
         "recordedWith": {
-          "at": "2026-11-04T11:55:23.271Z",
+          "at": "2026-11-10T17:26:34.719Z",
           "model": "claude-sonnet-5-5",
+          "project": "real-sites",
           "provider": "claude-code"
         },
         "stats": {
-          "heals": 0
+          "heals": 1,
+          "lastHealAt": "2026-11-10T17:26:34.719Z"
         }
       }
     },

@@ -185,7 +185,10 @@ The list is configurable (`locators.rejectIdPatterns`) and unit-tested with real
 
 Names that embed a price change with the data too: a product link named `Combination Pliers … $14.15` is located by
 its stable start (`getByRole('link', { name: 'Combination Pliers Compare Combination' })`, not exact). Rand amounts
-(`R 1 299,00`) count as prices.
+(`R 1 299,00`) count as prices. A name that ends in an "N of M" counter is treated the same way: GOV.UK's
+`Next page : 2 of 1,395` is located as `getByRole('link', { name: 'Next page' })`, because the total grows with the
+data. Fingerprint healing (§6) also treats two such names with the same start as nearly equal, so a plan recorded with
+the full name heals without the model when the total changes.
 
 ## 6. Fingerprint healing (L8): healing without AI
 

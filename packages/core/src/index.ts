@@ -1,4 +1,4 @@
-export { AipwConfigSchema, defineAipwConfig, resolveConfig } from './config.js';
+export { AipwConfigSchema, cacheModeFromEnv, defineAipwConfig, resolveConfig } from './config.js';
 export type { AipwConfig, AipwConfigInput } from './config.js';
 export {
   DEFAULT_REJECT_TEST_ID_VALUES,

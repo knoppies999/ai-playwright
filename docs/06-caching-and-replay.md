@@ -13,7 +13,8 @@ Playwright. The LLM is only consulted when a plan breaks.
 | `ai-only` | Ignore the cache, always ask the model. Don't write | Conformance runs, debugging |
 | `refresh` | Always ask the model, overwrite plans | After big UI changes |
 
-Set globally (`AIPW_CACHE` / config) or per step (`ai.act(..., { cache: 'off' })`).
+Set globally (`AIPW_CACHE` / config) or per step (`ai.act(..., { cache: 'off' })`). An `AIPW_CACHE` value that is not one of
+the four modes fails the step with a message that lists them (a typo must not turn a replay-only gate into `auto`).
 
 ## 2. Storage layout
 

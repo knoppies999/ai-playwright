@@ -3,6 +3,7 @@
 // call with the contract fixture and reports what the endpoint supports (it spends a request).
 import {
   AiProviderError,
+  cacheModeFromEnv,
   contractDecisionRequest,
   contractStructuredRequest,
   DEFAULT_PROVIDERS,
@@ -146,6 +147,12 @@ export function doctorChecks(
       ? ok('hints', `${config.hints.dir}/ found (run aipw hints lint)`)
       : ok('hints', `no ${config.hints.dir}/ folder (optional)`),
   );
+  try {
+    const mode = cacheModeFromEnv(env);
+    if (mode) checks.push(ok('AIPW_CACHE', `${mode} (overrides cache.mode: ${config.cache.mode})`));
+  } catch (error) {
+    checks.push(fail('AIPW_CACHE', error instanceof Error ? error.message : String(error)));
+  }
   const b = config.budget;
   checks.push(
     b.perStepUsd || b.perRunUsd || b.perRunRequests

@@ -5,7 +5,7 @@ import type { Frame, Locator, Page } from 'playwright-core';
 import { buildLocator, type LocatorExpr } from './expr.js';
 import { DEFAULT_REJECT_ID_PATTERNS, isGeneratedId, isStableText } from './generated.js';
 import { isConfiguredTestIdAttribute, isRejectedTestIdValue, looksLikeTestIdAttribute } from './test-ids.js';
-import { stableNamePrefix, withoutShortcutHint } from './volatile.js';
+import { stableNamePrefix, withoutCounter, withoutShortcutHint } from './volatile.js';
 
 export type Rung = 'L1' | 'L2' | 'L3' | 'L4' | 'L5' | 'L6' | 'L7';
 
@@ -232,8 +232,11 @@ export async function synthesizeLocators(page: Page, target: Locator, opts: Synt
           : [{ m: 'locator', selector: css(t.attr, t.value) }],
       });
     }
-    // A name with a price or a keyboard-shortcut hint in it changes with the data or the platform: match its stable part.
-    const stableName = opts.name ? (stableNamePrefix(opts.name) ?? withoutShortcutHint(opts.name)) : undefined;
+    // A name with a price, an "N of M" counter or a keyboard-shortcut hint in it changes with the data or the
+    // platform: match its stable part.
+    const stableName = opts.name
+      ? (stableNamePrefix(opts.name) ?? withoutCounter(opts.name) ?? withoutShortcutHint(opts.name))
+      : undefined;
     if (opts.role && !NO_ROLE_LOCATOR.has(opts.role) && stableName) {
       bases.push({ rung: 'L2', expr: [{ m: 'getByRole', role: opts.role, name: stableName }] });
     } else if (opts.role && !NO_ROLE_LOCATOR.has(opts.role) && opts.name && opts.name.length <= 80) {

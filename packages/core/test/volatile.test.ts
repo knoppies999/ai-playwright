@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { urlPattern } from '../src/cache/plan.js';
 import { isGeneratedId } from '../src/locators/generated.js';
 import { DEFAULT_REJECT_TEST_ID_VALUES, isRejectedTestIdValue } from '../src/locators/test-ids.js';
-import { isIdSegment, stableNamePrefix } from '../src/locators/volatile.js';
+import { isIdSegment, stableNamePrefix, withoutCounter } from '../src/locators/volatile.js';
 
 describe('volatile values (docs/12 §5)', () => {
   it.each(['product-01M4KFJHJFJBXR3A2RWKK2Z7GK', 'row_507f1f77bcf86cd799439011', 'V1StGXR8Z5jdHi6BmyT'])(
@@ -32,6 +32,18 @@ describe('volatile values (docs/12 §5)', () => {
     expect(stableNamePrefix('Thor Hammer R 1 299,00')).toBe('Thor Hammer');
     expect(stableNamePrefix('Add to cart')).toBeUndefined();
     expect(stableNamePrefix('$9.99')).toBeUndefined();
+  });
+});
+
+describe('counters in names', () => {
+  it('drops a trailing "N of M" counter and what joins it', () => {
+    expect(withoutCounter('Next page : 2 of 1,395')).toBe('Next page');
+    expect(withoutCounter('Photo (3 of 12)')).toBe('Photo');
+    expect(withoutCounter('Step 2 / 5')).toBe('Step');
+    expect(withoutCounter('Slide 10 of 10 - Summer sale')).toBeUndefined(); // not at the end
+    expect(withoutCounter('2 of 5')).toBeUndefined(); // nothing left
+    expect(withoutCounter('Order 1002')).toBeUndefined(); // a record number is not a counter
+    expect(withoutCounter('Add to cart')).toBeUndefined();
   });
 });
 

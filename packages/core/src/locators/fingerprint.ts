@@ -2,6 +2,7 @@
 // score the page's elements against what the target looked like, and accept a clear winner without AI.
 import type { Locator, Page } from 'playwright-core';
 import type { Fingerprint } from '../cache/plan.js';
+import { withoutCounter } from './volatile.js';
 
 /**
  * Feature weights. The doc orders them test id > name > ancestors > text > attributes > position; a renamed
@@ -83,6 +84,9 @@ const textSim = (a: string | null, b: string | null): number | undefined => {
   const x = a.toLowerCase();
   const y = b.toLowerCase();
   if (x === y) return 1;
+  // "Next page : 2 of 1,395" and "Next page : 2 of 1,402": the same element with a new total.
+  const stem = withoutCounter(x);
+  if (stem && stem === withoutCounter(y)) return 0.9;
   return x.includes(y) || y.includes(x) ? 0.5 : 0;
 };
 

@@ -117,3 +117,14 @@ describe('aipw conformance metrics', () => {
     expect(parseConformanceArgs([])).toMatchObject({ error: expect.stringContaining('Usage') });
   });
 });
+
+describe('aipw doctor: AIPW_CACHE', () => {
+  it('shows the override, and fails on a value that is not a mode', () => {
+    const config = resolveConfig({});
+    expect(doctorChecks(config, {}, { resolvable: all }).some((c) => c.label === 'AIPW_CACHE')).toBe(false);
+    expect(statusOf(doctorChecks(config, { AIPW_CACHE: 'replay-only' }, { resolvable: all }), 'AIPW_CACHE')).toBe('ok');
+    expect(statusOf(doctorChecks(config, { AIPW_CACHE: 'replayonly' }, { resolvable: all }), 'AIPW_CACHE')).toBe(
+      'fail',
+    );
+  });
+});

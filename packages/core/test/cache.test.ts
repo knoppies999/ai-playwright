@@ -2,7 +2,7 @@ import type { Page } from 'playwright-core';
 import { describe, expect, it } from 'vitest';
 import { MemoryPlanStore } from '../src/cache/store.js';
 import { resolveConfig, type AipwConfigInput } from '../src/config.js';
-import { AiCacheReplayOnlyMiss, AiHealedError, AiStepError } from '../src/errors.js';
+import { AiCacheReplayOnlyMiss, AiHealedError, AiProviderError, AiStepError } from '../src/errors.js';
 import type { AipwEvent } from '../src/events/bus.js';
 import { FakeProvider } from '../src/llm/fake-provider.js';
 import type { DecisionRequest } from '../src/llm/provider.js';
@@ -205,6 +205,36 @@ describe('plan cache', () => {
       expect(error).toBeInstanceOf(AiStepError);
       expect(error.message).toMatch(/Replay failed at action 3: No stored locator matched button "Login"/);
     });
+
+    it('says why a cached step needed the model when the model cannot be reached', async () => {
+      const store = new MemoryPlanStore();
+      await login(makeAi(await openApp(), new FakeProvider(loginScript()), store).ai);
+      // Signed out (or over a usage limit): replay breaks on the changed page, the heal asks the model, the call fails.
+      const signedOut = new FakeProvider([
+        () => {
+          throw new AiProviderError('auth', 'Claude Code is not signed in.');
+        },
+      ]);
+      const { ai, events } = makeAi(await openApp(variantB), signedOut, store);
+      const error = await login(ai).catch((e) => e);
+      expect(error).toBeInstanceOf(AiProviderError);
+      expect(error.kind).toBe('auth');
+      expect(error.message).toBe(
+        'The recorded plan for this step no longer matches the page (No stored locator matched button "Login"), ' +
+          'so the step needed the model, and the model call failed.\nClaude Code is not signed in.',
+      );
+      expect(events.findLast((e) => e.type === 'step:end')).toMatchObject({ status: 'failed', error: error.message });
+    });
+
+    it('a model failure on a step with no plan is reported as it is', async () => {
+      const provider = new FakeProvider([
+        () => {
+          throw new AiProviderError('auth', 'Claude Code is not signed in.');
+        },
+      ]);
+      const error = await login(makeAi(await openApp(), provider, new MemoryPlanStore()).ai).catch((e) => e);
+      expect(error.message).toBe('Claude Code is not signed in.');
+    });
   });
 });
 
@@ -392,5 +422,67 @@ describe('caching assert, extract and locate', () => {
     );
     expect(loc.toString()).toBe("getByTestId('save')");
     expect(replayer.structuredRequests).toHaveLength(0);
+  });
+});
+
+describe('names that end in a counter ("Next page : 2 of 1,395")', () => {
+  // GOV.UK's search pagination: the link's name carries the total number of pages, which grows with the data.
+  const results = (total: string) => `
+    <main><h1>Search</h1>
+      <nav aria-label="Pagination">
+        <a href="#1">Previous page<span> : 1 of ${total}</span></a>
+        <a href="#3" onclick="this.dataset.clicked = 'yes'">Next page<span> : 3 of ${total}</span></a>
+      </nav>
+    </main>`;
+  const script = () => [pick('link "Next page', 'click', click), done];
+
+  async function openResults(total: string) {
+    const page = await open('', { testIdAttribute: 'data-test' });
+    await page.route('**/*', (route) => route.fulfill({ contentType: 'text/html', body: results(total) }));
+    await page.goto(`${ORIGIN}/`);
+    return page;
+  }
+
+  it('records the name without the counter, so a new total replays from cache', async () => {
+    const store = new MemoryPlanStore();
+    await makeAi(await openResults('1,395'), new FakeProvider(script()), store).ai.act('Go to the next page');
+    const recorded = Object.values(store.file.tests[TEST]!)[0]!;
+    expect(recorded.actions![0]!.target!.locators[0]!.display).toBe("getByRole('link', { name: 'Next page' })");
+
+    const page = await openResults('1,402');
+    const provider = new FakeProvider(); // any AI call would throw
+    const result = await makeAi(page, provider, store, { cache: { mode: 'replay-only' } }).ai.act(
+      'Go to the next page',
+    );
+    expect(result.source).toBe('cache');
+    await expect(page.getByRole('link', { name: 'Next page' }).getAttribute('data-clicked')).resolves.toBe('yes');
+  });
+
+  it('heals a plan recorded with the full name by fingerprint, without the model', async () => {
+    const store = new MemoryPlanStore();
+    await makeAi(await openResults('1,395'), new FakeProvider(script()), store).ai.act('Go to the next page');
+    // What plans recorded before this rule hold: the exact name, total included.
+    const target = Object.values(store.file.tests[TEST]!)[0]!.actions![0]!.target!;
+    target.locators = [
+      {
+        rung: 'L2',
+        expr: [{ m: 'getByRole', role: 'link', name: 'Next page : 3 of 1,395', exact: true }],
+        display: "getByRole('link', { name: 'Next page : 3 of 1,395', exact: true })",
+      },
+    ];
+
+    const page = await openResults('1,402');
+    const provider = new FakeProvider();
+    const { ai, events } = makeAi(page, provider, store, {
+      cache: { mode: 'replay-only' },
+      heal: { policy: 'accept' },
+    });
+    const result = await ai.act('Go to the next page');
+    expect(result.source).toBe('healed');
+    expect(provider.decisionRequests).toHaveLength(0);
+    expect(events.find((e) => e.type === 'heal')).toMatchObject({ source: 'fingerprint' });
+    await expect(page.getByRole('link', { name: 'Next page' }).getAttribute('data-clicked')).resolves.toBe('yes');
+    const healed = Object.values(store.file.tests[TEST]!)[0]!;
+    expect(healed.actions![0]!.target!.locators[0]!.display).toBe("getByRole('link', { name: 'Next page' })");
   });
 });
