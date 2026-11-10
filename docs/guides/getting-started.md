@@ -15,7 +15,8 @@ npm init aipw@latest       # or: pnpm create aipw · yarn create aipw
 
 It asks which model provider to use, then installs `aipw`, that provider's package and `@playwright/test` with your
 package manager, downloads Chromium and runs `npx aipw init`. That writes `aipw.config.ts` (`.mts` in a CommonJS
-project), an example spec, `playwright.config.ts` if you have none, a `.gitignore` line, and
+project), an example spec, `playwright.config.ts` if you have none, a `.gitignore` line (a whole `.gitignore` if
+you have none), and
 `.github/instructions/aipw-tests.instructions.md` so Copilot writes good aipw tests. It never overwrites a file; for
 an existing Playwright config it prints the two lines to change. Add `-- --dry-run` to see the commands first.
 
@@ -31,7 +32,7 @@ Steps 3–5 below show what `aipw init` sets up.
 
 **Before the first release:** build tarballs from a clone of this repository (`npm ci && npm run pack` writes
 `dist-packages/*.tgz`) and install them together in your project:
-`npm i -D <clone>/dist-packages/{aipw,aipw-core,aipw-test,aipw-cli,aipw-provider-claude-code}-0.0.0.tgz @playwright/test`.
+`npm i -D <clone>/dist-packages/{aipw,aipw-core,aipw-test,aipw-cli,aipw-provider-claude-code}-0.1.0.tgz @playwright/test`.
 
 ## 2. Pick a model (2 minutes)
 
@@ -40,6 +41,7 @@ API key.
 
 ```bash
 claude auth login      # once, in a terminal; the desktop app's sign-in does not carry over
+npx aipw doctor        # says whether Claude Code is signed in (the login expires now and then), without a model call
 ```
 
 Leave `ANTHROPIC_API_KEY` unset: if it is set, the SDK bills the key instead of your plan. Choose the model with

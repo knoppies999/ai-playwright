@@ -1,7 +1,7 @@
 import { resolveConfig } from '@aipw/core';
 import { describe, expect, it } from 'vitest';
 import { conformanceMetrics, parseConformanceArgs } from '../src/conformance.js';
-import { doctorChecks } from '../src/doctor.js';
+import { claudeAuthStatus, doctorChecks } from '../src/doctor.js';
 
 const all = () => true;
 const statusOf = (checks: { status: string; label: string }[], label: string) =>
@@ -14,6 +14,25 @@ describe('aipw doctor (no network)', () => {
     expect(statusOf(doctorChecks(config, { ANTHROPIC_API_KEY: 'k' }, { resolvable: all }), 'ANTHROPIC_API_KEY')).toBe(
       'warn',
     );
+  });
+
+  it('claude-code: fails when Claude Code is signed out, without a model call', () => {
+    const config = resolveConfig({});
+    const signedOut = doctorChecks(config, {}, { resolvable: all, claudeAuth: 'out' });
+    expect(statusOf(signedOut, 'subscription')).toBe('fail');
+    expect(signedOut.find((c) => c.label === 'subscription')!.detail).toContain('claude auth login');
+    expect(statusOf(doctorChecks(config, {}, { resolvable: all, claudeAuth: 'in' }), 'subscription')).toBe('ok');
+    // A long-lived token (unattended jobs) needs no login.
+    const token = doctorChecks(config, { CLAUDE_CODE_OAUTH_TOKEN: 't' }, { resolvable: all, claudeAuth: 'out' });
+    expect(statusOf(token, 'subscription')).toBe('ok');
+  });
+
+  it('reads `claude auth status`; no CLI or other output is "unknown", not an error', () => {
+    expect(claudeAuthStatus(() => ({ stdout: '{"loggedIn": false, "authMethod": "none"}' }))).toBe('out');
+    expect(claudeAuthStatus(() => ({ stdout: '{"loggedIn": true}' }))).toBe('in');
+    expect(claudeAuthStatus(() => ({ stdout: "'claude' is not recognized as a command" }))).toBe('unknown');
+    expect(claudeAuthStatus(() => ({ stdout: null }))).toBe('unknown');
+    expect(claudeAuthStatus(() => ({ stdout: '{}' }))).toBe('unknown');
   });
 
   it('foundry: needs the resource and deployment; keyless needs @azure/identity', () => {

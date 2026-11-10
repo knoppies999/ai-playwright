@@ -4,7 +4,8 @@
 
 | Symptom | Cause and fix |
 |---|---|
-| `Claude Code is not signed in` | Run `claude auth login` once in a terminal. The desktop app's sign-in does not carry over to the SDK |
+| `Claude Code is not signed in` | Run `claude auth login` once in a terminal. The desktop app's sign-in does not carry over to the SDK. The login also expires: `npx aipw doctor` shows `✗ subscription` when it has (no model call needed). Recorded plans still replay while signed out |
+| Not sure what a command takes | `npx aipw <command> --help` lists its options with an example; `npx aipw --help` lists the commands |
 | Calls are billed to an API key instead of your plan | `ANTHROPIC_API_KEY` is set. Unset it for the `claude-code` provider |
 | `Claude plan usage limit reached` | Your plan's 5-hour or weekly window is used up. It fails straight away instead of retrying, because the window resets in hours. Replay from cache (`AIPW_CACHE=replay-only`) until it resets |
 | `Claude rate limit` / 429 / overloaded | Transient. aipw retries with backoff and jitter (`retry` in config: 4 retries, up to 30 s each). Lower `workers` if it persists |

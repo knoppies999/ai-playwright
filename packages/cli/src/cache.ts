@@ -3,7 +3,7 @@ import { readPlanFile, stableStringify, type PlanFile, type PlanTarget, type Ste
 import { spawnSync } from 'node:child_process';
 import { inSpecOrder, plansToCode } from './code.js';
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { basename, dirname, join, relative } from 'node:path';
+import { basename, dirname, join, relative, resolve } from 'node:path';
 
 /** Every *.plans.json under a __aipw__ folder, skipping node_modules and dot folders. */
 export function findPlanFiles(root: string): string[] {
@@ -75,6 +75,46 @@ export function planStats(path: string, root: string): PlanStats {
     noLocator,
     positional,
   };
+}
+
+const count = (n: number, noun: string) => `${n} ${noun}${n === 1 ? '' : 's'}`;
+
+/** One line of `aipw cache stats`. */
+export function formatStats(r: PlanStats): string {
+  const steps = Object.entries(r.steps)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([k, n]) => `${n} ${k}`)
+    .join(', ');
+  return (
+    `${r.file.replace(/\\/g, '/')}: ${count(r.tests, 'test')}, ${steps || 'no steps'}; ${count(r.heals, 'heal')}; ` +
+    `AI on replay: ${count(r.aiOnlyAsserts, 'assert')}, ${count(r.aiOnlyExtracts, 'extract')}` +
+    (r.noLocator ? `; ${count(r.noLocator, 'target')} without a locator` : '') +
+    (r.positional ? `; ${r.positional} positional (L7)` : '')
+  );
+}
+
+/** All plan files added up, for the last line of `aipw cache stats`. */
+export function totalStats(rows: PlanStats[]): PlanStats {
+  const total: PlanStats = {
+    file: `Total (${count(rows.length, 'plan file')})`,
+    tests: 0,
+    steps: {},
+    heals: 0,
+    aiOnlyAsserts: 0,
+    aiOnlyExtracts: 0,
+    noLocator: 0,
+    positional: 0,
+  };
+  for (const r of rows) {
+    total.tests += r.tests;
+    total.heals += r.heals;
+    total.aiOnlyAsserts += r.aiOnlyAsserts;
+    total.aiOnlyExtracts += r.aiOnlyExtracts;
+    total.noLocator += r.noLocator;
+    total.positional += r.positional;
+    for (const [k, n] of Object.entries(r.steps)) total.steps[k] = (total.steps[k] ?? 0) + n;
+  }
+  return total;
 }
 
 function describeStep(step: StepPlan): string[] {
@@ -198,53 +238,64 @@ export function runCacheCommand(args: string[], root = process.cwd()): number {
   switch (sub) {
     case 'stats': {
       const rows = findPlanFiles(root).map((p) => planStats(p, root));
-      if (!rows.length) console.log('No plan files found.');
-      for (const r of rows) {
-        const steps = Object.entries(r.steps)
-          .map(([k, n]) => `${n} ${k}`)
-          .join(', ');
-        console.log(
-          `${r.file}: ${r.tests} tests, ${steps}; ${r.heals} heals; AI on replay: ${r.aiOnlyAsserts} asserts, ${r.aiOnlyExtracts} extracts` +
-            (r.noLocator ? `; ${r.noLocator} targets without a locator` : '') +
-            (r.positional ? `; ${r.positional} positional (L7)` : ''),
-        );
+      if (!rows.length) {
+        console.log('No plan files found. Plans are recorded the first time a spec with ai.* steps passes.');
+        return 0;
       }
+      for (const r of rows) console.log(formatStats(r));
+      if (rows.length > 1) console.log(formatStats(totalStats(rows)));
       return 0;
     }
-    case 'show': {
-      if (!target) {
-        console.error('Usage: aipw cache show <spec file> [--grep <title part>]');
-        return 1;
-      }
-      const grep = rest[0] === '--grep' ? rest[1] : undefined;
-      const path = join(dirname(target), '__aipw__', `${basename(target)}.plans.json`);
-      const source = existsSync(target) ? readFileSync(target, 'utf8') : undefined;
-      console.log(showPlans(readPlanFile(path), grep, source) || 'No plans.');
-      return 0;
-    }
+    case 'show':
     case 'code': {
-      if (!target) {
-        console.error('Usage: aipw cache code <spec file> [--grep <title part>]');
+      const grepAt = args.indexOf('--grep');
+      const grep = grepAt >= 0 ? args[grepAt + 1] : undefined;
+      if (!target || target.startsWith('--') || (grepAt >= 0 && !grep)) {
+        console.error(`Usage: aipw cache ${sub} <spec file> [--grep <title part>]`);
         return 1;
       }
-      const grep = rest[0] === '--grep' ? rest[1] : undefined;
-      const path = join(dirname(target), '__aipw__', `${basename(target)}.plans.json`);
-      const source = existsSync(target) ? readFileSync(target, 'utf8') : undefined;
-      console.log(plansToCode(readPlanFile(path), source, grep) || 'No plans.');
+      const spec = resolve(root, target);
+      const path = join(dirname(spec), '__aipw__', `${basename(spec)}.plans.json`);
+      if (!existsSync(path)) {
+        console.error(
+          existsSync(spec)
+            ? `No plans recorded for ${target} yet (no ${relative(root, path)}). Run it once: npx playwright test ${target}`
+            : `No such spec: ${target}. Give the path of a spec file, e.g. aipw cache ${sub} tests/login.spec.ts`,
+        );
+        return 1;
+      }
+      const file = readPlanFile(path);
+      const source = existsSync(spec) ? readFileSync(spec, 'utf8') : undefined;
+      const out = sub === 'show' ? showPlans(file, grep, source) : plansToCode(file, source, grep);
+      if (out) console.log(out);
+      else if (grep) {
+        const titles = Object.keys(file.tests).sort();
+        console.error(
+          `No test title in ${target} contains "${grep}". Titles:\n${titles.map((t) => `  ${t}`).join('\n')}`,
+        );
+        return 1;
+      } else console.log('No plans.');
       return 0;
     }
     case 'prune': {
       const dryRun = args.includes('--dry-run');
       const live = listTests(root);
+      let pruned = 0;
       for (const path of findPlanFiles(root)) {
         const spec = basename(path).replace(/\.plans\.json$/, '');
         const { file, removed } = prunePlans(readPlanFile(path), live.get(spec) ?? new Set());
         if (!removed.length) continue;
+        pruned++;
         console.log(
-          `${relative(root, path)}: ${dryRun ? 'would remove' : 'removed'} ${removed.length}: ${removed.join('; ')}`,
+          `${relative(root, path).replace(/\\/g, '/')}: ${dryRun ? 'would remove' : 'removed'} ${removed.length}: ${removed.join('; ')}`,
         );
-        if (!dryRun) writeFileSync(path, stableStringify(file));
+        if (dryRun) continue;
+        // No test left (the spec was deleted or renamed): an empty plan file is only noise in the repository.
+        if (Object.keys(file.tests).length) writeFileSync(path, stableStringify(file));
+        else rmSync(path);
       }
+      if (!pruned) console.log('Nothing to prune: every plan belongs to a test.');
+      else if (dryRun) console.log('Dry run: nothing was changed.');
       return 0;
     }
     case 'refresh': {

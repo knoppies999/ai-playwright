@@ -58,7 +58,7 @@ export function runSummaryCommand(argv: string[]): number {
   }
   const path = resolve(args.file);
   if (!existsSync(path)) {
-    console.error(`No run summary at ${path}. Add ['@aipw/test/reporter'] to the Playwright reporters.`);
+    console.error(`No run summary at ${path}. Add ['aipw/reporter'] to the Playwright reporters and run the tests.`);
     return 2;
   }
   const summary = JSON.parse(readFileSync(path, 'utf8')) as SummaryFile;

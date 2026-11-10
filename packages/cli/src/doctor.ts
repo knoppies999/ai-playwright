@@ -2,6 +2,7 @@
 // credentials, and the secret variables, without calling the model. --probe makes one decide() and one structured()
 // call with the contract fixture and reports what the endpoint supports (it spends a request).
 import {
+  AiProviderError,
   contractDecisionRequest,
   contractStructuredRequest,
   DEFAULT_PROVIDERS,
@@ -10,6 +11,7 @@ import {
   type AipwConfig,
   type AipwConfigInput,
 } from '@aipw/core';
+import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -42,13 +44,33 @@ export function canResolve(pkg: string, from = process.cwd()): boolean {
   return false;
 }
 
+export type ClaudeAuth = 'in' | 'out' | 'unknown';
+
+/**
+ * Whether the Claude Code CLI is signed in, from `claude auth status` (JSON with loggedIn; no model request).
+ * 'unknown' when the CLI isn't on the PATH or answers something else: the provider bundles its own, so that is
+ * not an error.
+ */
+export function claudeAuthStatus(
+  run: () => { stdout?: string | null } = () =>
+    spawnSync('claude auth status', { encoding: 'utf8', shell: true, timeout: 15_000, windowsHide: true }),
+): ClaudeAuth {
+  try {
+    const status = JSON.parse(run().stdout ?? '') as { loggedIn?: unknown };
+    return status.loggedIn === true ? 'in' : status.loggedIn === false ? 'out' : 'unknown';
+  } catch {
+    return 'unknown';
+  }
+}
+
 /** The checks that need no network. */
 export function doctorChecks(
   config: AipwConfig,
   env: NodeJS.ProcessEnv,
-  options: { provider?: string; resolvable?: (pkg: string) => boolean } = {},
+  options: { provider?: string; resolvable?: (pkg: string) => boolean; claudeAuth?: ClaudeAuth } = {},
 ): Check[] {
   const resolvable = options.resolvable ?? ((p: string) => canResolve(p));
+  const claudeAuth = options.claudeAuth ?? 'unknown';
   const key = options.provider ?? env.AIPW_PROVIDER ?? config.provider;
   const entry = { ...DEFAULT_PROVIDERS[key], ...config.providers[key] } as {
     package?: string;
@@ -70,10 +92,19 @@ export function doctorChecks(
       checks.push(
         env.ANTHROPIC_API_KEY
           ? warn('ANTHROPIC_API_KEY', 'set: the Agent SDK bills this key instead of your Claude subscription. Unset it')
-          : ok(
-              'subscription',
-              'claude-code uses the signed-in Claude Code (run `claude auth login` once if calls fail)',
-            ),
+          : env.CLAUDE_CODE_OAUTH_TOKEN
+            ? ok('subscription', 'CLAUDE_CODE_OAUTH_TOKEN set (a long-lived token from `claude setup-token`)')
+            : claudeAuth === 'out'
+              ? fail(
+                  'subscription',
+                  "Claude Code is not signed in (or the login expired). Run `claude auth login` in a terminal; the desktop app's sign-in does not carry over",
+                )
+              : claudeAuth === 'in'
+                ? ok('subscription', 'Claude Code is signed in; calls run on your Claude plan')
+                : ok(
+                    'subscription',
+                    'claude-code uses the signed-in Claude Code (run `claude auth login` once if calls fail)',
+                  ),
       );
       break;
     case 'anthropic':
@@ -160,6 +191,11 @@ async function probe(config: AipwConfig, env: NodeJS.ProcessEnv): Promise<Check[
     );
   } catch (error) {
     checks.push(fail('tool calling', error instanceof Error ? error.message : String(error)));
+    // Not signed in or a bad key: the second call would only print the same message again.
+    if (error instanceof AiProviderError && error.kind === 'auth') {
+      await provider.dispose?.();
+      return checks;
+    }
   }
   try {
     const req = contractStructuredRequest();
@@ -186,7 +222,7 @@ export async function runDoctor(argv: string[]): Promise<number> {
     // .env is optional
   }
   const { file, config: input } = await loadConfigFile();
-  const env = { ...process.env, ...(provider && { AIPW_PROVIDER: provider }) };
+  const env: NodeJS.ProcessEnv = { ...process.env, ...(provider && { AIPW_PROVIDER: provider }) };
   let config: AipwConfig;
   try {
     config = resolveConfig(input);
@@ -196,11 +232,20 @@ export async function runDoctor(argv: string[]): Promise<number> {
   }
   const checks = [
     ok('config', file ?? 'no aipw.config.ts (defaults)'),
-    ...doctorChecks(config, env, { ...(provider && { provider }) }),
+    ...doctorChecks(config, env, {
+      ...(provider && { provider }),
+      // Only asked when it matters: the claude-code provider on a subscription login.
+      ...((provider ?? env.AIPW_PROVIDER ?? config.provider) === 'claude-code' &&
+        !env.ANTHROPIC_API_KEY &&
+        !env.CLAUDE_CODE_OAUTH_TOKEN && { claudeAuth: claudeAuthStatus() }),
+    }),
   ];
   if (argv.includes('--probe') && !checks.some((c) => c.status === 'fail')) checks.push(...(await probe(config, env)));
   const icon = { ok: '✓', warn: '!', fail: '✗' };
   for (const c of checks) console.log(`${icon[c.status]} ${c.label.padEnd(24)} ${c.detail}`);
-  if (!argv.includes('--probe')) console.log('\nAdd --probe for one live tool-calling and structured-output check.');
-  return checks.some((c) => c.status === 'fail') ? 1 : 0;
+  const failed = checks.some((c) => c.status === 'fail');
+  if (failed && !argv.includes('--probe')) console.log('\nFix the ✗ lines, then run aipw doctor --probe.');
+  else if (!argv.includes('--probe'))
+    console.log('\nAdd --probe for one live tool-calling and structured-output check.');
+  return failed ? 1 : 0;
 }
