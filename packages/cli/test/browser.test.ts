@@ -43,7 +43,7 @@ describe("the CLI's browser", () => {
   });
 
   it('turns a missing browser into the command that installs it', () => {
-    const missing = new Error("browserType.launch: Executable doesn't exist at C:\ms-playwright\chromium\n╔═══╗");
+    const missing = new Error("browserType.launch: Executable doesn't exist at C:/ms-playwright/chromium\n╔═══╗");
     expect(launchProblem(missing)).toContain('npx playwright install chromium');
     expect(launchProblem(new Error('spawn EPERM\n    at x'))).toBe('Could not start the browser: spawn EPERM');
   });
