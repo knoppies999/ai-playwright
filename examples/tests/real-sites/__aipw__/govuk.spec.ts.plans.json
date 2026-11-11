@@ -1325,7 +1325,7 @@
                   }
                 ],
                 "attrs": {
-                  "id": "search-main-59845dc7",
+                  "id": "search-main-b118386f",
                   "name": "keywords",
                   "type": "search"
                 },
@@ -1375,7 +1375,7 @@
           },
           {
             "args": [
-              "1 of 1,395"
+              "1 of"
             ],
             "expect": "toContainText",
             "target": {
@@ -1406,35 +1406,46 @@
                   "y": 2.6569444444444446
                 },
                 "label": null,
-                "name": "Previous page : 1 of 1,395",
+                "name": "Previous page : 1 of 1,396",
                 "placeholder": null,
                 "role": "link",
                 "siblingIndex": 0,
                 "tag": "a",
                 "testIds": {},
-                "text": "Previous page : 1 of 1,395"
+                "text": "Previous page : 1 of 1,396"
               },
               "locators": [
                 {
-                  "display": "getByRole('link', { name: 'Previous page : 1 of 1,395', exact: true })",
+                  "display": "getByRole('link', { name: 'Previous page' })",
+                  "expr": [
+                    {
+                      "m": "getByRole",
+                      "name": "Previous page",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByRole('link', { name: 'Previous page : 1 of 1,396', exact: true })",
                   "expr": [
                     {
                       "exact": true,
                       "m": "getByRole",
-                      "name": "Previous page : 1 of 1,395",
+                      "name": "Previous page : 1 of 1,396",
                       "role": "link"
                     }
                   ],
                   "rung": "L2"
                 }
               ],
-              "name": "Previous page : 1 of 1,395",
+              "name": "Previous page : 1 of 1,396",
               "role": "link"
             }
           },
           {
             "args": [
-              "3 of 1,395"
+              "3 of"
             ],
             "expect": "toContainText",
             "target": {
@@ -1465,38 +1476,260 @@
                   "y": 2.7555555555555555
                 },
                 "label": null,
-                "name": "Next page : 3 of 1,395",
+                "name": "Next page : 3 of 1,396",
                 "placeholder": null,
                 "role": "link",
                 "siblingIndex": 0,
                 "tag": "a",
                 "testIds": {},
-                "text": "Next page : 3 of 1,395"
+                "text": "Next page : 3 of 1,396"
               },
               "locators": [
                 {
-                  "display": "getByRole('link', { name: 'Next page : 3 of 1,395', exact: true })",
+                  "display": "getByRole('link', { name: 'Next page' })",
+                  "expr": [
+                    {
+                      "m": "getByRole",
+                      "name": "Next page",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByRole('link', { name: 'Next page : 3 of 1,396', exact: true })",
                   "expr": [
                     {
                       "exact": true,
                       "m": "getByRole",
-                      "name": "Next page : 3 of 1,395",
+                      "name": "Next page : 3 of 1,396",
                       "role": "link"
                     }
                   ],
                   "rung": "L2"
                 }
               ],
-              "name": "Next page : 3 of 1,395",
+              "name": "Next page : 3 of 1,396",
               "role": "link"
+            }
+          }
+        ],
+        "history": [
+          {
+            "compiled": [
+              {
+                "args": [
+                  "keywords=driving+licence&page=2"
+                ],
+                "expect": "toHaveURL"
+              },
+              {
+                "args": [
+                  "driving licence"
+                ],
+                "expect": "toHaveValue",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [
+                      {
+                        "name": "Sitewide",
+                        "role": "search"
+                      },
+                      {
+                        "name": null,
+                        "role": "form"
+                      },
+                      {
+                        "name": null,
+                        "role": "main"
+                      }
+                    ],
+                    "attrs": {
+                      "id": "search-main-59845dc7",
+                      "name": "keywords",
+                      "type": "search"
+                    },
+                    "box": {
+                      "h": 0.05555555555555555,
+                      "w": 0.4609375,
+                      "x": 0.125,
+                      "y": 0.7513888888888889
+                    },
+                    "label": "Search all content on GOV.UK",
+                    "name": "Search all content on GOV.UK",
+                    "placeholder": "",
+                    "role": "combobox",
+                    "siblingIndex": 0,
+                    "tag": "input",
+                    "testIds": {},
+                    "text": ""
+                  },
+                  "locators": [
+                    {
+                      "display": "getByRole('combobox', { name: 'Search all content on GOV.UK', exact: true })",
+                      "expr": [
+                        {
+                          "exact": true,
+                          "m": "getByRole",
+                          "name": "Search all content on GOV.UK",
+                          "role": "combobox"
+                        }
+                      ],
+                      "rung": "L2"
+                    },
+                    {
+                      "display": "getByLabel('Search all content on GOV.UK', { exact: true })",
+                      "expr": [
+                        {
+                          "exact": true,
+                          "m": "getByLabel",
+                          "text": "Search all content on GOV.UK"
+                        }
+                      ],
+                      "rung": "L3"
+                    }
+                  ],
+                  "name": "Search all content on GOV.UK",
+                  "role": "combobox"
+                }
+              },
+              {
+                "args": [
+                  "1 of 1,395"
+                ],
+                "expect": "toContainText",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [
+                      {
+                        "name": "Pagination",
+                        "role": "navigation"
+                      },
+                      {
+                        "name": null,
+                        "role": "form"
+                      },
+                      {
+                        "name": null,
+                        "role": "main"
+                      }
+                    ],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": null
+                    },
+                    "box": {
+                      "h": 0.06944444444444445,
+                      "w": 0.1171630859375,
+                      "x": 0.125,
+                      "y": 2.6569444444444446
+                    },
+                    "label": null,
+                    "name": "Previous page : 1 of 1,395",
+                    "placeholder": null,
+                    "role": "link",
+                    "siblingIndex": 0,
+                    "tag": "a",
+                    "testIds": {},
+                    "text": "Previous page : 1 of 1,395"
+                  },
+                  "locators": [
+                    {
+                      "display": "getByRole('link', { name: 'Previous page : 1 of 1,395', exact: true })",
+                      "expr": [
+                        {
+                          "exact": true,
+                          "m": "getByRole",
+                          "name": "Previous page : 1 of 1,395",
+                          "role": "link"
+                        }
+                      ],
+                      "rung": "L2"
+                    }
+                  ],
+                  "name": "Previous page : 1 of 1,395",
+                  "role": "link"
+                }
+              },
+              {
+                "args": [
+                  "3 of 1,395"
+                ],
+                "expect": "toContainText",
+                "target": {
+                  "fingerprint": {
+                    "ancestors": [
+                      {
+                        "name": "Pagination",
+                        "role": "navigation"
+                      },
+                      {
+                        "name": null,
+                        "role": "form"
+                      },
+                      {
+                        "name": null,
+                        "role": "main"
+                      }
+                    ],
+                    "attrs": {
+                      "id": null,
+                      "name": null,
+                      "type": null
+                    },
+                    "box": {
+                      "h": 0.06944444444444445,
+                      "w": 0.09254150390625,
+                      "x": 0.125,
+                      "y": 2.7555555555555555
+                    },
+                    "label": null,
+                    "name": "Next page : 3 of 1,395",
+                    "placeholder": null,
+                    "role": "link",
+                    "siblingIndex": 0,
+                    "tag": "a",
+                    "testIds": {},
+                    "text": "Next page : 3 of 1,395"
+                  },
+                  "locators": [
+                    {
+                      "display": "getByRole('link', { name: 'Next page : 3 of 1,395', exact: true })",
+                      "expr": [
+                        {
+                          "exact": true,
+                          "m": "getByRole",
+                          "name": "Next page : 3 of 1,395",
+                          "role": "link"
+                        }
+                      ],
+                      "rung": "L2"
+                    }
+                  ],
+                  "name": "Next page : 3 of 1,395",
+                  "role": "link"
+                }
+              }
+            ],
+            "instruction": "The results are page 2 of the search for driving licence",
+            "kind": "assert",
+            "recordedWith": {
+              "at": "2026-11-04T11:55:29.022Z",
+              "model": "claude-sonnet-5-5",
+              "provider": "claude-code"
+            },
+            "stats": {
+              "heals": 0
             }
           }
         ],
         "instruction": "The results are page 2 of the search for driving licence",
         "kind": "assert",
         "recordedWith": {
-          "at": "2026-11-04T11:55:29.022Z",
+          "at": "2026-11-10T17:54:48.544Z",
           "model": "claude-sonnet-5-5",
+          "project": "real-sites",
           "provider": "claude-code"
         },
         "stats": {
@@ -1508,10 +1741,10 @@
           {
             "args": {
               "button": "left",
-              "clickCount": 1,
+              "clickCount": null,
               "modifiers": null
             },
-            "intent": "Go to next page of results",
+            "intent": "Click Next page",
             "target": {
               "fingerprint": {
                 "ancestors": [
@@ -1555,6 +1788,18 @@
                     {
                       "m": "getByRole",
                       "name": "Next page",
+                      "role": "link"
+                    }
+                  ],
+                  "rung": "L2"
+                },
+                {
+                  "display": "getByRole('link', { name: 'Next page : 2 of 1,396', exact: true })",
+                  "expr": [
+                    {
+                      "exact": true,
+                      "m": "getByRole",
+                      "name": "Next page : 2 of 1,396",
                       "role": "link"
                     }
                   ],
@@ -1660,14 +1905,13 @@
           "urlPattern": "https://www.gov.uk/search/all"
         },
         "recordedWith": {
-          "at": "2026-11-10T17:26:34.719Z",
+          "at": "2026-11-10T17:54:40.090Z",
           "model": "claude-sonnet-5-5",
           "project": "real-sites",
           "provider": "claude-code"
         },
         "stats": {
-          "heals": 1,
-          "lastHealAt": "2026-11-10T17:26:34.719Z"
+          "heals": 0
         }
       }
     },

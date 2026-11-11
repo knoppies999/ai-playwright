@@ -13,6 +13,8 @@ import {
 } from '@aipw/core';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
+import type { Browser } from 'playwright-core';
+import { launchProblem, loadChromium } from './browser.js';
 import { loadConfigFile } from './doctor.js';
 import { LineReader } from './nudge.js';
 
@@ -111,8 +113,14 @@ export async function runTry(argv: string[]): Promise<number> {
     console.error(`Could not load the provider: ${error instanceof Error ? error.message : String(error)}`);
     return 1;
   }
-  const { chromium } = await import('playwright-core');
-  const browser = await chromium.launch({ headless: !args.headed });
+  let browser: Browser;
+  try {
+    browser = await (await loadChromium()).launch({ headless: !args.headed });
+  } catch (error) {
+    console.error(launchProblem(error));
+    await provider.dispose?.();
+    return 1;
+  }
   const logs: StepLog[] = [];
   let failed = false;
   let values: Record<string, unknown> = {};
@@ -137,7 +145,11 @@ export async function runTry(argv: string[]): Promise<number> {
         const where = t
           ? ` ${t.role ?? 'element'}${t.name ? ` "${t.name}"` : ''} → ${t.candidates[0]?.display ?? 'no durable locator'}`
           : '';
-        console.log(`   ${e.record.tool}${where}`);
+        // What was typed or pressed. Events are redacted: data and secrets arrive as placeholders.
+        const args = e.record.args;
+        const typed = [args.value, args.text, args.key].find((v) => typeof v === 'string');
+        const enter = e.record.tool === 'type' && args.submit ? ' + Enter' : '';
+        console.log(`   ${e.record.tool}${typed !== undefined ? ` ${JSON.stringify(typed)}${enter}` : ''}${where}`);
       }
       if (e.type === 'verdict') {
         log.verdict = { pass: e.pass, reason: e.reason };

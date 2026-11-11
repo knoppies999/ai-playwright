@@ -49,6 +49,7 @@ import { buildLocator, type LocatorExpr } from '../locators/expr.js';
 import { fingerprintOf } from '../locators/fingerprint.js';
 import { isRejectedTestIdValue } from '../locators/test-ids.js';
 import { synthesizeLocators, type LocatorCandidate, type Rung } from '../locators/synth.js';
+import { withoutCounterTotal } from '../locators/volatile.js';
 import type { Observation } from '../observe/observer.js';
 import { expandRef, findByRef } from '../observe/snapshot.js';
 import type { ActionRecord, StepContext, StepKind, StepOptions, StepOutcome } from '../types.js';
@@ -908,6 +909,10 @@ export class Ai {
     if (expect === 'toBeVisible' && !check.not && CONTROL_ROLES.has(target.role ?? '') && STATE_WORDS.test(condition)) {
       return `a visible ${target.role} says nothing about its state`;
     }
+    // "1 of 1,396" as evidence for "page 2": the total is data and changes under the test. Unless the assertion
+    // itself names the total, the check keeps "1 of" (compileChecks then verifies it still holds on the page).
+    const counted = expect === 'toContainText' && !check.not ? withoutCounterTotal(check.args[0] ?? '') : undefined;
+    if (counted && !condition.includes(counted.total)) return { expect, target, ...base, args: [counted.text] };
     return { expect, target, ...base };
   }
 
@@ -1301,6 +1306,27 @@ export class Ai {
   }
 
   /** Reads stored extract sources and rebuilds the value with no AI, or returns undefined. */
+  /**
+   * The model points at the element it read, which can be a part of the text it returned: "1 item left" read from
+   * the <strong>1</strong> inside the counter. The source then reads back "1" and the extract would need the model on
+   * every run. When an ancestor (three levels at most) shows exactly the value, that ancestor is the source.
+   */
+  private async widerSourceFor(ref: string, value: string): Promise<PlanTarget | undefined> {
+    const norm = (t: string) => t.replace(/\s+/g, ' ').trim();
+    const want = norm(value);
+    let el = this._page.locator(`aria-ref=${ref}`);
+    const read = async () => norm(await el.evaluate(leafText).catch(() => ''));
+    const own = await read();
+    if (!own || own === want || !want.includes(own)) return undefined;
+    for (let depth = 0; depth < 3; depth++) {
+      el = el.locator('xpath=..');
+      const text = await read();
+      if (text === want) return this.targetForLocator(el);
+      if (!want.includes(text)) return undefined;
+    }
+    return undefined;
+  }
+
   private async replayExtract<T>(plan: StepPlan, schema: z.ZodType<T>): Promise<T | undefined> {
     if (!plan.sources?.length) return undefined;
     const leaves: { path: string; text: string }[] = [];
@@ -1410,7 +1436,10 @@ export class Ai {
           let note = value.sources.length ? undefined : 'the model gave no sources';
           for (const s of value.sources) {
             // Located without its value, so the source still works when the value changes.
-            const target = await this.targetFor(obs, s.ref, undefined, leafAt(value.value, s.path));
+            const leaf = leafAt(value.value, s.path);
+            const target =
+              (typeof leaf === 'string' ? await this.widerSourceFor(s.ref, leaf) : undefined) ??
+              (await this.targetFor(obs, s.ref, undefined, leaf));
             if (!target) {
               sources.length = 0;
               note = `no durable locator for the source of "${s.path}" (${s.ref})`;

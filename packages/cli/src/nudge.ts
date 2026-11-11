@@ -13,6 +13,8 @@ import { randomUUID } from 'node:crypto';
 import { closeSync, mkdirSync, openSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { createInterface, type Interface } from 'node:readline';
+import type { BrowserServer } from 'playwright-core';
+import { launchProblem, loadChromium } from './browser.js';
 import { applyRemedies, formatRemedies, isVerifiable, parseChoices, stepShift, verifyRemedies } from './apply.js';
 import { contentHash } from './patch.js';
 
@@ -381,13 +383,18 @@ export async function runNudge(argv: string[]): Promise<number> {
     console.error(`Can't read ${specPath}`);
     return 1;
   }
+  // One browser for the whole session (headed unless --headless); every relaunch gets a fresh context in it
+  // (docs/07 §5.3). The project's Playwright launches it, because the test run connects to it with that version.
+  let browser: BrowserServer;
+  try {
+    browser = await (await loadChromium()).launchServer({ headless: args.headless });
+  } catch (error) {
+    console.error(launchProblem(error));
+    return 1;
+  }
   const ui = new TerminalUi({ specPath, specHash, hintsDir: resolve('hints') }, args.verify, args.headless);
   const server = new NudgeServer(ui);
   const port = await server.listen();
-  // One browser for the whole session (headed unless --headless); every relaunch gets a fresh context in it
-  // (docs/07 §5.3).
-  const { chromium } = await import('playwright-core');
-  const browser = await chromium.launchServer({ headless: args.headless });
   const seed = randomUUID().slice(0, 8); // same generated data across rewinds
   const rewinds: number[] = [];
   let resumeAt = args.at ?? 1;

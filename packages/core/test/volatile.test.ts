@@ -60,3 +60,14 @@ describe('keyboard-shortcut hints in names', () => {
     expect(withoutShortcutHint('Shift schedule')).toBeUndefined();
   });
 });
+
+describe('expected text that ends in a total', () => {
+  it('splits "N of M" into the stable part and the total', async () => {
+    const { withoutCounterTotal } = await import('../src/locators/volatile.js');
+    expect(withoutCounterTotal('1 of 1,396')).toEqual({ text: '1 of', total: '1,396' });
+    expect(withoutCounterTotal('Showing 1 to 10 of 2,304.')).toEqual({ text: 'Showing 1 to 10 of', total: '2,304' });
+    expect(withoutCounterTotal('Expires 12/25')).toBeUndefined();
+    expect(withoutCounterTotal('2 items left')).toBeUndefined();
+    expect(withoutCounterTotal('One of 3')).toBeUndefined(); // no count before "of"
+  });
+});

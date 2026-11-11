@@ -56,3 +56,13 @@ export function withoutCounter(name: string): string | undefined {
   const rest = name.slice(0, m.index).trim();
   return rest.length >= 3 ? rest : undefined;
 }
+
+/**
+ * For expected text that ends in "N of M" ("1 of 1,396"), the text without the total ("1 of"), and the total. An
+ * assertion about page 2 that quotes the number of pages breaks when the site gains one. Undefined when the text
+ * has no such ending.
+ */
+export function withoutCounterTotal(text: string): { text: string; total: string } | undefined {
+  const m = /^(.*\b\d[\d,.]*\s+of)\s+(\d[\d,.]*?)[).]?\s*$/i.exec(text);
+  return m ? { text: m[1]!, total: m[2]! } : undefined;
+}

@@ -124,7 +124,10 @@ function describeStep(step: StepPlan): string[] {
   for (const a of step.actions ?? []) {
     // What was typed or pressed: data and secrets are stored as placeholders, so this is safe to print.
     const typed = [a.args.value, a.args.text, a.args.key].find((v) => typeof v === 'string');
-    lines.push(`  ${a.tool}${typed !== undefined ? ` ${JSON.stringify(typed)}` : ''}${describeTarget(a.target)}`);
+    const enter = a.tool === 'type' && a.args.submit ? ' + Enter' : '';
+    lines.push(
+      `  ${a.tool}${typed !== undefined ? ` ${JSON.stringify(typed)}${enter}` : ''}${describeTarget(a.target)}`,
+    );
     if (a.tool === 'fill_form' && Array.isArray(a.args.fields)) {
       (a.args.fields as { value?: unknown }[]).forEach((f, i) =>
         lines.push(`    ${JSON.stringify(f.value)}${describeTarget(a.targets?.[i])}`),

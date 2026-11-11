@@ -375,3 +375,67 @@ describe('extract replay', () => {
     expect(events).not.toContain('broken');
   });
 });
+
+describe('expected text that quotes a total ("1 of 1,396")', () => {
+  const RESULTS = (total: string) => `<main><nav aria-label="Pagination">
+    <a href="#1">Previous page<span> : 1 of ${total}</span></a>
+    <a href="#3">Next page<span> : 3 of ${total}</span></a></nav></main>`;
+  const proposeTotal = () => judge((p) => [check('toContainText', refOf(p, 'link "Previous page'), ['1 of 1,395'])]);
+
+  it('keeps "1 of" and drops the total, so the check replays when the site gains a page', async () => {
+    const store = new MemoryPlanStore();
+    await makeAi(await open(RESULTS('1,395')), proposeTotal(), store).assert('The results are page 2');
+    expect(compiledOf(store)).toEqual([
+      expect.objectContaining({
+        expect: 'toContainText',
+        args: ['1 of'],
+        target: expect.objectContaining({
+          locators: [
+            expect.objectContaining({ display: "getByRole('link', { name: 'Previous page' })" }),
+            expect.anything(), // the exact name, as a fallback
+          ],
+        }),
+      }),
+    ]);
+    // A new total: replays from the plan, no model (a FakeProvider with no answers throws if asked).
+    const verdict = await makeAi(await open(RESULTS('1,402')), new FakeProvider(), store).assert(
+      'The results are page 2',
+    );
+    expect(verdict.pass).toBe(true);
+  });
+
+  it('keeps the total when the assertion itself names it', async () => {
+    const store = new MemoryPlanStore();
+    await makeAi(await open(RESULTS('1,395')), proposeTotal(), store).assert('This is page 2 of 1,395');
+    expect(compiledOf(store)).toEqual([expect.objectContaining({ args: ['1 of 1,395'] })]);
+  });
+});
+
+describe('extract sources that are only part of the value', () => {
+  it('reads the whole counter when the model pointed at the number inside it', async () => {
+    const store = new MemoryPlanStore();
+    const page = await openTodos();
+    // "2 items left", read from the <strong>2</strong>: that source alone reads back "2".
+    const recorder = new FakeProvider(
+      [],
+      [
+        (req: { prompt: string }) => ({
+          value: '2 items left',
+          found: true,
+          expand: null,
+          note: null,
+          sources: [{ path: '', ref: refOf(req.prompt, 'strong') }],
+        }),
+      ],
+    );
+    await expect(makeAi(page, recorder, store).extract('the item counter', z.string())).resolves.toBe('2 items left');
+    const plan = Object.values(store.file.tests[TEST]!)[0]!;
+    expect(plan.sources?.[0]?.target.locators[0]?.display).toBe("getByTestId('todo-count')");
+
+    // The page changes: the replay reads the new text, without the model.
+    await page.getByTestId('todo-count').evaluate((el) => (el.innerHTML = '<strong>1</strong> item left'));
+    const replayer = new FakeProvider();
+    await expect(makeAi(page, replayer, store).extract('the item counter', z.string())).resolves.toBe('1 item left');
+    expect(replayer.structuredRequests).toHaveLength(0);
+  });
+});
