@@ -90,7 +90,16 @@ const StepPlanBase = z.strictObject({
   /** assert: null means the condition couldn't be compiled and is always judged by AI. */
   compiled: z.array(CompiledCheckSchema).nullable().optional(),
   /** extract: for each leaf value, its JSON path ("" for a single value, "0.name", "total") and source element. */
-  sources: z.array(z.strictObject({ path: z.string(), target: PlanTargetSchema })).optional(),
+  sources: z
+    .array(
+      z.strictObject({
+        path: z.string(),
+        target: PlanTargetSchema,
+        /** Read the element's own text, without its children's: a message with a close button ("Saved ×"). */
+        own: z.literal(true).optional(),
+      }),
+    )
+    .optional(),
   /** locate */
   target: PlanTargetSchema.optional(),
   /** assert/extract that can't replay without AI: why, for `aipw cache show`. */

@@ -13,6 +13,8 @@ import {
 } from '@aipw/core';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname } from 'node:path';
+import type { Browser } from 'playwright-core';
+import { launchProblem, loadChromium } from './browser.js';
 import { loadConfigFile } from './doctor.js';
 import { LineReader } from './nudge.js';
 
@@ -33,6 +35,9 @@ export function parseTryArgs(argv: string[]): TryArgs | { error: string } {
     else if (!out.url) out.url = a;
     else out.steps.push(a);
   }
+  // "localhost:5173/login" and "example.com" are URLs as people type them: local hosts get http, the rest https.
+  if (/^(localhost|127\.0\.0\.1|\[::1\])(:\d+)?(\/|$)/.test(out.url)) out.url = `http://${out.url}`;
+  else if (/^[\w-]+(\.[\w-]+)+(:\d+)?(\/|$)/.test(out.url)) out.url = `https://${out.url}`;
   if (!/^https?:\/\//.test(out.url)) {
     return {
       error: 'Usage: aipw try <url> ["<step>" …] [--headed] [--save tests/new.spec.ts]   (no steps: one at a time)',
@@ -108,8 +113,14 @@ export async function runTry(argv: string[]): Promise<number> {
     console.error(`Could not load the provider: ${error instanceof Error ? error.message : String(error)}`);
     return 1;
   }
-  const { chromium } = await import('playwright-core');
-  const browser = await chromium.launch({ headless: !args.headed });
+  let browser: Browser;
+  try {
+    browser = await (await loadChromium()).launch({ headless: !args.headed });
+  } catch (error) {
+    console.error(launchProblem(error));
+    await provider.dispose?.();
+    return 1;
+  }
   const logs: StepLog[] = [];
   let failed = false;
   let values: Record<string, unknown> = {};
@@ -134,7 +145,22 @@ export async function runTry(argv: string[]): Promise<number> {
         const where = t
           ? ` ${t.role ?? 'element'}${t.name ? ` "${t.name}"` : ''} → ${t.candidates[0]?.display ?? 'no durable locator'}`
           : '';
-        console.log(`   ${e.record.tool}${where}`);
+        // What was typed or pressed. Events are redacted: data and secrets arrive as placeholders.
+        const args = e.record.args;
+        const chosen = Array.isArray(args.values) ? args.values.join(', ') : undefined;
+        const typed = [args.value, args.text, args.key, chosen].find((v) => typeof v === 'string');
+        const enter = e.record.tool === 'type' && args.submit ? ' + Enter' : '';
+        if (e.record.tool === 'fill_form' && Array.isArray(args.fields)) {
+          console.log('   fill_form');
+          (args.fields as { value?: unknown }[]).forEach((f, i) => {
+            const field = e.record.targets?.[i];
+            console.log(
+              `     ${JSON.stringify(f.value)} ${field?.role ?? 'element'}${field?.name ? ` "${field.name}"` : ''} → ${field?.candidates[0]?.display ?? 'no durable locator'}`,
+            );
+          });
+          return;
+        }
+        console.log(`   ${e.record.tool}${typed !== undefined ? ` ${JSON.stringify(typed)}${enter}` : ''}${where}`);
       }
       if (e.type === 'verdict') {
         log.verdict = { pass: e.pass, reason: e.reason };
@@ -182,6 +208,8 @@ export async function runTry(argv: string[]): Promise<number> {
   const code = logs.flatMap((l) => (l.kind === 'act' ? codeRemedy(l.actions) : []));
   if (code.length) console.log(`Playwright code for the actions:\n${code.map((l) => `  ${l}`).join('\n')}\n`);
   if (args.save && !failed && args.steps.length) saveSpec(args.save, args.url, args.steps, values);
+  else if (args.save && failed)
+    console.log(`Nothing written to ${args.save}: a step failed. Change that step and run it again.`);
   return failed ? 1 : 0;
 }
 

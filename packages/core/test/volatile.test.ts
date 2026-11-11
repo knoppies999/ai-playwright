@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { urlPattern } from '../src/cache/plan.js';
 import { isGeneratedId } from '../src/locators/generated.js';
 import { DEFAULT_REJECT_TEST_ID_VALUES, isRejectedTestIdValue } from '../src/locators/test-ids.js';
-import { isIdSegment, stableNamePrefix } from '../src/locators/volatile.js';
+import { isIdSegment, stableNamePrefix, withoutCounter } from '../src/locators/volatile.js';
 
 describe('volatile values (docs/12 §5)', () => {
   it.each(['product-01M4KFJHJFJBXR3A2RWKK2Z7GK', 'row_507f1f77bcf86cd799439011', 'V1StGXR8Z5jdHi6BmyT'])(
@@ -35,6 +35,21 @@ describe('volatile values (docs/12 §5)', () => {
   });
 });
 
+describe('counters in names', () => {
+  it('drops a trailing "N of M" counter and what joins it', () => {
+    expect(withoutCounter('Next page : 2 of 1,395')).toBe('Next page');
+    expect(withoutCounter('Photo (3 of 12)')).toBe('Photo');
+    expect(withoutCounter('Step 2 / 5')).toBe('Step');
+    expect(withoutCounter('Cart (3)')).toBe('Cart');
+    expect(withoutCounter('Notifications (99+)')).toBe('Notifications');
+    expect(withoutCounter('Page 2')).toBeUndefined(); // which page it is, not a count
+    expect(withoutCounter('Slide 10 of 10 - Summer sale')).toBeUndefined(); // not at the end
+    expect(withoutCounter('2 of 5')).toBeUndefined(); // nothing left
+    expect(withoutCounter('Order 1002')).toBeUndefined(); // a record number is not a counter
+    expect(withoutCounter('Add to cart')).toBeUndefined();
+  });
+});
+
 describe('keyboard-shortcut hints in names', () => {
   it('drops a trailing shortcut hint, on any platform', async () => {
     const { withoutShortcutHint } = await import('../src/locators/volatile.js');
@@ -43,5 +58,16 @@ describe('keyboard-shortcut hints in names', () => {
     expect(withoutShortcutHint('Command palette Ctrl+Shift+P')).toBe('Command palette');
     expect(withoutShortcutHint('Search')).toBeUndefined();
     expect(withoutShortcutHint('Shift schedule')).toBeUndefined();
+  });
+});
+
+describe('expected text that ends in a total', () => {
+  it('splits "N of M" into the stable part and the total', async () => {
+    const { withoutCounterTotal } = await import('../src/locators/volatile.js');
+    expect(withoutCounterTotal('1 of 1,396')).toEqual({ text: '1 of', total: '1,396' });
+    expect(withoutCounterTotal('Showing 1 to 10 of 2,304.')).toEqual({ text: 'Showing 1 to 10 of', total: '2,304' });
+    expect(withoutCounterTotal('Expires 12/25')).toBeUndefined();
+    expect(withoutCounterTotal('2 items left')).toBeUndefined();
+    expect(withoutCounterTotal('One of 3')).toBeUndefined(); // no count before "of"
   });
 });

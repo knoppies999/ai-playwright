@@ -1,0 +1,24 @@
+{
+  "provider": "claude-code",
+  "model": "claude-sonnet-5-5",
+  "date": "2026-11-04",
+  "tests": 13,
+  "steps": 30,
+  "stepSuccessRate": 1,
+  "meanDecisionsPerStep": 1.47,
+  "repairTurns": 0,
+  "tokensPerStep": {
+    "input": 6673,
+    "output": 304
+  },
+  "requestsPerStep": 1.47,
+  "costUsdPerStep": 0.0162,
+  "decisionLatencyMs": {
+    "p50": 5760,
+    "p95": 7877
+  },
+  "stepLatencyMs": {
+    "p50": 8772,
+    "p95": 23494
+  }
+}

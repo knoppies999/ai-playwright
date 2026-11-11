@@ -13,7 +13,7 @@ import { describeCheck, runCompiledCheck } from '../cache/checks.js';
 import { rebuildValue } from '../cache/extract.js';
 import { applyHeals, describePlan, healByFingerprint, replayAct, resolveTarget } from '../cache/replay.js';
 import type { PlanStore } from '../cache/store.js';
-import type { AipwConfig, CacheMode } from '../config.js';
+import { cacheModeFromEnv, type AipwConfig, type CacheMode } from '../config.js';
 import { Redactor } from '../data/redactor.js';
 import { createGenerators, type Generators } from '../data/generators.js';
 import { loadHints } from '../hints/store.js';
@@ -34,6 +34,7 @@ import {
   AiCacheReplayOnlyMiss,
   AiExtractError,
   AiHealedError,
+  AiProviderError,
   AiStepError,
   type Callsite,
   type StepFailureKind,
@@ -48,6 +49,7 @@ import { buildLocator, type LocatorExpr } from '../locators/expr.js';
 import { fingerprintOf } from '../locators/fingerprint.js';
 import { isRejectedTestIdValue } from '../locators/test-ids.js';
 import { synthesizeLocators, type LocatorCandidate, type Rung } from '../locators/synth.js';
+import { withoutCounterTotal } from '../locators/volatile.js';
 import type { Observation } from '../observe/observer.js';
 import { expandRef, findByRef } from '../observe/snapshot.js';
 import type { ActionRecord, StepContext, StepKind, StepOptions, StepOutcome } from '../types.js';
@@ -104,6 +106,13 @@ export interface ActResult {
   values: Record<string, unknown>;
   source: 'cache' | 'ai' | 'healed' | 'nudged';
   usage: Usage;
+}
+
+/** A broken replay to heal: the plan, why it broke, and the actions that replayed before it broke. */
+interface ActHealing {
+  plan: StepPlan;
+  reason: string;
+  done: PlanAction[];
 }
 
 export interface Verdict {
@@ -221,11 +230,21 @@ function leafAt(value: unknown, path: string): string | undefined {
   return typeof cur === 'string' || typeof cur === 'number' ? String(cur) : undefined;
 }
 
-function leafText(el: Element): string {
+function leafText(el: Element, own?: boolean): string {
+  // Own text: the element's text nodes only ("Your password is invalid!" without the close button's "×").
+  if (own) {
+    return Array.from(el.childNodes)
+      .filter((n) => n.nodeType === 3)
+      .map((n) => n.textContent ?? '')
+      .join(' ');
+  }
   const input = el as HTMLInputElement;
   if (input.type === 'checkbox' || input.type === 'radio') return input.checked ? 'checked' : 'unchecked';
   if (el.getAttribute('aria-checked')) return el.getAttribute('aria-checked') === 'true' ? 'checked' : 'unchecked';
-  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName)) return input.value;
+  // A select reads as the label it shows ("Option 2"), which is what the model sees, not the option's value ("2").
+  if (el.tagName === 'SELECT')
+    return Array.from((el as HTMLSelectElement).selectedOptions, (o) => o.text.trim()).join(', ');
+  if (['INPUT', 'TEXTAREA'].includes(el.tagName)) return input.value;
   return (el as HTMLElement).innerText ?? el.textContent ?? '';
 }
 
@@ -236,6 +255,21 @@ const BULLET = /^(?:[-*•]|\d+[.)])\s+/;
 
 /** Adds a file to the current AI step in the report. */
 export type StepAttach = (name: string, body: string | Buffer, contentType: string) => Promise<void>;
+
+/**
+ * A step with a recorded plan normally needs no model. When its plan broke and the model then couldn't be reached
+ * (signed out, usage limit, network), "Claude Code is not signed in" alone leaves the reader wondering why a cached
+ * step called the model at all: say what broke first.
+ */
+function modelNeededBecause(error: unknown, brokenPlan: string | undefined): unknown {
+  if (!brokenPlan || !(error instanceof AiProviderError)) return error;
+  return new AiProviderError(
+    error.kind,
+    `The recorded plan for this step no longer matches the page (${brokenPlan.replace(/\.$/, '')}), so the step needed the model, and the model call failed.\n${error.message}`,
+    { ...(error.stepId && { stepId: error.stepId }), ...(error.callsite && { callsite: error.callsite }) },
+    { cause: error.cause ?? error, ...(error.retryAfterMs !== undefined && { retryAfterMs: error.retryAfterMs }) },
+  );
+}
 
 export class Ai {
   readonly events: EventBus;
@@ -369,6 +403,11 @@ export class Ai {
         attach && kind !== 'run'
           ? this.events.on((e) => 'stepId' in e && e.stepId === ctx.id && stepEvents.push(e))
           : undefined;
+      // Why a cached step went to the model after all, for the message when the model then can't be reached.
+      let brokenPlan: string | undefined;
+      const unsubscribeBroken = this.events.on((e) => {
+        if (e.type === 'cache' && e.stepId === ctx.id && e.outcome === 'broken') brokenPlan = e.reason;
+      });
       this.events.emit({ type: 'step:start', stepId: ctx.id, kind, instruction, callsite });
       if (kind !== 'run') this.budget.startStep();
       const before = this.usage;
@@ -385,7 +424,8 @@ export class Ai {
         });
         if (attach && unsubscribe) await this.attachStepFiles(attach, stepEvents, false);
         return result;
-      } catch (error) {
+      } catch (thrown) {
+        const error = modelNeededBecause(thrown, brokenPlan);
         this.events.emit({
           type: 'step:end',
           stepId: ctx.id,
@@ -399,6 +439,7 @@ export class Ai {
         if (attach && unsubscribe) await this.attachStepFiles(attach, stepEvents, true);
         throw error;
       } finally {
+        unsubscribeBroken();
         unsubscribe?.();
       }
     };
@@ -429,9 +470,7 @@ export class Ai {
   private cacheMode(options: StepOptions): CacheMode {
     if (options.cache === 'off') return 'ai-only';
     if (options.cache === 'refresh') return 'refresh';
-    const env = process.env.AIPW_CACHE;
-    const modes: CacheMode[] = ['auto', 'replay-only', 'ai-only', 'refresh'];
-    return env && (modes as string[]).includes(env) ? (env as CacheMode) : this.config.cache.mode;
+    return cacheModeFromEnv() ?? this.config.cache.mode;
   }
 
   private stepKeyFor(kind: StepKind, instruction: string, options: StepOptions, peek = false): string {
@@ -517,109 +556,15 @@ export class Ai {
       async (ctx) => {
         const session = await this.openSession();
         try {
-          const data = new DataResolver(
-            options.data ?? {},
-            options.secrets ?? [],
-            secretSource(this.config.secrets.provider, this.config.secrets.map),
-            this.values,
-            this.redactor,
-            this.gen,
-          );
-          const isAllowedUrl = this.isAllowed(this.allowedOrigins(this._page.url()));
-          const executor = new ActionExecutor(session, {
-            data,
-            synth: {
-              testIdAttributes: this.config.testIds.attributes,
-              playwrightTestIdAttribute: this.deps.playwrightTestIdAttribute ?? 'data-testid',
-              rejectTestIdValues: this.config.testIds.rejectValues,
-            },
-            actionTimeoutMs: this.config.steps.actionTimeoutMs,
-            settle: this.config.settle,
-            expandMaxTokens: this.config.snapshot.maxTokens,
-            allowSecretsAnywhere: this.config.secrets.allowAnyField,
-            secretFillMode: this.config.secrets.fillMode,
-            isAllowedUrl,
-            codeTools: this.codeTools,
-          });
-          const stepTools = new Map(
-            [...this.codeTools].filter(([name]) => !options.tools || options.tools.includes(name)),
-          );
-          // Plan cache (docs/06): replay on a hit, record on a miss, heal through the AI loop on a broken replay.
-          const cache = this.deps.cache;
+          const { executor, data, isAllowedUrl } = this.actExecutor(session, options);
           const mode = this.cacheMode(options);
           const key = this.stepKeyFor('act', instruction, options);
           const startUrl = this._page.url();
-          /** A broken replay: the plan, why it broke, and the actions that replayed before it broke. */
-          let healing: { plan: StepPlan; reason: string; done: PlanAction[] } | undefined;
-          if (cache && (mode === 'auto' || mode === 'replay-only')) {
-            const plan = cache.store.get(cache.testTitle, key);
-            if (plan) {
-              const replay = await replayAct(plan, {
-                page: () => session.page,
-                executor,
-                events: this.events,
-                stepId: ctx.id,
-                waitMs: this.config.settle.maxMs,
-                codeTools: this.codeTools,
-                // Fingerprint heals cost nothing and are deterministic, so replay-only may use them too (docs/12 §6).
-                ...((mode === 'auto' || this.config.heal.fingerprintInReplayOnly) && {
-                  fingerprintHeal: { synth: this.synthOptions() },
-                }),
-              });
-              this._page = session.page;
-              if (replay.ok) {
-                this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'hit', key });
-                if (replay.healed.length) {
-                  const healedPlan = {
-                    ...applyHeals(plan, replay.healed),
-                    recordedWith: {
-                      ...plan.recordedWith,
-                      at: new Date().toISOString(),
-                      ...(this.deps.project && { project: this.deps.project }),
-                    },
-                  };
-                  const describe = (t: { role?: string; name?: string; locators: { display: string }[] }) =>
-                    `${t.role ?? 'element'} "${t.name ?? ''}" (${t.locators[0]?.display ?? 'no locator'})`;
-                  for (const h of replay.healed) {
-                    this.events.emit({
-                      type: 'heal',
-                      stepId: ctx.id,
-                      key,
-                      source: 'fingerprint',
-                      policy: this.config.heal.policy,
-                      before: describe(h.before),
-                      after: describe(h.after),
-                      reason: `all stored locators failed; fingerprint score ${h.score.toFixed(2)}`,
-                    });
-                  }
-                  await this.storeHealed(cache, key, plan, healedPlan, instruction, ctx);
-                }
-                return {
-                  summary: 'Replayed from the plan cache',
-                  evidence: [],
-                  actions: replay.records,
-                  values: this.values,
-                  source: replay.healed.length ? 'healed' : 'cache',
-                  usage: emptyUsage(),
-                };
-              }
-              this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'broken', key, reason: replay.reason });
-              if (mode === 'replay-only') {
-                throw new AiStepError(
-                  'unexpected_state',
-                  `Replay failed at action ${replay.failedAt + 1}: ${replay.reason}. Re-record with AIPW_CACHE=auto (or refresh).`,
-                  { stepId: ctx.id, callsite: ctx.callsite },
-                );
-              }
-              // Actions before the failure already ran: they stay in the healed plan, ahead of the AI's.
-              const done = (applyHeals(plan, replay.healed).actions ?? []).slice(0, replay.failedAt);
-              healing = { plan, reason: replay.reason, done };
-            } else if (mode === 'replay-only') {
-              throw new AiCacheReplayOnlyMiss(instruction, { stepId: ctx.id, callsite: ctx.callsite });
-            } else {
-              this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'miss', key });
-            }
-          }
+          // Plan cache (docs/06): replay on a hit, record on a miss, heal through the AI loop on a broken replay.
+          const replayed = await this.replayActPlan(ctx, session, executor, key, mode, instruction);
+          if ('result' in replayed) return replayed.result;
+          const { healing } = replayed;
+
           const healingHint = healing
             ? [
                 `HEALING: a previously recorded plan for this step no longer works. Recorded plan: ${describePlan(healing.plan)}. ` +
@@ -637,7 +582,7 @@ export class Ai {
             tools: actTools({ allowNavigation: options.allowNavigation ?? false, askHuman: !!this.deps.nudge }),
             nudge: this.deps.nudge,
             ...(this.deps.wrapAction && { wrapAction: this.deps.wrapAction }),
-            codeTools: stepTools,
+            codeTools: new Map([...this.codeTools].filter(([name]) => !options.tools || options.tools.includes(name))),
             hints: [...loadHints(resolve(this.config.hints.dir), startUrl), ...healingHint, ...(options.hints ?? [])],
             secretPlaceholders: data.secretPlaceholders,
             isAllowedUrl,
@@ -655,33 +600,8 @@ export class Ai {
               { trajectory: trajectory(outcome).map((l) => this.redactor.redact(l)), snapshot: outcome.lastSnapshot },
             );
           }
-          if (cache && mode !== 'ai-only') {
-            const plan = planFromAct(instruction, outcome.actions, options.data ?? {}, {
-              provider: this.deps.provider.id,
-              model: this.deps.provider.model,
-              now: new Date(),
-              ...(this.deps.project && { project: this.deps.project }),
-              startUrl,
-              endUrl: session.page.url(),
-            });
-            if (healing) plan.actions = [...healing.done, ...(plan.actions ?? [])];
-            if (!healing) {
-              await cache.store.put(cache.testTitle, key, plan);
-              this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'stored', key });
-            } else {
-              this.events.emit({
-                type: 'heal',
-                stepId: ctx.id,
-                key,
-                source: 'ai',
-                policy: this.config.heal.policy,
-                before: describePlan(healing.plan),
-                after: describePlan(plan),
-                reason: healing.reason,
-              });
-              await this.storeHealed(cache, key, healing.plan, plan, instruction, ctx);
-            }
-          }
+          if (mode !== 'ai-only')
+            await this.recordActPlan(ctx, key, instruction, options, outcome, healing, startUrl, session.page.url());
           // A hint or edit given before the step is a correction too (docs/07 §6).
           const human = [...(nudged.correction ? [nudged.correction] : []), ...(outcome.human ?? [])];
           if (this.deps.nudge && human.length) await this.offerRemedies(written, { ...outcome, human }, startUrl);
@@ -699,6 +619,157 @@ export class Ai {
       },
       options,
     );
+  }
+
+  /** The executor for one act step, with its data resolver and the origins it may navigate to. */
+  private actExecutor(session: StepSession, options: StepOptions) {
+    const data = new DataResolver(
+      options.data ?? {},
+      options.secrets ?? [],
+      secretSource(this.config.secrets.provider, this.config.secrets.map),
+      this.values,
+      this.redactor,
+      this.gen,
+    );
+    const isAllowedUrl = this.isAllowed(this.allowedOrigins(this._page.url()));
+    const executor = new ActionExecutor(session, {
+      data,
+      synth: this.synthOptions(),
+      actionTimeoutMs: this.config.steps.actionTimeoutMs,
+      settle: this.config.settle,
+      expandMaxTokens: this.config.snapshot.maxTokens,
+      allowSecretsAnywhere: this.config.secrets.allowAnyField,
+      secretFillMode: this.config.secrets.fillMode,
+      isAllowedUrl,
+      codeTools: this.codeTools,
+    });
+    return { executor, data, isAllowedUrl };
+  }
+
+  /**
+   * Replays the stored plan for an act step (docs/06). A hit returns the step's result, fingerprint heals included.
+   * A broken replay returns what to heal: the plan, why it broke, and the actions that ran before it broke. No plan
+   * (or no cache) returns nothing to heal. replay-only throws instead of falling back to the model.
+   */
+  private async replayActPlan(
+    ctx: StepContext,
+    session: StepSession,
+    executor: ActionExecutor,
+    key: string,
+    mode: CacheMode,
+    instruction: string,
+  ): Promise<{ result: ActResult } | { healing?: ActHealing }> {
+    const cache = this.deps.cache;
+    if (!cache || (mode !== 'auto' && mode !== 'replay-only')) return {};
+    const plan = cache.store.get(cache.testTitle, key);
+    if (!plan) {
+      if (mode === 'replay-only')
+        throw new AiCacheReplayOnlyMiss(instruction, { stepId: ctx.id, callsite: ctx.callsite });
+      this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'miss', key });
+      return {};
+    }
+    const replay = await replayAct(plan, {
+      page: () => session.page,
+      executor,
+      events: this.events,
+      stepId: ctx.id,
+      waitMs: this.config.settle.maxMs,
+      codeTools: this.codeTools,
+      // Fingerprint heals cost nothing and are deterministic, so replay-only may use them too (docs/12 §6).
+      ...((mode === 'auto' || this.config.heal.fingerprintInReplayOnly) && {
+        fingerprintHeal: { synth: this.synthOptions() },
+      }),
+    });
+    this._page = session.page;
+    if (replay.ok) {
+      this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'hit', key });
+      if (replay.healed.length) {
+        const healedPlan = {
+          ...applyHeals(plan, replay.healed),
+          recordedWith: {
+            ...plan.recordedWith,
+            at: new Date().toISOString(),
+            ...(this.deps.project && { project: this.deps.project }),
+          },
+        };
+        const describe = (t: { role?: string; name?: string; locators: { display: string }[] }) =>
+          `${t.role ?? 'element'} "${t.name ?? ''}" (${t.locators[0]?.display ?? 'no locator'})`;
+        for (const h of replay.healed) {
+          this.events.emit({
+            type: 'heal',
+            stepId: ctx.id,
+            key,
+            source: 'fingerprint',
+            policy: this.config.heal.policy,
+            before: describe(h.before),
+            after: describe(h.after),
+            reason: `all stored locators failed; fingerprint score ${h.score.toFixed(2)}`,
+          });
+        }
+        await this.storeHealed(cache, key, plan, healedPlan, instruction, ctx);
+      }
+      return {
+        result: {
+          summary: 'Replayed from the plan cache',
+          evidence: [],
+          actions: replay.records,
+          values: this.values,
+          source: replay.healed.length ? 'healed' : 'cache',
+          usage: emptyUsage(),
+        },
+      };
+    }
+    this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'broken', key, reason: replay.reason });
+    if (mode === 'replay-only') {
+      throw new AiStepError(
+        'unexpected_state',
+        `Replay failed at action ${replay.failedAt + 1}: ${replay.reason}. Re-record with AIPW_CACHE=auto (or refresh).`,
+        { stepId: ctx.id, callsite: ctx.callsite },
+      );
+    }
+    // Actions before the failure already ran: they stay in the healed plan, ahead of the AI's.
+    const done = (applyHeals(plan, replay.healed).actions ?? []).slice(0, replay.failedAt);
+    return { healing: { plan, reason: replay.reason, done } };
+  }
+
+  /** Stores the plan the AI just worked out, or, after a broken replay, the healed plan under heal.policy. */
+  private async recordActPlan(
+    ctx: StepContext,
+    key: string,
+    instruction: string,
+    options: StepOptions,
+    outcome: StepOutcome,
+    healing: ActHealing | undefined,
+    startUrl: string,
+    endUrl: string,
+  ): Promise<void> {
+    const cache = this.deps.cache;
+    if (!cache) return;
+    const plan = planFromAct(instruction, outcome.actions, options.data ?? {}, {
+      provider: this.deps.provider.id,
+      model: this.deps.provider.model,
+      now: new Date(),
+      ...(this.deps.project && { project: this.deps.project }),
+      startUrl,
+      endUrl,
+    });
+    if (!healing) {
+      await cache.store.put(cache.testTitle, key, plan);
+      this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'stored', key });
+      return;
+    }
+    plan.actions = [...healing.done, ...(plan.actions ?? [])];
+    this.events.emit({
+      type: 'heal',
+      stepId: ctx.id,
+      key,
+      source: 'ai',
+      policy: this.config.heal.policy,
+      before: describePlan(healing.plan),
+      after: describePlan(plan),
+      reason: healing.reason,
+    });
+    await this.storeHealed(cache, key, healing.plan, plan, instruction, ctx);
   }
 
   /** A durable target (verified locators + fingerprint) for a ref the model named. */
@@ -814,6 +885,24 @@ export class Ai {
     const assertedText = isText && !check.not ? check.args[0] : undefined;
     let target = await this.targetFor(obs, ref, assertedText);
     const found = findByRef(obs.tree, ref);
+    // A <select>'s text is every option it has, so "contains Option 2" holds whichever one is selected (risk R6).
+    // What the assertion means is the selection: check the value of the option with that label.
+    if (isText) {
+      const option = await this._page
+        .locator(`aria-ref=${ref}`)
+        .evaluate((el, wanted) => {
+          if (el.tagName !== 'SELECT') return undefined;
+          const options = Array.from((el as HTMLSelectElement).options);
+          const hit = options.find((o) => o.value === wanted) ?? options.find((o) => o.text.trim() === wanted.trim());
+          return { value: hit ? hit.value : null };
+        }, check.args[0] ?? '')
+        .catch(() => undefined);
+      if (option) {
+        if (!target) return 'no durable locator for the select';
+        if (option.value === null) return `the select has no option ${JSON.stringify(check.args[0])}`;
+        return { expect: 'toHaveValue', target, ...base, args: [option.value] };
+      }
+    }
     // A container without a durable locator (e.g. a plain list): for visibility, its first descendant
     // that has one is visible exactly when the container is.
     if (!target && (expect === 'toBeVisible' || expect === 'toBeHidden')) {
@@ -829,8 +918,13 @@ export class Ai {
     if ((!target || target.locators[0]?.rung === 'L7') && (expect === 'toContainText' || expect === 'toHaveText')) {
       let el = this._page.locator(`aria-ref=${ref}`);
       let lifted: PlanTarget | undefined;
+      // Only a wrapper of about the same text stands in for the element. "The first row is Bach" lifted to the
+      // whole table would hold whatever the order: a check that can't fail (risk R6).
+      const size = async () => (await el.innerText().catch(() => '')).replace(/\s+/g, ' ').trim().length;
+      const limit = (await size()) * 2 + 40;
       for (let depth = 0; depth < 3 && !lifted; depth++) {
         el = el.locator('xpath=..');
+        if ((await size()) > limit) break;
         const t = await this.targetForLocator(el, undefined, assertedText);
         if (t && t.locators[0]?.rung !== 'L7') lifted = t;
       }
@@ -848,6 +942,10 @@ export class Ai {
     if (expect === 'toBeVisible' && !check.not && CONTROL_ROLES.has(target.role ?? '') && STATE_WORDS.test(condition)) {
       return `a visible ${target.role} says nothing about its state`;
     }
+    // "1 of 1,396" as evidence for "page 2": the total is data and changes under the test. Unless the assertion
+    // itself names the total, the check keeps "1 of" (compileChecks then verifies it still holds on the page).
+    const counted = expect === 'toContainText' && !check.not ? withoutCounterTotal(check.args[0] ?? '') : undefined;
+    if (counted && !condition.includes(counted.total)) return { expect, target, ...base, args: [counted.text] };
     return { expect, target, ...base };
   }
 
@@ -995,9 +1093,14 @@ export class Ai {
     const { cache, mode, key, plan } = this.cachedPlan('assert', condition, options, ctx);
     if (plan?.compiled?.length) {
       const checks = plan.compiled;
-      let ok = true;
-      for (const c of checks) ok = ok && (await runCompiledCheck(this._page, c, timeout));
-      if (ok) {
+      // Stops at the first check that fails: the rest would only wait out their timeouts.
+      let failed: CompiledCheck | undefined;
+      for (const c of checks) {
+        if (await runCompiledCheck(this._page, c, timeout)) continue;
+        failed = c;
+        break;
+      }
+      if (!failed) {
         this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'hit', key });
         return {
           pass: true,
@@ -1006,11 +1109,14 @@ export class Ai {
           checks: [],
         };
       }
-      this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'broken', key, reason: 'compiled check failed' });
+      const failure = `compiled check failed: ${describeCheck(failed)}`;
+      this.events.emit({ type: 'cache', stepId: ctx.id, outcome: 'broken', key, reason: failure });
       if (mode === 'replay-only') {
         return {
           pass: false,
-          reason: `Compiled check failed: ${checks.map(describeCheck).join('; ')}`,
+          reason:
+            `Compiled check failed: ${describeCheck(failed)}. Either the page is wrong or the recorded check is out ` +
+            'of date; the cache is replay-only, so the model was not asked. Run it locally with AIPW_CACHE=auto to re-judge.',
           evidence: [],
           checks: [],
         };
@@ -1233,13 +1339,77 @@ export class Ai {
   }
 
   /** Reads stored extract sources and rebuilds the value with no AI, or returns undefined. */
+  /**
+   * The model points at the element it read, which can be a part of the text it returned: "1 item left" read from
+   * the <strong>1</strong> inside the counter. The source then reads back "1" and the extract would need the model on
+   * every run. When an ancestor (three levels at most) shows exactly the value, that ancestor is the source.
+   */
+  private async widerSourceFor(ref: string, value: string): Promise<PlanTarget | undefined> {
+    const norm = (t: string) => t.replace(/\s+/g, ' ').trim();
+    const want = norm(value);
+    let el = this._page.locator(`aria-ref=${ref}`);
+    const read = async () => norm(await el.evaluate(leafText).catch(() => ''));
+    const own = await read();
+    if (!own || own === want || !want.includes(own)) return undefined;
+    for (let depth = 0; depth < 3; depth++) {
+      el = el.locator('xpath=..');
+      const text = await read();
+      if (text === want) return this.targetForLocator(el);
+      if (!want.includes(text)) return undefined;
+    }
+    return undefined;
+  }
+
+  /**
+   * When the element's whole text is not the value but the text nodes of it, or of one element inside it, are (a
+   * child adds "×" or an icon label): that element, read by its own text. `inside` is set when it is a descendant.
+   */
+  private async ownTextSource(ref: string, value: string): Promise<{ inside?: PlanTarget } | undefined> {
+    const marker = 'data-aipw-source';
+    const token = Math.random().toString(36).slice(2);
+    const el = this._page.locator(`aria-ref=${ref}`);
+    const where = await el
+      .evaluate(
+        (root, a) => {
+          const norm = (t: string) => t.replace(/\s+/g, ' ').trim();
+          const own = (e: Element) =>
+            norm(
+              Array.from(e.childNodes)
+                .filter((n) => n.nodeType === 3)
+                .map((n) => n.textContent ?? '')
+                .join(' '),
+            );
+          const want = norm(a.value);
+          // Form controls are read by state (a select by its selected option), never by the text inside them.
+          if (['SELECT', 'INPUT', 'TEXTAREA'].includes(root.tagName)) return 'whole';
+          if (norm((root as HTMLElement).innerText ?? '') === want) return 'whole';
+          if (own(root) === want) return 'self';
+          const hits = Array.from(root.querySelectorAll('*')).filter((d) => own(d) === want);
+          if (hits.length !== 1) return 'none';
+          hits[0]!.setAttribute(a.marker, a.token);
+          return 'inside';
+        },
+        { value, marker, token },
+      )
+      .catch(() => 'none');
+    if (where === 'self') return {};
+    if (where !== 'inside') return undefined;
+    const marked = this._page.locator(`[${marker}="${token}"]`);
+    try {
+      const inside = await this.targetForLocator(marked);
+      return inside ? { inside } : undefined;
+    } finally {
+      await marked.evaluate((e, m) => e.removeAttribute(m), marker).catch(() => undefined);
+    }
+  }
+
   private async replayExtract<T>(plan: StepPlan, schema: z.ZodType<T>): Promise<T | undefined> {
     if (!plan.sources?.length) return undefined;
     const leaves: { path: string; text: string }[] = [];
-    for (const { path, target } of plan.sources) {
+    for (const { path, target, own } of plan.sources) {
       try {
         const loc = await resolveTarget(this._page, target, this.config.settle.maxMs);
-        leaves.push({ path, text: await loc.evaluate(leafText) });
+        leaves.push({ path, text: await loc.evaluate(leafText, own ?? false) });
       } catch {
         return undefined;
       }
@@ -1342,13 +1512,17 @@ export class Ai {
           let note = value.sources.length ? undefined : 'the model gave no sources';
           for (const s of value.sources) {
             // Located without its value, so the source still works when the value changes.
-            const target = await this.targetFor(obs, s.ref, undefined, leafAt(value.value, s.path));
+            const leaf = leafAt(value.value, s.path);
+            const target =
+              (typeof leaf === 'string' ? await this.widerSourceFor(s.ref, leaf) : undefined) ??
+              (await this.targetFor(obs, s.ref, undefined, leaf));
             if (!target) {
               sources.length = 0;
               note = `no durable locator for the source of "${s.path}" (${s.ref})`;
               break;
             }
-            sources.push({ path: s.path, target });
+            const own = typeof leaf === 'string' ? await this.ownTextSource(s.ref, leaf) : undefined;
+            sources.push({ path: s.path, target: own?.inside ?? target, ...(own && { own: true as const }) });
           }
           const next = this.newPlan('extract', what, { sources });
           const check = sources.length ? await this.replayExtract(next, schema) : undefined;

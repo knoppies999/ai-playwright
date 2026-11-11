@@ -3,6 +3,7 @@
 import { runCacheCommand } from './cache.js';
 import { runConformance } from './conformance.js';
 import { runDoctor } from './doctor.js';
+import { commandHelp, HELP, isCommand, wantsHelp } from './help.js';
 import { runHintsCommand } from './hints.js';
 import { runInit } from './init.js';
 import { VERSION } from './index.js';
@@ -10,47 +11,30 @@ import { runNudge } from './nudge.js';
 import { runSummaryCommand } from './summary.js';
 import { runTry } from './try.js';
 
-const HELP = `aipw ${VERSION}
-
-Usage: aipw <command> [options]
-
-Commands:
-  try          <url> ["<step>" …] [--headed] [--save tests/new.spec.ts]   (no steps: interactive)
-  init         [--provider claude-code|foundry|openai|anthropic|copilot] [--dir tests] [--force]
-  nudge        <spec[:line]> [--break step|action|fail|none] [--at N] [--fresh] [--verify all|none]
-  cache        stats | show <spec> | code <spec> | prune [--dry-run] | refresh <spec> [--grep x] | accept [dir] [--dry-run]
-  doctor       [--provider x] [--probe]
-  conformance  --provider x [--project saucedemo-llm] [--out docs/conformance]
-  hints        lint [dir]
-  summary      [--max-llm-calls N] [--max-cost USD] [--file .aipw/summary.json]
-
-Options:
-  --version    Print the version
-  --help       Print this help`;
-
 const [command] = process.argv.slice(2);
 const rest = process.argv.slice(3);
 
-if (command === undefined || command === '--help' || command === 'help') {
-  console.log(HELP);
-} else if (command === '--version') {
+const RUN: Record<string, (args: string[]) => number | Promise<number>> = {
+  try: runTry,
+  init: (args) => runInit(args),
+  nudge: runNudge,
+  cache: (args) => runCacheCommand(args),
+  doctor: runDoctor,
+  conformance: runConformance,
+  hints: runHintsCommand,
+  summary: runSummaryCommand,
+};
+
+if (command === undefined || command === '--help' || command === '-h' || command === 'help') {
+  // `aipw help cache` is `aipw cache --help`.
+  const topic = command === 'help' ? rest[0] : undefined;
+  console.log(topic && isCommand(topic) ? commandHelp(topic) : HELP);
+} else if (command === '--version' || command === '-v') {
   console.log(VERSION);
-} else if (command === 'try') {
-  process.exitCode = await runTry(rest);
-} else if (command === 'init') {
-  process.exitCode = runInit(rest);
-} else if (command === 'nudge') {
-  process.exitCode = await runNudge(rest);
-} else if (command === 'cache') {
-  process.exitCode = runCacheCommand(rest);
-} else if (command === 'doctor') {
-  process.exitCode = await runDoctor(rest);
-} else if (command === 'conformance') {
-  process.exitCode = await runConformance(rest);
-} else if (command === 'hints') {
-  process.exitCode = runHintsCommand(rest);
-} else if (command === 'summary') {
-  process.exitCode = runSummaryCommand(rest);
+} else if (isCommand(command)) {
+  // --help never runs the command: `aipw init --help` must not write files.
+  if (wantsHelp(rest)) console.log(commandHelp(command));
+  else process.exitCode = await RUN[command]!(rest);
 } else {
   console.error(`Unknown command: ${command}\n\n${HELP}`);
   process.exitCode = 1;

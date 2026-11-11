@@ -109,6 +109,8 @@ const PLAYWRIGHT_CHANGES = `  1. Wrap the config:   export default defineConfig(
   2. Add the reporter:  reporter: [['list'], ['aipw/reporter']]`;
 
 const GITIGNORE_LINES = ['.aipw/'];
+/** Added too when init creates the .gitignore: a project that has one already made these choices. */
+const FRESH_GITIGNORE_LINES = ['node_modules/', 'test-results/', 'playwright-report/', '.env'];
 
 function isEsmProject(root: string): boolean {
   const manifest = join(root, 'package.json');
@@ -158,25 +160,46 @@ export function init(
 
   const gitignore = join(root, '.gitignore');
   const current = existsSync(gitignore) ? readFileSync(gitignore, 'utf8') : '';
-  const missing = GITIGNORE_LINES.filter((l) => !current.split(/\r?\n/).includes(l));
+  // ".aipw", ".aipw/" and "/.aipw/" all ignore the folder.
+  const bare = (l: string) => l.trim().replace(/^\//, '').replace(/\/$/, '');
+  const ignored = new Set(current.split(/\r?\n/).map(bare));
+  const missing = GITIGNORE_LINES.filter((l) => !ignored.has(bare(l)));
   if (missing.length) {
     appendFileSync(
       gitignore,
-      `${current && !current.endsWith('\n') ? '\n' : ''}# aipw run summaries and healed plans\n${missing.join('\n')}\n`,
+      (existsSync(gitignore) ? '' : `${FRESH_GITIGNORE_LINES.join('\n')}\n`) +
+        `${current && !current.endsWith('\n') ? '\n' : ''}# aipw run summaries and healed plans\n${missing.join('\n')}\n`,
     );
     result.written.push(relative(root, gitignore) || '.gitignore');
   }
   return result;
 }
 
+const USAGE = 'Usage: aipw init [--provider claude-code|foundry|openai|anthropic|copilot] [--dir tests] [--force]';
+
+/** Strict: a mistyped flag (--provder) must not silently set up the default provider. */
+export function parseInitArgs(args: string[]): { provider?: string; dir?: string; force: boolean } | { error: string } {
+  const out: { provider?: string; dir?: string; force: boolean } = { force: false };
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i]!;
+    if (a === '--force') out.force = true;
+    else if (a === '--provider' || a === '--dir') {
+      const v = args[++i];
+      if (!v || v.startsWith('--')) return { error: `${a} needs a value. ${USAGE}` };
+      out[a === '--provider' ? 'provider' : 'dir'] = v;
+    } else return { error: `Unknown argument ${a}. ${USAGE}` };
+  }
+  return out;
+}
+
 export function runInit(args: string[], root = process.cwd()): number {
-  const value = (flag: string) => {
-    const i = args.indexOf(flag);
-    return i >= 0 ? args[i + 1] : undefined;
-  };
-  const provider = value('--provider');
-  const dir = value('--dir');
-  const res = init(root, { ...(provider && { provider }), ...(dir && { dir }), force: args.includes('--force') });
+  const parsed = parseInitArgs(args);
+  if ('error' in parsed) {
+    console.error(parsed.error);
+    return 1;
+  }
+  const { provider, dir } = parsed;
+  const res = init(root, parsed);
   if ('error' in res) {
     console.error(res.error);
     return 1;

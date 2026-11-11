@@ -63,15 +63,30 @@ export function plan(root: string, pm: PackageManager, options: Options): string
   ];
 }
 
-export function parseArgs(args: string[]): Partial<Options> & { dryRun: boolean; yes: boolean; help: boolean } {
+const VALUE_FLAGS = ['--provider', '--dir', '--version'];
+const SWITCHES = ['--skip-browsers', '--dry-run', '--yes', '-y', '--help', '-h'];
+
+export function parseArgs(
+  args: string[],
+): Partial<Options> & { dryRun: boolean; yes: boolean; help: boolean; error?: string } {
   const value = (flag: string) => {
     const i = args.indexOf(flag);
     return i >= 0 ? args[i + 1] : undefined;
   };
+  // Strict: a mistyped flag (--provder copilot) must not quietly install the default provider.
+  let error: string | undefined;
+  for (let i = 0; i < args.length && !error; i++) {
+    const a = args[i]!;
+    if (VALUE_FLAGS.includes(a)) {
+      const v = args[++i];
+      if (!v || v.startsWith('-')) error = `${a} needs a value.`;
+    } else if (!SWITCHES.includes(a)) error = `Unknown option ${a}.`;
+  }
   const provider = value('--provider');
   const dir = value('--dir');
   const version = value('--version');
   return {
+    ...(error && { error }),
     ...(provider && { provider: provider as ProviderName }),
     ...(dir && { dir }),
     ...(version && { version }),
@@ -90,6 +105,7 @@ and writes aipw.config.ts, an example spec and the Playwright config (existing f
 Options:
   --provider ${Object.keys(PROVIDERS).join('|')}   (asked if not given)
   --dir tests          where specs live
+  --version 0.1.0      the aipw version to install (default: the one this installer was released with)
   --skip-browsers      don't download Chromium
   --dry-run            print the commands instead of running them
   -y, --yes            no questions: claude-code unless --provider says otherwise`;
@@ -117,6 +133,10 @@ export async function main(args: string[], root = process.cwd()): Promise<number
   if (parsed.help) {
     console.log(HELP);
     return 0;
+  }
+  if (parsed.error) {
+    console.error(`${parsed.error}\n\n${HELP}`);
+    return 1;
   }
   if (parsed.provider && !(parsed.provider in PROVIDERS)) {
     console.error(`Unknown provider "${parsed.provider}". Use one of: ${Object.keys(PROVIDERS).join(', ')}.`);

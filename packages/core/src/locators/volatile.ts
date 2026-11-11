@@ -38,3 +38,31 @@ export function stableNamePrefix(name: string): string | undefined {
   const words = prefix.split(/\s+/).slice(0, 4).join(' ');
   return words.length >= 3 ? words : undefined;
 }
+
+/**
+ * A trailing counter, with whatever joins it to the name: "N of M" (" : 2 of 1,395", " (3 of 12)", " 2 / 5"), or a
+ * count in brackets (" (3)", " (99+)"). A bare trailing number is not one: "Page 2" and "Order 1002" are identities.
+ */
+const COUNTER = /[\s:–—(-]*\b\d[\d,.]*\s*(?:of|\/)\s*\d[\d,.]*\)?\s*$|\s*\(\d[\d,.]*\+?\)\s*$/i;
+
+/**
+ * For a name that ends in a counter ("Next page : 2 of 1,395", "Photo 3 of 12"), the part before it. The total is
+ * data: GOV.UK's search gained pages and the recorded "… 2 of 1,395" no longer matched. Undefined when the name has
+ * no counter or too little is left.
+ */
+export function withoutCounter(name: string): string | undefined {
+  const m = COUNTER.exec(name);
+  if (!m) return undefined;
+  const rest = name.slice(0, m.index).trim();
+  return rest.length >= 3 ? rest : undefined;
+}
+
+/**
+ * For expected text that ends in "N of M" ("1 of 1,396"), the text without the total ("1 of"), and the total. An
+ * assertion about page 2 that quotes the number of pages breaks when the site gains one. Undefined when the text
+ * has no such ending.
+ */
+export function withoutCounterTotal(text: string): { text: string; total: string } | undefined {
+  const m = /^(.*\b\d[\d,.]*\s+of)\s+(\d[\d,.]*?)[).]?\s*$/i.exec(text);
+  return m ? { text: m[1]!, total: m[2]! } : undefined;
+}

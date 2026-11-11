@@ -47,5 +47,12 @@ describe('create-aipw', () => {
       dryRun: true,
       yes: true,
     });
+    expect(parseArgs(['--dir', 'e2e', '--skip-browsers', '--version', '0.1.0']).error).toBeUndefined();
+  });
+
+  it('refuses a mistyped or valueless flag instead of installing the default provider', () => {
+    expect(parseArgs(['--provder', 'copilot']).error).toBe('Unknown option --provder.');
+    expect(parseArgs(['--provider']).error).toBe('--provider needs a value.');
+    expect(parseArgs(['--dir', '--dry-run']).error).toBe('--dir needs a value.');
   });
 });

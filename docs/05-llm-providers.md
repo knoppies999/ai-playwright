@@ -448,8 +448,9 @@ Then `AIPW_PROVIDER=gemini npx aipw doctor --probe` checks one live call, and `n
 
 ## 8. Provider conformance suite
 
-`examples/tests/conformance/` runs the demo-app scenarios with `AIPW_CACHE=ai-only` against each provider and
-writes `conformance-<provider>-<model>.json`:
+`npx aipw conformance --provider <name> [--project saucedemo-llm] [--out docs/conformance]` runs the SauceDemo
+usability suite (`examples/tests/saucedemo/usability.spec.ts`, 13 tests) with `AIPW_CACHE=ai-only`, so the model
+decides every step, and writes `conformance-<provider>-<model>.json`:
 
 | Metric | Why |
 |---|---|
@@ -459,7 +460,15 @@ writes `conformance-<provider>-<model>.json`:
 | Tokens / premium requests per step | Cost |
 | p50 / p95 decision latency | Speed |
 
-Run it when adopting a new model, and compare against the previous run before switching CI to it.
+Run it when adopting a new model or changing a prompt (AGENTS.md rule 8), and compare against the baseline before
+switching CI to it. Baselines are committed in [docs/conformance](conformance/):
+
+| Provider / model | Date | Step success | Decisions / step | Repairs | Input tokens / step | p50 decision |
+|---|---|---|---|---|---|---|
+| claude-code / Sonnet 5.5 | 2026-11-04 | 100% (30 steps) | 1.47 | 0 | 6.7k | 5.8 s |
+
+The 2026-11-04 run is the first after last actions (docs/04 §3.3): the whole suite took 44 model calls, against
+about 55 before.
 
 ## 9. As built (2026-10-10)
 

@@ -171,3 +171,20 @@ describe('L7 in long lists', () => {
     expect(found).toEqual(["L7 locator('[id=\"table1\"]').locator('td').nth(27)"]);
   });
 });
+
+describe('names that end in a count', () => {
+  it('uses the start of the name when it is unique, and keeps the exact name as a fallback', async () => {
+    const page = await open('<nav><a href="#in">Inbox (3)</a><a href="#out">Sent</a></nav>');
+    const found = await synth(page, page.getByRole('link', { name: 'Inbox (3)' }), { role: 'link', name: 'Inbox (3)' });
+    expect(found.slice(0, 2)).toEqual([
+      "L2 getByRole('link', { name: 'Inbox' })",
+      "L2 getByRole('link', { name: 'Inbox (3)', exact: true })",
+    ]);
+  });
+
+  it('falls back to the exact name when the start is ambiguous ("Cart" is also in "Add to cart")', async () => {
+    const page = await open('<a href="#cart">Cart (3)</a> <a href="#add">Add to cart</a>');
+    const found = await synth(page, page.getByRole('link', { name: 'Cart (3)' }), { role: 'link', name: 'Cart (3)' });
+    expect(found[0]).toBe("L2 getByRole('link', { name: 'Cart (3)', exact: true })");
+  });
+});

@@ -2,7 +2,7 @@ import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { init } from '../src/init.js';
+import { init, parseInitArgs } from '../src/init.js';
 
 const fresh = () => mkdtempSync(join(tmpdir(), 'aipw-init-'));
 
@@ -56,6 +56,39 @@ describe('aipw init', () => {
     expect(res.messages[0]).toMatch(/playwright\.config\.ts exists[\s\S]*withAipw/);
     expect(readFileSync(join(root, 'aipw.config.ts'), 'utf8')).toBe('// mine\n');
     expect(readFileSync(join(root, '.gitignore'), 'utf8')).toBe('node_modules/\n.aipw/\n');
+  });
+
+  it('a new .gitignore also ignores node_modules, reports and .env; an existing one only gains .aipw/', () => {
+    const root = fresh();
+    init(root);
+    expect(readFileSync(join(root, '.gitignore'), 'utf8')).toBe(
+      'node_modules/\ntest-results/\nplaywright-report/\n.env\n# aipw run summaries and healed plans\n.aipw/\n',
+    );
+    const existing = fresh();
+    writeFileSync(join(existing, '.gitignore'), 'dist');
+    init(existing);
+    expect(readFileSync(join(existing, '.gitignore'), 'utf8')).toBe(
+      'dist\n# aipw run summaries and healed plans\n.aipw/\n',
+    );
+    // ".aipw" and "/.aipw/" already ignore the folder.
+    const spelled = fresh();
+    writeFileSync(join(spelled, '.gitignore'), '/.aipw\n');
+    init(spelled);
+    expect(readFileSync(join(spelled, '.gitignore'), 'utf8')).toBe('/.aipw\n');
+  });
+
+  it('parses arguments strictly: a mistyped flag is an error, not the default provider', () => {
+    expect(parseInitArgs(['--provider', 'openai', '--dir', 'e2e', '--force'])).toEqual({
+      provider: 'openai',
+      dir: 'e2e',
+      force: true,
+    });
+    expect(parseInitArgs([])).toEqual({ force: false });
+    expect(parseInitArgs(['--provder', 'openai'])).toEqual({
+      error: expect.stringContaining('Unknown argument --provder'),
+    });
+    expect(parseInitArgs(['--provider'])).toEqual({ error: expect.stringContaining('--provider needs a value') });
+    expect(parseInitArgs(['--dir', '--force'])).toEqual({ error: expect.stringContaining('--dir needs a value') });
   });
 
   it('rejects an unknown provider', () => {

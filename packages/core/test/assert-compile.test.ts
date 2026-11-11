@@ -375,3 +375,198 @@ describe('extract replay', () => {
     expect(events).not.toContain('broken');
   });
 });
+
+describe('expected text that quotes a total ("1 of 1,396")', () => {
+  const RESULTS = (total: string) => `<main><nav aria-label="Pagination">
+    <a href="#1">Previous page<span> : 1 of ${total}</span></a>
+    <a href="#3">Next page<span> : 3 of ${total}</span></a></nav></main>`;
+  const proposeTotal = () => judge((p) => [check('toContainText', refOf(p, 'link "Previous page'), ['1 of 1,395'])]);
+
+  it('keeps "1 of" and drops the total, so the check replays when the site gains a page', async () => {
+    const store = new MemoryPlanStore();
+    await makeAi(await open(RESULTS('1,395')), proposeTotal(), store).assert('The results are page 2');
+    expect(compiledOf(store)).toEqual([
+      expect.objectContaining({
+        expect: 'toContainText',
+        args: ['1 of'],
+        target: expect.objectContaining({
+          locators: [
+            expect.objectContaining({ display: "getByRole('link', { name: 'Previous page' })" }),
+            expect.anything(), // the exact name, as a fallback
+          ],
+        }),
+      }),
+    ]);
+    // A new total: replays from the plan, no model (a FakeProvider with no answers throws if asked).
+    const verdict = await makeAi(await open(RESULTS('1,402')), new FakeProvider(), store).assert(
+      'The results are page 2',
+    );
+    expect(verdict.pass).toBe(true);
+  });
+
+  it('keeps the total when the assertion itself names it', async () => {
+    const store = new MemoryPlanStore();
+    await makeAi(await open(RESULTS('1,395')), proposeTotal(), store).assert('This is page 2 of 1,395');
+    expect(compiledOf(store)).toEqual([expect.objectContaining({ args: ['1 of 1,395'] })]);
+  });
+});
+
+describe('extract sources that are only part of the value', () => {
+  it('reads the whole counter when the model pointed at the number inside it', async () => {
+    const store = new MemoryPlanStore();
+    const page = await openTodos();
+    // "2 items left", read from the <strong>2</strong>: that source alone reads back "2".
+    const recorder = new FakeProvider(
+      [],
+      [
+        (req: { prompt: string }) => ({
+          value: '2 items left',
+          found: true,
+          expand: null,
+          note: null,
+          sources: [{ path: '', ref: refOf(req.prompt, 'strong') }],
+        }),
+      ],
+    );
+    await expect(makeAi(page, recorder, store).extract('the item counter', z.string())).resolves.toBe('2 items left');
+    const plan = Object.values(store.file.tests[TEST]!)[0]!;
+    expect(plan.sources?.[0]?.target.locators[0]?.display).toBe("getByTestId('todo-count')");
+
+    // The page changes: the replay reads the new text, without the model.
+    await page.getByTestId('todo-count').evaluate((el) => (el.innerHTML = '<strong>1</strong> item left'));
+    const replayer = new FakeProvider();
+    await expect(makeAi(page, replayer, store).extract('the item counter', z.string())).resolves.toBe('1 item left');
+    expect(replayer.structuredRequests).toHaveLength(0);
+  });
+});
+
+describe('a <select>', () => {
+  const SELECT = `<main><label for="size">Size</label>
+    <select id="size"><option value="">Choose</option><option value="s">Small</option><option value="l" selected>Large</option></select></main>`;
+
+  it('compiles "shows Large" to the value of that option: its text is every option, whichever is selected', async () => {
+    const store = new MemoryPlanStore();
+    const page = await open(SELECT);
+    await makeAi(
+      page,
+      judge((p) => [check('toContainText', refOf(p, 'combobox'), ['Large'])]),
+      store,
+    ).assert('Large is selected');
+    expect(compiledOf(store)).toEqual([expect.objectContaining({ expect: 'toHaveValue', args: ['l'] })]);
+
+    // Another option is selected: the replayed check fails and the model is asked again (here: it says no).
+    await page.selectOption('#size', 's');
+    const rejudge = new FakeProvider([], [{ pass: false, reason: 'Small is selected', evidence: [], checks: [] }]);
+    await expect(makeAi(page, rejudge, store).assert('Large is selected')).rejects.toThrow('Small is selected');
+  });
+
+  it('is read as the label of the selected option, and replays when the selection changes', async () => {
+    const store = new MemoryPlanStore();
+    const page = await open(SELECT);
+    const recorder = new FakeProvider(
+      [],
+      [
+        (req: { prompt: string }) => ({
+          value: 'Large',
+          found: true,
+          expand: null,
+          note: null,
+          sources: [{ path: '', ref: refOf(req.prompt, 'combobox') }],
+        }),
+      ],
+    );
+    await expect(makeAi(page, recorder, store).extract('the selected size', z.string())).resolves.toBe('Large');
+    await page.selectOption('#size', 's');
+    const replayer = new FakeProvider();
+    await expect(makeAi(page, replayer, store).extract('the selected size', z.string())).resolves.toBe('Small');
+    expect(replayer.structuredRequests).toHaveLength(0);
+  });
+});
+
+describe('a message with a close button', () => {
+  const FLASH = (text: string) =>
+    `<main><div id="flash" role="status">${text} <a href="#" aria-label="Close">×</a></div></main>`;
+
+  it('is read from its own text, without the "×", and replays when the message changes', async () => {
+    const store = new MemoryPlanStore();
+    const recorder = new FakeProvider(
+      [],
+      [
+        (req: { prompt: string }) => ({
+          value: 'Your password is invalid!',
+          found: true,
+          expand: null,
+          note: null,
+          sources: [{ path: '', ref: refOf(req.prompt, 'status') }],
+        }),
+      ],
+    );
+    const page = await open(FLASH('Your password is invalid!'));
+    await makeAi(page, recorder, store).extract('the error message', z.string());
+    expect(Object.values(store.file.tests[TEST]!)[0]!.sources).toEqual([expect.objectContaining({ own: true })]);
+
+    const replayer = new FakeProvider();
+    const next = await open(FLASH('Your username is invalid!'));
+    await expect(makeAi(next, replayer, store).extract('the error message', z.string())).resolves.toBe(
+      'Your username is invalid!',
+    );
+    expect(replayer.structuredRequests).toHaveLength(0);
+  });
+});
+
+describe('a text check on an element with only a positional locator', () => {
+  const TABLE = (first: string, second: string) => `<main><table id="people"><tbody>
+    <tr><td>${first}</td><td>Frank</td><td>fbach@yahoo.com</td><td>$51.00</td><td>http://www.frank.com</td></tr>
+    <tr><td>${second}</td><td>Jason</td><td>jdoe@hotmail.com</td><td>$100.00</td><td>http://www.jdoe.com</td></tr>
+    <tr><td>Smith</td><td>John</td><td>jsmith@gmail.com</td><td>$50.00</td><td>http://www.jsmith.com</td></tr>
+  </tbody></table></main>`;
+
+  it('stays on the row: lifted to the whole table it would hold in any order', async () => {
+    const store = new MemoryPlanStore();
+    await makeAi(
+      await open(TABLE('Bach', 'Doe')),
+      judge((p) => [check('toContainText', refOf(p, 'cell "Bach"'), ['Bach'])]),
+      store,
+    ).assert('The first row is Bach');
+    const compiled = compiledOf(store)!;
+    expect(compiled[0]!.target!.locators[0]!.display).not.toBe('locator(\'[id="people"]\')');
+
+    // Sorted the other way: the stored check fails, so the model is asked (and says no).
+    const rejudge = new FakeProvider([], [{ pass: false, reason: 'The first row is Doe', evidence: [], checks: [] }]);
+    await expect(
+      makeAi(await open(TABLE('Doe', 'Bach')), rejudge, store).assert('The first row is Bach'),
+    ).rejects.toThrow('The first row is Doe');
+  });
+});
+
+describe('a message inside the region the model pointed at', () => {
+  const PAGE = (text: string) => `<main><div role="region" aria-label="Messages">
+    <div id="flash" class="flash error">${text} <a href="#" class="close">×</a></div></div></main>`;
+
+  it('is read from the element that holds the text, by its own text', async () => {
+    const store = new MemoryPlanStore();
+    const recorder = new FakeProvider(
+      [],
+      [
+        (req: { prompt: string }) => ({
+          value: 'Your password is invalid!',
+          found: true,
+          expand: null,
+          note: null,
+          sources: [{ path: '', ref: refOf(req.prompt, 'region "Messages"') }],
+        }),
+      ],
+    );
+    await makeAi(await open(PAGE('Your password is invalid!')), recorder, store).extract('the error', z.string());
+    const source = Object.values(store.file.tests[TEST]!)[0]!.sources![0]!;
+    expect(source.own).toBe(true);
+    expect(source.target.locators[0]!.display).toBe('locator(\'[id="flash"]\')');
+
+    const replayer = new FakeProvider();
+    const next = await open(PAGE('Your username is invalid!'));
+    await expect(makeAi(next, replayer, store).extract('the error', z.string())).resolves.toBe(
+      'Your username is invalid!',
+    );
+    expect(replayer.structuredRequests).toHaveLength(0);
+  });
+});

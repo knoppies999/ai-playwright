@@ -4,11 +4,13 @@
 
 | Symptom | Cause and fix |
 |---|---|
-| `Claude Code is not signed in` | Run `claude auth login` once in a terminal. The desktop app's sign-in does not carry over to the SDK |
+| `Claude Code is not signed in` | Run `claude auth login` once in a terminal. The desktop app's sign-in does not carry over to the SDK. The login also expires: `npx aipw doctor` shows `✗ subscription` when it has (no model call needed). Recorded plans still replay while signed out |
+| Not sure what a command takes | `npx aipw <command> --help` lists its options with an example; `npx aipw --help` lists the commands |
 | Calls are billed to an API key instead of your plan | `ANTHROPIC_API_KEY` is set. Unset it for the `claude-code` provider |
 | `Claude plan usage limit reached` | Your plan's 5-hour or weekly window is used up. It fails straight away instead of retrying, because the window resets in hours. Replay from cache (`AIPW_CACHE=replay-only`) until it resets |
 | `Claude rate limit` / 429 / overloaded | Transient. aipw retries with backoff and jitter (`retry` in config: 4 retries, up to 30 s each). Lower `workers` if it persists |
 | `ERR_PACKAGE_PATH_NOT_EXPORTED` for `@aipw/test/reporter` | The packages aren't built. Run `npm run build` |
+| `The Chromium browser for this project's Playwright is not installed` (`aipw try`, `aipw nudge`) | Run `npx playwright install chromium`. The CLI uses the project's own `@playwright/test`, so the browser that the tests use is the one it needs |
 | `Invalid aipw config` | The message lists the bad keys. Config is validated with Zod; see [09](../09-configuration-reporting-ci.md) §1 |
 
 ## Steps that fail
@@ -31,6 +33,8 @@ the AI did before it gave up (the last 8 actions, secrets redacted). The HTML re
 |---|---|
 | `No cached plan for "…" and the cache is replay-only` | The PR gate found a step with no plan. Run it locally with `AIPW_CACHE=auto` and commit `__aipw__/*.plans.json` |
 | PR gate fails `aipw summary --max-llm-calls 0` | Some steps needed the model (no plan, an assertion that can't compile, or an AI heal). The message says how many; record or refresh those plans locally |
+| `The recorded plan for this step no longer matches the page (…), so the step needed the model, and the model call failed` | A cached step broke on replay (the brackets say what: a locator that no longer matches, a compiled check that failed) and healing it needs the model, which could not be reached. The second line is the provider's own error (signed out, usage limit, network). Fix that and run again; the step heals and the plan is updated |
+| `AIPW_CACHE="…" is not a cache mode` | A typo in the variable. The modes are `auto`, `replay-only`, `ai-only` and `refresh`; anything else fails instead of quietly running in the configured mode |
 | A step re-runs with AI after you edited it | Expected: the plan key includes the instruction and the data keys. Edit, run once, commit the new plan. `npx aipw cache prune` removes plans nothing uses |
 | Healed plans in CI aren't written | `heal.policy: report` (the CI default) writes them to `.aipw/healed/`, published as a pipeline artifact. Download it into the repo, run `npx aipw cache accept` (or `--dry-run` first) to merge them into the committed plans, review the diff, commit |
 | The same steps heal on every run, in turn, when a spec runs in several projects (desktop and mobile) | The projects share one plan per test and their heals undo each other; aipw warns "recorded in project … and healed in …". Set `cache: { byProject: true }` in `aipw.config.ts` so each project keeps its own plans |

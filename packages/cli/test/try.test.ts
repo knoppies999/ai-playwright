@@ -13,6 +13,11 @@ describe('aipw try', () => {
     });
     expect(parseTryArgs(['not-a-url', 'step'])).toMatchObject({ error: expect.stringContaining('Usage') });
     expect(parseTryArgs(['https://x.test'])).toMatchObject({ url: 'https://x.test', steps: [] });
+    // URLs as people type them: local hosts get http, other hosts https. A step is never taken for a URL.
+    expect(parseTryArgs(['localhost:5173/login', 'Log in'])).toMatchObject({ url: 'http://localhost:5173/login' });
+    expect(parseTryArgs(['127.0.0.1:8080'])).toMatchObject({ url: 'http://127.0.0.1:8080' });
+    expect(parseTryArgs(['www.gov.uk/bank-holidays'])).toMatchObject({ url: 'https://www.gov.uk/bank-holidays' });
+    expect(parseTryArgs(['Open example.com now'])).toMatchObject({ error: expect.stringContaining('Usage') });
   });
 
   it('writes a spec with the steps as ai calls, and what was read as expectations', () => {

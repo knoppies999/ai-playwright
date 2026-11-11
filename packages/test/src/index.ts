@@ -1,6 +1,7 @@
 // Playwright Test integration (docs/03 §1): `test` with the `ai`, `gen` and `aiConfig` fixtures.
 import {
   Ai,
+  cacheModeFromEnv,
   createGenerators,
   FilePlanStore,
   loadProvider,
@@ -190,7 +191,8 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
           'aipw: an AI step entered a secret while trace DOM snapshots are on, so the value can end up in the trace. ' +
           "Use code-based login, or test.use({ trace: { mode: 'retain-on-failure', snapshots: false } }) for this test.";
         testInfo.annotations.push({ type: 'warning', description: message });
-        console.warn(message);
+        // The console line names the test: in a run of many, "this test" alone doesn't say which.
+        console.warn(`${message}\n  Test: ${specFile.replace(/\\/g, '/')}:${testInfo.line} › ${title}`);
       }
     });
 
@@ -202,7 +204,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
     // A passing local run: plan entries for steps this test no longer has (an edited instruction leaves its old
     // entry behind) are removed. Not in CI, where plans are read-only, and not in nudge mode, which skips steps.
-    const cacheMode = process.env.AIPW_CACHE ?? config.cache.mode;
+    const cacheMode = cacheModeFromEnv() ?? config.cache.mode;
     if (
       testInfo.status === 'passed' &&
       !process.env.CI &&
@@ -225,7 +227,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         test: testInfo.titlePath.slice(1).join(' > '),
         provider: aipwProvider.id,
         model: aipwProvider.model,
-        cacheMode: process.env.AIPW_CACHE ?? config.cache.mode,
+        cacheMode,
         steps,
       };
       await testInfo.attach(SUMMARY_ATTACHMENT, { body: JSON.stringify(summary), contentType: 'application/json' });
