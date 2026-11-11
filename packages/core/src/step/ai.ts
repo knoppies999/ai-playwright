@@ -230,7 +230,14 @@ function leafAt(value: unknown, path: string): string | undefined {
   return typeof cur === 'string' || typeof cur === 'number' ? String(cur) : undefined;
 }
 
-function leafText(el: Element): string {
+function leafText(el: Element, own?: boolean): string {
+  // Own text: the element's text nodes only ("Your password is invalid!" without the close button's "×").
+  if (own) {
+    return Array.from(el.childNodes)
+      .filter((n) => n.nodeType === 3)
+      .map((n) => n.textContent ?? '')
+      .join(' ');
+  }
   const input = el as HTMLInputElement;
   if (input.type === 'checkbox' || input.type === 'radio') return input.checked ? 'checked' : 'unchecked';
   if (el.getAttribute('aria-checked')) return el.getAttribute('aria-checked') === 'true' ? 'checked' : 'unchecked';
@@ -911,8 +918,13 @@ export class Ai {
     if ((!target || target.locators[0]?.rung === 'L7') && (expect === 'toContainText' || expect === 'toHaveText')) {
       let el = this._page.locator(`aria-ref=${ref}`);
       let lifted: PlanTarget | undefined;
+      // Only a wrapper of about the same text stands in for the element. "The first row is Bach" lifted to the
+      // whole table would hold whatever the order: a check that can't fail (risk R6).
+      const size = async () => (await el.innerText().catch(() => '')).replace(/\s+/g, ' ').trim().length;
+      const limit = (await size()) * 2 + 40;
       for (let depth = 0; depth < 3 && !lifted; depth++) {
         el = el.locator('xpath=..');
+        if ((await size()) > limit) break;
         const t = await this.targetForLocator(el, undefined, assertedText);
         if (t && t.locators[0]?.rung !== 'L7') lifted = t;
       }
@@ -1348,13 +1360,56 @@ export class Ai {
     return undefined;
   }
 
+  /**
+   * When the element's whole text is not the value but the text nodes of it, or of one element inside it, are (a
+   * child adds "×" or an icon label): that element, read by its own text. `inside` is set when it is a descendant.
+   */
+  private async ownTextSource(ref: string, value: string): Promise<{ inside?: PlanTarget } | undefined> {
+    const marker = 'data-aipw-source';
+    const token = Math.random().toString(36).slice(2);
+    const el = this._page.locator(`aria-ref=${ref}`);
+    const where = await el
+      .evaluate(
+        (root, a) => {
+          const norm = (t: string) => t.replace(/\s+/g, ' ').trim();
+          const own = (e: Element) =>
+            norm(
+              Array.from(e.childNodes)
+                .filter((n) => n.nodeType === 3)
+                .map((n) => n.textContent ?? '')
+                .join(' '),
+            );
+          const want = norm(a.value);
+          // Form controls are read by state (a select by its selected option), never by the text inside them.
+          if (['SELECT', 'INPUT', 'TEXTAREA'].includes(root.tagName)) return 'whole';
+          if (norm((root as HTMLElement).innerText ?? '') === want) return 'whole';
+          if (own(root) === want) return 'self';
+          const hits = Array.from(root.querySelectorAll('*')).filter((d) => own(d) === want);
+          if (hits.length !== 1) return 'none';
+          hits[0]!.setAttribute(a.marker, a.token);
+          return 'inside';
+        },
+        { value, marker, token },
+      )
+      .catch(() => 'none');
+    if (where === 'self') return {};
+    if (where !== 'inside') return undefined;
+    const marked = this._page.locator(`[${marker}="${token}"]`);
+    try {
+      const inside = await this.targetForLocator(marked);
+      return inside ? { inside } : undefined;
+    } finally {
+      await marked.evaluate((e, m) => e.removeAttribute(m), marker).catch(() => undefined);
+    }
+  }
+
   private async replayExtract<T>(plan: StepPlan, schema: z.ZodType<T>): Promise<T | undefined> {
     if (!plan.sources?.length) return undefined;
     const leaves: { path: string; text: string }[] = [];
-    for (const { path, target } of plan.sources) {
+    for (const { path, target, own } of plan.sources) {
       try {
         const loc = await resolveTarget(this._page, target, this.config.settle.maxMs);
-        leaves.push({ path, text: await loc.evaluate(leafText) });
+        leaves.push({ path, text: await loc.evaluate(leafText, own ?? false) });
       } catch {
         return undefined;
       }
@@ -1466,7 +1521,8 @@ export class Ai {
               note = `no durable locator for the source of "${s.path}" (${s.ref})`;
               break;
             }
-            sources.push({ path: s.path, target });
+            const own = typeof leaf === 'string' ? await this.ownTextSource(s.ref, leaf) : undefined;
+            sources.push({ path: s.path, target: own?.inside ?? target, ...(own && { own: true as const }) });
           }
           const next = this.newPlan('extract', what, { sources });
           const check = sources.length ? await this.replayExtract(next, schema) : undefined;

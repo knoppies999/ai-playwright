@@ -140,6 +140,9 @@ Replay runs the compiled check with Playwright's `expect` and the assert timeout
 >   select's text is every option it has, so "contains Option 2" would hold whichever one is selected.
 > - Expected text that ends in a total (`1 of 1,396` as evidence for "page 2") is stored without the total (`1 of`),
 >   unless the assertion names the total: the number of pages is data and changes under the test.
+> - A text check on an element with only a positional locator moves to a nearby ancestor with a better one, but only
+>   when that ancestor shows about the same text. "The first row is Bach" moved to the whole table would hold in any
+>   order; it stays on the cell (`toHaveText(locator('[id="table1"]').getByRole('cell').first())`).
 > - An AI-judged assertion is re-recorded as soon as a later judgement compiles. When it can't, the plan keeps a
 >   `note` saying why, shown by `aipw cache show`.
 
@@ -158,7 +161,9 @@ Replay runs the compiled check with Playwright's `expect` and the assert timeout
 > Form controls are read by state, not text: a checkbox reads as `checked`/`unchecked` (so `z.boolean()` replays), an
 > input as its value, a `<select>` as the label of the selected option (what the snapshot shows, not the option's
 > `value`). When the element the model pointed at shows only part of the value (`1 item left` read from the
-> `<strong>1</strong>` inside the counter), the nearest ancestor that shows exactly the value becomes the source. An extract without replayable sources is asked of the model on every run but its plan is not
+> `<strong>1</strong>` inside the counter), the nearest ancestor that shows exactly the value becomes the source. When it shows more than the value because
+> of a child (`Your password is invalid! ×`, the `×` being a close link), the element whose own text nodes are the
+> value, the one pointed at or the only such one inside it, is the source and is read by its own text (`"own": true`). An extract without replayable sources is asked of the model on every run but its plan is not
 > rewritten each time (no churn in the committed file); its `note` says why it can't replay.
 
 The cache stores the **source locators** (where the data was read from). Replay reads `innerText` from them and:

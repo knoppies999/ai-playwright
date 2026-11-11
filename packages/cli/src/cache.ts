@@ -144,7 +144,9 @@ function describeStep(step: StepPlan): string[] {
   if (step.kind === 'extract' && !step.sources?.length)
     lines.push(`  sources: none (read by AI on every run)${step.note ? `: ${step.note}` : ''}`);
   for (const s of step.sources ?? [])
-    lines.push(`  source ${s.path || '(value)'}: ${s.target.locators[0]?.display ?? 'no locator'}`);
+    lines.push(
+      `  source ${s.path || '(value)'}: ${s.target.locators[0]?.display ?? 'no locator'}${s.own ? ' (its own text)' : ''}`,
+    );
   if (step.target) lines.push(`  → ${step.target.locators[0]?.display ?? 'no locator'}`);
   if (step.stats.heals) lines.push(`  healed ${step.stats.heals}× (last ${step.stats.lastHealAt})`);
   return lines;

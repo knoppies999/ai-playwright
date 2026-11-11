@@ -150,6 +150,16 @@ export async function runTry(argv: string[]): Promise<number> {
         const chosen = Array.isArray(args.values) ? args.values.join(', ') : undefined;
         const typed = [args.value, args.text, args.key, chosen].find((v) => typeof v === 'string');
         const enter = e.record.tool === 'type' && args.submit ? ' + Enter' : '';
+        if (e.record.tool === 'fill_form' && Array.isArray(args.fields)) {
+          console.log('   fill_form');
+          (args.fields as { value?: unknown }[]).forEach((f, i) => {
+            const field = e.record.targets?.[i];
+            console.log(
+              `     ${JSON.stringify(f.value)} ${field?.role ?? 'element'}${field?.name ? ` "${field.name}"` : ''} → ${field?.candidates[0]?.display ?? 'no durable locator'}`,
+            );
+          });
+          return;
+        }
         console.log(`   ${e.record.tool}${typed !== undefined ? ` ${JSON.stringify(typed)}${enter}` : ''}${where}`);
       }
       if (e.type === 'verdict') {
