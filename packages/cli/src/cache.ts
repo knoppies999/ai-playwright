@@ -123,7 +123,8 @@ function describeStep(step: StepPlan): string[] {
     t ? ` ${t.role ?? 'element'}${t.name ? ` "${t.name}"` : ''} → ${t.locators[0]?.display ?? 'no locator'}` : '';
   for (const a of step.actions ?? []) {
     // What was typed or pressed: data and secrets are stored as placeholders, so this is safe to print.
-    const typed = [a.args.value, a.args.text, a.args.key].find((v) => typeof v === 'string');
+    const chosen = Array.isArray(a.args.values) ? a.args.values.join(', ') : undefined;
+    const typed = [a.args.value, a.args.text, a.args.key, chosen].find((v) => typeof v === 'string');
     const enter = a.tool === 'type' && a.args.submit ? ' + Enter' : '';
     lines.push(
       `  ${a.tool}${typed !== undefined ? ` ${JSON.stringify(typed)}${enter}` : ''}${describeTarget(a.target)}`,

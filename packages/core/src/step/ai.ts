@@ -234,7 +234,10 @@ function leafText(el: Element): string {
   const input = el as HTMLInputElement;
   if (input.type === 'checkbox' || input.type === 'radio') return input.checked ? 'checked' : 'unchecked';
   if (el.getAttribute('aria-checked')) return el.getAttribute('aria-checked') === 'true' ? 'checked' : 'unchecked';
-  if (['INPUT', 'TEXTAREA', 'SELECT'].includes(el.tagName)) return input.value;
+  // A select reads as the label it shows ("Option 2"), which is what the model sees, not the option's value ("2").
+  if (el.tagName === 'SELECT')
+    return Array.from((el as HTMLSelectElement).selectedOptions, (o) => o.text.trim()).join(', ');
+  if (['INPUT', 'TEXTAREA'].includes(el.tagName)) return input.value;
   return (el as HTMLElement).innerText ?? el.textContent ?? '';
 }
 
@@ -875,6 +878,24 @@ export class Ai {
     const assertedText = isText && !check.not ? check.args[0] : undefined;
     let target = await this.targetFor(obs, ref, assertedText);
     const found = findByRef(obs.tree, ref);
+    // A <select>'s text is every option it has, so "contains Option 2" holds whichever one is selected (risk R6).
+    // What the assertion means is the selection: check the value of the option with that label.
+    if (isText) {
+      const option = await this._page
+        .locator(`aria-ref=${ref}`)
+        .evaluate((el, wanted) => {
+          if (el.tagName !== 'SELECT') return undefined;
+          const options = Array.from((el as HTMLSelectElement).options);
+          const hit = options.find((o) => o.value === wanted) ?? options.find((o) => o.text.trim() === wanted.trim());
+          return { value: hit ? hit.value : null };
+        }, check.args[0] ?? '')
+        .catch(() => undefined);
+      if (option) {
+        if (!target) return 'no durable locator for the select';
+        if (option.value === null) return `the select has no option ${JSON.stringify(check.args[0])}`;
+        return { expect: 'toHaveValue', target, ...base, args: [option.value] };
+      }
+    }
     // A container without a durable locator (e.g. a plain list): for visibility, its first descendant
     // that has one is visible exactly when the container is.
     if (!target && (expect === 'toBeVisible' || expect === 'toBeHidden')) {

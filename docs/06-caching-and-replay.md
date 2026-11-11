@@ -136,6 +136,10 @@ Replay runs the compiled check with Playwright's `expect` and the assert timeout
 >   and compiled to the one visible element that shows it.
 > - `toHaveCount` compiles to a locator that matches every counted item: the item's test id, its role and name inside
 >   the nearest locatable ancestor, or its role and name on the page, whichever count matches now.
+> - A text check on a `<select>` compiles to `toHaveValue` with the value of the option that has that label. The
+>   select's text is every option it has, so "contains Option 2" would hold whichever one is selected.
+> - Expected text that ends in a total (`1 of 1,396` as evidence for "page 2") is stored without the total (`1 of`),
+>   unless the assertion names the total: the number of pages is data and changes under the test.
 > - An AI-judged assertion is re-recorded as soon as a later judgement compiles. When it can't, the plan keeps a
 >   `note` saying why, shown by `aipw cache show`.
 
@@ -152,7 +156,9 @@ Replay runs the compiled check with Playwright's `expect` and the assert timeout
 > the element are skipped; a test id, a row anchor that isn't the value, or the position in the list or table
 > (`getByTestId('todo-title').nth(1)`, `locator('[id="rows"]').getByRole('cell').nth(2)`) is used instead.
 > Form controls are read by state, not text: a checkbox reads as `checked`/`unchecked` (so `z.boolean()` replays), an
-> input as its value. An extract without replayable sources is asked of the model on every run but its plan is not
+> input as its value, a `<select>` as the label of the selected option (what the snapshot shows, not the option's
+> `value`). When the element the model pointed at shows only part of the value (`1 item left` read from the
+> `<strong>1</strong>` inside the counter), the nearest ancestor that shows exactly the value becomes the source. An extract without replayable sources is asked of the model on every run but its plan is not
 > rewritten each time (no churn in the committed file); its `note` says why it can't replay.
 
 The cache stores the **source locators** (where the data was read from). Replay reads `innerText` from them and:

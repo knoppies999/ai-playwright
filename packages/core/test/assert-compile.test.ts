@@ -439,3 +439,46 @@ describe('extract sources that are only part of the value', () => {
     expect(replayer.structuredRequests).toHaveLength(0);
   });
 });
+
+describe('a <select>', () => {
+  const SELECT = `<main><label for="size">Size</label>
+    <select id="size"><option value="">Choose</option><option value="s">Small</option><option value="l" selected>Large</option></select></main>`;
+
+  it('compiles "shows Large" to the value of that option: its text is every option, whichever is selected', async () => {
+    const store = new MemoryPlanStore();
+    const page = await open(SELECT);
+    await makeAi(
+      page,
+      judge((p) => [check('toContainText', refOf(p, 'combobox'), ['Large'])]),
+      store,
+    ).assert('Large is selected');
+    expect(compiledOf(store)).toEqual([expect.objectContaining({ expect: 'toHaveValue', args: ['l'] })]);
+
+    // Another option is selected: the replayed check fails and the model is asked again (here: it says no).
+    await page.selectOption('#size', 's');
+    const rejudge = new FakeProvider([], [{ pass: false, reason: 'Small is selected', evidence: [], checks: [] }]);
+    await expect(makeAi(page, rejudge, store).assert('Large is selected')).rejects.toThrow('Small is selected');
+  });
+
+  it('is read as the label of the selected option, and replays when the selection changes', async () => {
+    const store = new MemoryPlanStore();
+    const page = await open(SELECT);
+    const recorder = new FakeProvider(
+      [],
+      [
+        (req: { prompt: string }) => ({
+          value: 'Large',
+          found: true,
+          expand: null,
+          note: null,
+          sources: [{ path: '', ref: refOf(req.prompt, 'combobox') }],
+        }),
+      ],
+    );
+    await expect(makeAi(page, recorder, store).extract('the selected size', z.string())).resolves.toBe('Large');
+    await page.selectOption('#size', 's');
+    const replayer = new FakeProvider();
+    await expect(makeAi(page, replayer, store).extract('the selected size', z.string())).resolves.toBe('Small');
+    expect(replayer.structuredRequests).toHaveLength(0);
+  });
+});

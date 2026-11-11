@@ -147,7 +147,8 @@ export async function runTry(argv: string[]): Promise<number> {
           : '';
         // What was typed or pressed. Events are redacted: data and secrets arrive as placeholders.
         const args = e.record.args;
-        const typed = [args.value, args.text, args.key].find((v) => typeof v === 'string');
+        const chosen = Array.isArray(args.values) ? args.values.join(', ') : undefined;
+        const typed = [args.value, args.text, args.key, chosen].find((v) => typeof v === 'string');
         const enter = e.record.tool === 'type' && args.submit ? ' + Enter' : '';
         console.log(`   ${e.record.tool}${typed !== undefined ? ` ${JSON.stringify(typed)}${enter}` : ''}${where}`);
       }

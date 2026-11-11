@@ -10,6 +10,7 @@
 | `Claude plan usage limit reached` | Your plan's 5-hour or weekly window is used up. It fails straight away instead of retrying, because the window resets in hours. Replay from cache (`AIPW_CACHE=replay-only`) until it resets |
 | `Claude rate limit` / 429 / overloaded | Transient. aipw retries with backoff and jitter (`retry` in config: 4 retries, up to 30 s each). Lower `workers` if it persists |
 | `ERR_PACKAGE_PATH_NOT_EXPORTED` for `@aipw/test/reporter` | The packages aren't built. Run `npm run build` |
+| `The Chromium browser for this project's Playwright is not installed` (`aipw try`, `aipw nudge`) | Run `npx playwright install chromium`. The CLI uses the project's own `@playwright/test`, so the browser that the tests use is the one it needs |
 | `Invalid aipw config` | The message lists the bad keys. Config is validated with Zod; see [09](../09-configuration-reporting-ci.md) §1 |
 
 ## Steps that fail
