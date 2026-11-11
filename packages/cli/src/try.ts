@@ -208,6 +208,8 @@ export async function runTry(argv: string[]): Promise<number> {
   const code = logs.flatMap((l) => (l.kind === 'act' ? codeRemedy(l.actions) : []));
   if (code.length) console.log(`Playwright code for the actions:\n${code.map((l) => `  ${l}`).join('\n')}\n`);
   if (args.save && !failed && args.steps.length) saveSpec(args.save, args.url, args.steps, values);
+  else if (args.save && failed)
+    console.log(`Nothing written to ${args.save}: a step failed. Change that step and run it again.`);
   return failed ? 1 : 0;
 }
 
